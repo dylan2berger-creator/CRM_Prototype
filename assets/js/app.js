@@ -300,8 +300,7 @@
           <div class="card-sub">Rule ${s.ruleVersion} · flagged ${s.flagDate}</div>
           ${s.reasons.length ? `<ul class="reason-list">${s.reasons.map((r) => `
             <li><span class="r-ic">!</span>
-              <div class="r-body"><b>${r.label}</b><span>${r.detail}</span></div>
-              <span class="r-period">${r.period}</span></li>`).join("")}</ul>`
+              <div class="r-body"><b>${r.label}</b><span class="r-detail">${r.detail}</span><span class="r-period">${r.period}</span></div></li>`).join("")}</ul>`
         : `<div class="empty">Not flagged. Meets the business case on every rule criterion.</div>`}
         </div>
         <div class="card">

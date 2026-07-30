@@ -185,7 +185,7 @@ function buildStore() {
   // Evaluate the challenged rule, auditable, per-criterion
   const reasons = [];
   if (revT3Var <= RULE.criteria[0].threshold)
-    reasons.push({ key: "revT3", label: RULE.criteria[0].label, detail: `T3 ${fmtPct(revT3Var)} vs case`, period: MONTHS.slice(-3).join("–") });
+    reasons.push({ key: "revT3", label: RULE.criteria[0].label, detail: `T3 ${fmtPct(revT3Var)} vs case`, period: `${MONTHS.slice(-3)[0].split(" ")[0]}–${MONTHS.slice(-3)[2]}` });
   if (revT12Var <= RULE.criteria[1].threshold)
     reasons.push({ key: "revT12", label: RULE.criteria[1].label, detail: `T12 ${fmtPct(revT12Var)} vs case`, period: "Trailing 12" });
   const worstDrp = drpScorecard.reduce((w, d) => (d.rank - d.prevRank) > (w ? w.rank - w.prevRank : -99) ? d : w, null);
