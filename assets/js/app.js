@@ -32,6 +32,49 @@
     filters: { q: "", cohort: "all", region: "all", status: "challenged", sort: "gap" },
   };
 
+  // Action-plan editing (E5). planEditIndex: null = none, "new" = adding, number = editing that step.
+  let planEditIndex = null;
+  const DEMO_TODAY = new Date("2026-07-30T00:00:00Z");
+  const STATUS_OPTS = ["Not started", "In progress", "Blocked", "Done"];
+  const RISK_OPTS = ["Low", "Medium", "High"];
+
+  /* ---- action-plan mutation + persistence --------------------------------- */
+  const PLAN_KEY = "cstt_plan_overrides_v1";
+
+  function recomputePlan(s) {
+    const steps = s.actionPlan.steps;
+    steps.forEach((st) => { st.overdue = st.status !== "Done" && new Date(st.due + "T00:00:00Z") < DEMO_TODAY; });
+    const open = steps.filter((st) => st.status !== "Done").length;
+    const overdue = steps.filter((st) => st.overdue).length;
+    let health;
+    if (steps.length === 0) health = "None";
+    else if (overdue >= 2 || steps.some((st) => st.status === "Blocked" && st.risk === "High")) health = "At risk";
+    else if (overdue === 1 || open > 3) health = "Watch";
+    else health = "On track";
+    s.actionPlan.health = health;
+    s.actionPlan.openSteps = open;
+    s.actionPlan.overdue = overdue;
+  }
+
+  function loadPlanOverrides() {
+    let map = {};
+    try { map = JSON.parse(localStorage.getItem(PLAN_KEY) || "{}"); } catch (e) { /* storage blocked — stay in-memory */ }
+    Object.entries(map).forEach(([id, steps]) => {
+      const s = STORES.find((x) => x.id === id);
+      if (s && Array.isArray(steps)) { s.actionPlan.steps = steps; recomputePlan(s); }
+    });
+  }
+
+  function persistPlan(s) {
+    try {
+      const map = JSON.parse(localStorage.getItem(PLAN_KEY) || "{}");
+      map[s.id] = s.actionPlan.steps;
+      localStorage.setItem(PLAN_KEY, JSON.stringify(map));
+    } catch (e) { /* storage blocked — edits persist for the session only */ }
+  }
+
+  function escapeAttr(v) { return String(v).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;"); }
+
   /* ---- navigation --------------------------------------------------------- */
   const NAV = [
     { group: "Turnaround" },
@@ -95,9 +138,10 @@
 
   function bindSidebar() {
     document.querySelectorAll("[data-nav]").forEach((b) =>
-      b.addEventListener("click", () => { state.view = b.dataset.nav; state.storeId = null; render(); }));
+      b.addEventListener("click", () => { planEditIndex = null; state.view = b.dataset.nav; state.storeId = null; render(); }));
     const ps = $("#persona");
     if (ps) ps.addEventListener("change", (e) => {
+      planEditIndex = null;
       state.persona = e.target.value;
       // sensible landing per persona
       if (state.persona === "gm") { const s = personaScopedStores()[0]; state.view = "store"; state.storeId = s.id; }
@@ -319,25 +363,77 @@
 
   function actionPlanCard(s) {
     const steps = s.actionPlan.steps;
+    const editing = planEditIndex !== null;
+    const rows = steps.map((st, i) => planEditIndex === i
+      ? planEditorForm(s, st, i)
+      : `
+        <div class="plan-step">
+          <div>
+            <div class="p-title">${escapeAttr(st.title)}</div>
+            <div class="p-meta"><span>👤 ${escapeAttr(st.owner)}</span><span class="${st.overdue ? "var-neg" : ""}">📅 due ${st.due}${st.overdue ? " · overdue" : ""}</span></div>
+          </div>
+          <div class="p-right">
+            ${riskBadge(st.risk)} ${statusBadge(st.status)}
+            <span class="p-row-actions">
+              <button class="icon-btn" data-plan-edit="${i}" title="Edit step" aria-label="Edit step">✎</button>
+              <button class="icon-btn" data-plan-del="${i}" title="Delete step" aria-label="Delete step">🗑</button>
+            </span>
+          </div>
+        </div>`).join("");
+
     return `
       <div class="card">
         <div class="card-head">
           <div><h4>Action plan <span class="epic-tag">E5</span></h4>
           <div class="card-sub">Steps, owners, dates and risks live on the store — not in a deck or email.</div></div>
-          ${planBadge(s.actionPlan.health)}
+          <div class="card-head-actions">
+            ${planBadge(s.actionPlan.health)}
+            ${editing ? "" : `<button class="btn btn-sm" data-plan-add>+ Add step</button>`}
+          </div>
         </div>
-        ${steps.length ? steps.map((st) => `
-          <div class="plan-step">
-            <div>
-              <div class="p-title">${st.title}</div>
-              <div class="p-meta"><span>👤 ${st.owner}</span><span class="${st.overdue ? "var-neg" : ""}">📅 due ${st.due}${st.overdue ? " · overdue" : ""}</span></div>
-            </div>
-            <div class="p-right">
-              ${riskBadge(st.risk)} ${statusBadge(st.status)}
-            </div>
-          </div>`).join("")
-        : `<div class="empty">No action plan recorded yet.${s.challenged ? " This flagged store needs one." : ""}</div>`}
+        ${rows || (planEditIndex === "new" ? "" : `<div class="empty">No action plan recorded yet.${s.challenged ? " This flagged store needs one — add the first step." : ""}</div>`)}
+        ${planEditIndex === "new" ? planEditorForm(s, null, "new") : ""}
       </div>`;
+  }
+
+  function planEditorForm(s, step, index) {
+    const st = step || { title: "", owner: s.gm, due: "2026-08-15", status: "Not started", risk: "Medium" };
+    const ownerOpts = planOwnerOptions(s, st.owner);
+    const statusOpts = STATUS_OPTS.map((o) => `<option ${o === st.status ? "selected" : ""}>${o}</option>`).join("");
+    const riskOpts = RISK_OPTS.map((o) => `<option ${o === st.risk ? "selected" : ""}>${o}</option>`).join("");
+    return `
+      <div class="plan-editor" data-editor>
+        <div class="field field-wide">
+          <label>Step</label>
+          <input type="text" data-f="title" value="${escapeAttr(st.title)}" placeholder="e.g. Cycle-time blitz on supplement approvals" />
+        </div>
+        <div class="field">
+          <label>Owner</label>
+          <select data-f="owner">${ownerOpts}</select>
+        </div>
+        <div class="field">
+          <label>Due date</label>
+          <input type="date" data-f="due" value="${st.due}" />
+        </div>
+        <div class="field">
+          <label>Status</label>
+          <select data-f="status">${statusOpts}</select>
+        </div>
+        <div class="field">
+          <label>Risk</label>
+          <select data-f="risk">${riskOpts}</select>
+        </div>
+        <div class="p-actions">
+          <button class="btn btn-ghost btn-sm" data-plan-cancel>Cancel</button>
+          <button class="btn btn-primary btn-sm" data-plan-save data-index="${index}">${step ? "Save changes" : "Add step"}</button>
+        </div>
+      </div>`;
+  }
+
+  function planOwnerOptions(s, current) {
+    const base = [s.gm, s.cpm, s.rvp, "Sales — Team"];
+    const list = [...new Set([current, ...base].filter(Boolean))];
+    return list.map((o) => `<option ${o === current ? "selected" : ""}>${escapeAttr(o)}</option>`).join("");
   }
 
   function salesAskCard(s) {
@@ -658,11 +754,13 @@
   /* ---- event binding per view -------------------------------------------- */
   function bindView(v) {
     document.querySelectorAll("[data-store]").forEach((el) =>
-      el.addEventListener("click", () => { state.storeId = el.dataset.store; state.view = "store"; render(); }));
+      el.addEventListener("click", () => { planEditIndex = null; state.storeId = el.dataset.store; state.view = "store"; render(); }));
     document.querySelectorAll("[data-back]").forEach((el) =>
-      el.addEventListener("click", () => { state.storeId = null; state.view = "portfolio"; render(); }));
+      el.addEventListener("click", () => { planEditIndex = null; state.storeId = null; state.view = "portfolio"; render(); }));
     document.querySelectorAll("[data-nav-link]").forEach((el) =>
-      el.addEventListener("click", (e) => { e.preventDefault(); state.view = el.dataset.navLink; state.storeId = null; render(); }));
+      el.addEventListener("click", (e) => { e.preventDefault(); planEditIndex = null; state.view = el.dataset.navLink; state.storeId = null; render(); }));
+
+    if (v === "store") bindPlanEditor();
 
     if (v === "portfolio") {
       const q = $("#q");
@@ -676,6 +774,41 @@
     }
   }
 
+  function bindPlanEditor() {
+    const store = () => STORES.find((x) => x.id === state.storeId);
+    const add = $("[data-plan-add]");
+    if (add) add.addEventListener("click", () => { planEditIndex = "new"; renderView(); focusEditor(); });
+    document.querySelectorAll("[data-plan-edit]").forEach((b) =>
+      b.addEventListener("click", () => { planEditIndex = +b.dataset.planEdit; renderView(); focusEditor(); }));
+    document.querySelectorAll("[data-plan-del]").forEach((b) =>
+      b.addEventListener("click", () => {
+        const s = store();
+        s.actionPlan.steps.splice(+b.dataset.planDel, 1);
+        recomputePlan(s); persistPlan(s); planEditIndex = null; renderView();
+      }));
+    const cancel = $("[data-plan-cancel]");
+    if (cancel) cancel.addEventListener("click", () => { planEditIndex = null; renderView(); });
+    const save = $("[data-plan-save]");
+    if (save) save.addEventListener("click", () => {
+      const ed = $("[data-editor]");
+      const get = (f) => ed.querySelector(`[data-f="${f}"]`).value.trim();
+      const titleEl = ed.querySelector('[data-f="title"]');
+      if (!titleEl.value.trim()) { titleEl.classList.add("invalid"); titleEl.focus(); return; }
+      const s = store();
+      const step = { title: get("title"), owner: get("owner"), due: get("due") || "2026-08-15",
+        status: get("status"), risk: get("risk"), overdue: false };
+      const idx = save.dataset.index;
+      if (idx === "new") s.actionPlan.steps.push(step);
+      else s.actionPlan.steps[+idx] = step;
+      recomputePlan(s); persistPlan(s); planEditIndex = null; renderView();
+    });
+  }
+
+  function focusEditor() {
+    const t = $('[data-editor] [data-f="title"]');
+    if (t) { t.focus(); t.setSelectionRange(t.value.length, t.value.length); }
+  }
+
   function refreshTable() {
     // re-render just the table + toolbar region to preserve focus feel
     renderView();
@@ -686,5 +819,6 @@
   function debounce(fn, ms) { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; }
 
   /* ---- boot --------------------------------------------------------------- */
+  loadPlanOverrides();
   render();
 })();
