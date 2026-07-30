@@ -34,9 +34,14 @@
 
   // Action-plan editing (E5). planEditIndex: null = none, "new" = adding, number = editing that step.
   let planEditIndex = null;
+  let planView = "board"; // "board" (kanban) | "list"
   const DEMO_TODAY = new Date("2026-07-30T00:00:00Z");
   const STATUS_OPTS = ["Not started", "In progress", "Blocked", "Done"];
   const RISK_OPTS = ["Low", "Medium", "High"];
+  const STATUS_ACCENT = {
+    "Not started": "var(--ink-3)", "In progress": "var(--accent)",
+    Blocked: "var(--bad)", Done: "var(--good)",
+  };
 
   /* ---- action-plan mutation + persistence --------------------------------- */
   const PLAN_KEY = "cstt_plan_overrides_v1";
@@ -319,14 +324,17 @@
         </div>
       </div>
 
-      <div class="grid two-col" style="margin-top:16px">
+      <div style="margin-top:16px">
         ${actionPlanCard(s)}
-        ${salesAskCard(s)}
       </div>
 
       <div class="grid two-col" style="margin-top:16px">
         ${deficiencyMini(s)}
         ${drpScorecardCard(s)}
+      </div>
+
+      <div style="margin-top:16px">
+        ${salesAskCard(s)}
       </div>
 
       <div class="footer-note">One record per store carrying the business-case baseline (E2), live actuals (E1), the challenged rationale (E3), the deficiency view (E4), the action plan and sales ask (E5), and progress from the action date (E6).</div>`;
@@ -363,69 +371,118 @@
 
   function actionPlanCard(s) {
     const steps = s.actionPlan.steps;
-    const editing = planEditIndex !== null;
-    const rows = steps.map((st, i) => planEditIndex === i
-      ? planEditorForm(s, st, i)
-      : `
-        <div class="plan-step">
-          <div>
-            <div class="p-title">${escapeAttr(st.title)}</div>
-            <div class="p-meta"><span>👤 ${escapeAttr(st.owner)}</span><span class="${st.overdue ? "var-neg" : ""}">📅 due ${st.due}${st.overdue ? " · overdue" : ""}</span></div>
-          </div>
-          <div class="p-right">
-            ${riskBadge(st.risk)} ${statusBadge(st.status)}
-            <span class="p-row-actions">
-              <button class="icon-btn" data-plan-edit="${i}" title="Edit step" aria-label="Edit step">✎</button>
-              <button class="icon-btn" data-plan-del="${i}" title="Delete step" aria-label="Delete step">🗑</button>
-            </span>
-          </div>
-        </div>`).join("");
-
+    const sub = planView === "board"
+      ? "Track steps by status — drag a card between columns to update it. Owners, due dates and risk live on the store, not in a deck."
+      : "Steps, owners, dates and risks live on the store — not in a deck or email.";
+    const body = steps.length === 0
+      ? `<div class="empty">No action plan recorded yet.${s.challenged ? " This flagged store needs one — add the first step." : ""}</div>`
+      : (planView === "board" ? kanbanBoard(s) : planList(s));
     return `
       <div class="card">
         <div class="card-head">
           <div><h4>Action plan <span class="epic-tag">E5</span></h4>
-          <div class="card-sub">Steps, owners, dates and risks live on the store — not in a deck or email.</div></div>
+          <div class="card-sub">${sub}</div></div>
           <div class="card-head-actions">
             ${planBadge(s.actionPlan.health)}
-            ${editing ? "" : `<button class="btn btn-sm" data-plan-add>+ Add step</button>`}
+            <div class="seg seg-sm">
+              <button data-planview="board" class="${planView === "board" ? "active" : ""}">▤ Board</button>
+              <button data-planview="list" class="${planView === "list" ? "active" : ""}">☰ List</button>
+            </div>
+            <button class="btn btn-sm btn-primary" data-plan-add>+ Add step</button>
           </div>
         </div>
-        ${rows || (planEditIndex === "new" ? "" : `<div class="empty">No action plan recorded yet.${s.challenged ? " This flagged store needs one — add the first step." : ""}</div>`)}
-        ${planEditIndex === "new" ? planEditorForm(s, null, "new") : ""}
+        ${body}
+        ${planEditIndex !== null ? planModal(s) : ""}
       </div>`;
   }
 
-  function planEditorForm(s, step, index) {
+  function kanbanBoard(s) {
+    const cols = STATUS_OPTS.map((status) => {
+      const cards = s.actionPlan.steps
+        .map((st, i) => ({ st, i }))
+        .filter((x) => x.st.status === status);
+      const overdue = cards.filter((c) => c.st.overdue).length;
+      return `
+        <div class="kanban-col" data-drop-status="${status}" style="--col-accent:${STATUS_ACCENT[status]}">
+          <div class="kanban-col-head">
+            <span class="k-dot"></span>
+            <span class="k-title">${status}</span>
+            ${overdue ? `<span class="k-overdue" title="${overdue} overdue">${overdue}⚠</span>` : ""}
+            <span class="k-count">${cards.length}</span>
+          </div>
+          <div class="kanban-col-body">
+            ${cards.map(({ st, i }) => kanbanCard(st, i)).join("") || `<div class="kanban-empty">Drop here</div>`}
+          </div>
+        </div>`;
+    }).join("");
+    return `<div class="kanban">${cols}</div>`;
+  }
+
+  function kanbanCard(st, i) {
+    const riskColor = st.risk === "High" ? "var(--bad)" : st.risk === "Medium" ? "var(--warn)" : "var(--ink-3)";
+    return `
+      <div class="kcard" draggable="true" data-card-index="${i}" style="--risk-color:${riskColor}" tabindex="0" role="button" aria-label="Edit ${escapeAttr(st.title)}">
+        <div class="kc-title">${escapeAttr(st.title)}</div>
+        <div class="kc-meta">
+          <span>👤 ${escapeAttr(st.owner)}</span>
+          <span class="${st.overdue ? "var-neg" : ""}">📅 ${st.due}${st.overdue ? " · overdue" : ""}</span>
+        </div>
+        <div class="kc-foot">
+          ${riskBadge(st.risk)}
+          <span class="kc-actions">
+            <button class="icon-btn" data-plan-edit="${i}" title="Edit step" aria-label="Edit step">✎</button>
+            <button class="icon-btn" data-plan-del="${i}" title="Delete step" aria-label="Delete step">🗑</button>
+          </span>
+        </div>
+      </div>`;
+  }
+
+  function planList(s) {
+    return s.actionPlan.steps.map((st, i) => `
+      <div class="plan-step">
+        <div>
+          <div class="p-title">${escapeAttr(st.title)}</div>
+          <div class="p-meta"><span>👤 ${escapeAttr(st.owner)}</span><span class="${st.overdue ? "var-neg" : ""}">📅 due ${st.due}${st.overdue ? " · overdue" : ""}</span></div>
+        </div>
+        <div class="p-right">
+          ${riskBadge(st.risk)} ${statusBadge(st.status)}
+          <span class="p-row-actions">
+            <button class="icon-btn" data-plan-edit="${i}" title="Edit step" aria-label="Edit step">✎</button>
+            <button class="icon-btn" data-plan-del="${i}" title="Delete step" aria-label="Delete step">🗑</button>
+          </span>
+        </div>
+      </div>`).join("");
+  }
+
+  function planModal(s) {
+    const step = planEditIndex === "new" ? null : s.actionPlan.steps[planEditIndex];
     const st = step || { title: "", owner: s.gm, due: "2026-08-15", status: "Not started", risk: "Medium" };
     const ownerOpts = planOwnerOptions(s, st.owner);
     const statusOpts = STATUS_OPTS.map((o) => `<option ${o === st.status ? "selected" : ""}>${o}</option>`).join("");
     const riskOpts = RISK_OPTS.map((o) => `<option ${o === st.risk ? "selected" : ""}>${o}</option>`).join("");
     return `
-      <div class="plan-editor" data-editor>
-        <div class="field field-wide">
-          <label>Step</label>
-          <input type="text" data-f="title" value="${escapeAttr(st.title)}" placeholder="e.g. Cycle-time blitz on supplement approvals" />
-        </div>
-        <div class="field">
-          <label>Owner</label>
-          <select data-f="owner">${ownerOpts}</select>
-        </div>
-        <div class="field">
-          <label>Due date</label>
-          <input type="date" data-f="due" value="${st.due}" />
-        </div>
-        <div class="field">
-          <label>Status</label>
-          <select data-f="status">${statusOpts}</select>
-        </div>
-        <div class="field">
-          <label>Risk</label>
-          <select data-f="risk">${riskOpts}</select>
-        </div>
-        <div class="p-actions">
-          <button class="btn btn-ghost btn-sm" data-plan-cancel>Cancel</button>
-          <button class="btn btn-primary btn-sm" data-plan-save data-index="${index}">${step ? "Save changes" : "Add step"}</button>
+      <div class="modal-backdrop" data-modal-backdrop>
+        <div class="modal" role="dialog" aria-modal="true" aria-label="${step ? "Edit action step" : "Add action step"}">
+          <div class="modal-head">
+            <h4>${step ? "Edit action step" : "Add action step"}</h4>
+            <button class="icon-btn" data-plan-cancel aria-label="Close">✕</button>
+          </div>
+          <div class="modal-body">
+            <div class="field">
+              <label>Step</label>
+              <input type="text" data-f="title" value="${escapeAttr(st.title)}" placeholder="e.g. Cycle-time blitz on supplement approvals" />
+            </div>
+            <div class="modal-grid">
+              <div class="field"><label>Owner</label><select data-f="owner">${ownerOpts}</select></div>
+              <div class="field"><label>Due date</label><input type="date" data-f="due" value="${st.due}" /></div>
+              <div class="field"><label>Status</label><select data-f="status">${statusOpts}</select></div>
+              <div class="field"><label>Risk</label><select data-f="risk">${riskOpts}</select></div>
+            </div>
+          </div>
+          <div class="modal-foot">
+            <button class="btn btn-ghost btn-sm" data-plan-cancel>Cancel</button>
+            <button class="btn btn-primary btn-sm" data-plan-save data-index="${planEditIndex}">${step ? "Save changes" : "Add step"}</button>
+          </div>
         </div>
       </div>`;
   }
@@ -441,12 +498,12 @@
       <div class="card">
         <div class="card-head"><div><h4>Sales asks &amp; activity <span class="epic-tag">E5</span></h4>
           <div class="card-sub">Raise an ask, route it to Sales, see it closed. Past activity on the same record.</div></div></div>
-        ${s.salesAsks.length ? s.salesAsks.map((a) => `
+        ${s.salesAsks.length ? `<div class="ask-grid">${s.salesAsks.map((a) => `
           <div class="ask-item">
             <div class="a-title">${a.ask}</div>
             <div class="a-meta">Client ${a.client} · owner ${a.owner} · raised ${a.raised}</div>
             <div style="margin-top:6px">${askStatusBadge(a.status)}</div>
-          </div>`).join("") : `<div class="empty" style="padding:14px">No open sales asks.</div>`}
+          </div>`).join("")}</div>` : `<div class="empty" style="padding:14px">No open sales asks.</div>`}
         <div class="card-sub" style="margin-top:12px;border-top:1px solid var(--line-2);padding-top:10px">Past sales activity — ${s.pastActivity[0].client} and others</div>
         ${s.pastActivity.map((p) => `<div class="p-meta" style="padding:4px 0"><span>${p.date}</span> · <b>${p.client}</b> · ${p.note}</div>`).join("")}
       </div>`;
@@ -760,7 +817,7 @@
     document.querySelectorAll("[data-nav-link]").forEach((el) =>
       el.addEventListener("click", (e) => { e.preventDefault(); planEditIndex = null; state.view = el.dataset.navLink; state.storeId = null; render(); }));
 
-    if (v === "store") bindPlanEditor();
+    if (v === "store") bindStorePlan();
 
     if (v === "portfolio") {
       const q = $("#q");
@@ -774,38 +831,80 @@
     }
   }
 
-  function bindPlanEditor() {
+  function bindStorePlan() {
     const store = () => STORES.find((x) => x.id === state.storeId);
+
+    document.querySelectorAll("[data-planview]").forEach((b) =>
+      b.addEventListener("click", () => { planView = b.dataset.planview; renderView(); }));
+
     const add = $("[data-plan-add]");
     if (add) add.addEventListener("click", () => { planEditIndex = "new"; renderView(); focusEditor(); });
+
     document.querySelectorAll("[data-plan-edit]").forEach((b) =>
-      b.addEventListener("click", () => { planEditIndex = +b.dataset.planEdit; renderView(); focusEditor(); }));
+      b.addEventListener("click", (e) => { e.stopPropagation(); planEditIndex = +b.dataset.planEdit; renderView(); focusEditor(); }));
     document.querySelectorAll("[data-plan-del]").forEach((b) =>
-      b.addEventListener("click", () => {
+      b.addEventListener("click", (e) => {
+        e.stopPropagation();
         const s = store();
         s.actionPlan.steps.splice(+b.dataset.planDel, 1);
         recomputePlan(s); persistPlan(s); planEditIndex = null; renderView();
       }));
-    const cancel = $("[data-plan-cancel]");
-    if (cancel) cancel.addEventListener("click", () => { planEditIndex = null; renderView(); });
+
+    document.querySelectorAll("[data-plan-cancel]").forEach((b) => b.addEventListener("click", closeModal));
     const save = $("[data-plan-save]");
-    if (save) save.addEventListener("click", () => {
-      const ed = $("[data-editor]");
-      const get = (f) => ed.querySelector(`[data-f="${f}"]`).value.trim();
-      const titleEl = ed.querySelector('[data-f="title"]');
-      if (!titleEl.value.trim()) { titleEl.classList.add("invalid"); titleEl.focus(); return; }
-      const s = store();
-      const step = { title: get("title"), owner: get("owner"), due: get("due") || "2026-08-15",
-        status: get("status"), risk: get("risk"), overdue: false };
-      const idx = save.dataset.index;
-      if (idx === "new") s.actionPlan.steps.push(step);
-      else s.actionPlan.steps[+idx] = step;
-      recomputePlan(s); persistPlan(s); planEditIndex = null; renderView();
+    if (save) save.addEventListener("click", savePlan);
+    const backdrop = $("[data-modal-backdrop]");
+    if (backdrop) backdrop.addEventListener("click", (e) => { if (e.target === backdrop) closeModal(); });
+    document.removeEventListener("keydown", escClose);
+    if (planEditIndex !== null) document.addEventListener("keydown", escClose);
+
+    // Kanban cards: click / keyboard to edit, native drag-and-drop to restatus.
+    document.querySelectorAll(".kcard").forEach((card) => {
+      const openEdit = () => { planEditIndex = +card.dataset.cardIndex; renderView(); focusEditor(); };
+      card.addEventListener("click", (e) => { if (!e.target.closest("[data-plan-edit],[data-plan-del]")) openEdit(); });
+      card.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); openEdit(); } });
+      card.addEventListener("dragstart", (e) => {
+        e.dataTransfer.setData("text/plain", card.dataset.cardIndex);
+        e.dataTransfer.effectAllowed = "move";
+        card.classList.add("dragging");
+      });
+      card.addEventListener("dragend", () => card.classList.remove("dragging"));
+    });
+    document.querySelectorAll("[data-drop-status]").forEach((col) => {
+      col.addEventListener("dragover", (e) => { e.preventDefault(); e.dataTransfer.dropEffect = "move"; col.classList.add("drop-over"); });
+      col.addEventListener("dragleave", (e) => { if (!col.contains(e.relatedTarget)) col.classList.remove("drop-over"); });
+      col.addEventListener("drop", (e) => {
+        e.preventDefault(); col.classList.remove("drop-over");
+        const idx = parseInt(e.dataTransfer.getData("text/plain"), 10);
+        const s = store();
+        if (!Number.isNaN(idx) && s.actionPlan.steps[idx] && s.actionPlan.steps[idx].status !== col.dataset.dropStatus) {
+          s.actionPlan.steps[idx].status = col.dataset.dropStatus;
+          recomputePlan(s); persistPlan(s); renderView();
+        }
+      });
     });
   }
 
+  function savePlan() {
+    const btn = $("[data-plan-save]");
+    if (!btn) return;
+    const get = (f) => { const el = document.querySelector(`[data-f="${f}"]`); return el ? el.value.trim() : ""; };
+    const titleEl = document.querySelector('[data-f="title"]');
+    if (!titleEl || !titleEl.value.trim()) { if (titleEl) { titleEl.classList.add("invalid"); titleEl.focus(); } return; }
+    const s = STORES.find((x) => x.id === state.storeId);
+    const step = { title: get("title"), owner: get("owner"), due: get("due") || "2026-08-15",
+      status: get("status"), risk: get("risk"), overdue: false };
+    const idx = btn.dataset.index;
+    if (idx === "new") s.actionPlan.steps.push(step);
+    else s.actionPlan.steps[+idx] = step;
+    recomputePlan(s); persistPlan(s); closeModal();
+  }
+
+  function closeModal() { planEditIndex = null; document.removeEventListener("keydown", escClose); renderView(); }
+  function escClose(e) { if (e.key === "Escape") closeModal(); }
+
   function focusEditor() {
-    const t = $('[data-editor] [data-f="title"]');
+    const t = document.querySelector('.modal-body [data-f="title"]');
     if (t) { t.focus(); t.setSelectionRange(t.value.length, t.value.length); }
   }
 
