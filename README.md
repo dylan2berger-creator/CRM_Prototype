@@ -7,8 +7,8 @@ per store, carrying the investment-committee **business-case baseline**, live
 analysis**, the **action plan and sales ask**, and **progress from the action
 date**, behind a single portfolio roll-up.
 
-> Scope modeled: **205 investment-committee stores + 140 JHCC stores = 345**,
-> each measured against the business case in its IC memo. Direction: build in
+> Scope modeled: **345 stores**, each measured against the business case in its
+> IC memo. Direction: build in
 > house on Boyd's stack; **DOMO stays the source of truth and the app reads it.**
 
 ## Run it
@@ -31,7 +31,7 @@ store), Sales, Finance, Executive. Then walk the nav:
 
 | View | Increment | What it shows |
 |------|-----------|---------------|
-| **Portfolio** | E6 / E3 | KPI roll-up + every store ranked by gap to business case, with live plan health, T12/T3 variance, and a trend sparkline. Filters by cohort, region, status. |
+| **Portfolio** | E6 / E3 | KPI roll-up + every store ranked by gap to business case, with live plan health, T12/T3 variance, and a trend sparkline. Filters by region and status. |
 | **Store record** (click any row) | E2 / E3 / E5 / E6 | Plan-vs-actual charted from the action date; the exact rule reasons the store was flagged; action plan (owners, dates, risks); sales asks + past activity; deficiency mini-view; DRP scorecard. |
 | **Slippage alerts** | E6 | Business-case slippage caught at the first missed period (headline), plus DRP rank drops and overdue action items. |
 | **Deficiency analysis** | E4 | Revenue by client/DRP, PIF counts, CBSA share, and DRP scorecard slippage, the analysis that gets rebuilt every cycle, built once. "Market" vs "Shop" read per store. |
@@ -45,7 +45,7 @@ store), Sales, Finance, Executive. Then walk the nav:
   certified datasets; it does not restate the warehouse.
 - **E2, Business-case baseline.** Every store carries its IC memo numbers
   (`memoRef`, target monthly revenue, ARO, car count) as the plan actuals are
-  measured against, JHCC stores on the same baseline model as the ~205 cases.
+  measured against.
 - **E3, Challenged detection.** A versioned, auditable rule (`v2.3`) flags
   stores automatically; each flag records the specific metric and period, shown
   on the store record and rolled up on the `Challenged rule` view.

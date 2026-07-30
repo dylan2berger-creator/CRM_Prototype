@@ -89,7 +89,7 @@ const RULE = {
 
 /* ---- build one store ------------------------------------------------------ */
 let SEQ = 100;
-function buildStore(cohort) {
+function buildStore() {
   const region = pick(REGIONS);
   const [city, state] = pick(CITIES[region.name]);
   SEQ += 1;
@@ -103,7 +103,7 @@ function buildStore(cohort) {
   const bcAnnual = bcMonthly * 12;
   const bcARO = round(rand(2900, 4200), 0);
   const bcCars = Math.round((bcMonthly / bcARO));
-  const icYear = cohort === "JHCC" ? 2024 : pick([2023, 2024, 2024, 2025]);
+  const icYear = pick([2023, 2024, 2024, 2025]);
   const memoRef = `IC-${icYear}-${randi(100, 999)}`;
 
   // Performance posture: most stores hold their case; a minority are under it.
@@ -271,8 +271,8 @@ function buildStore(cohort) {
   const gapDollars = t12 - t12Plan;
 
   return {
-    id, name, cohort, city, state, region: region.name, rvp: region.rvp, cpm, gm,
-    memoRef, icYear, acquired: cohort === "JHCC" ? "JHCC integration" : `${icYear}`,
+    id, name, city, state, region: region.name, rvp: region.rvp, cpm, gm,
+    memoRef, icYear,
     businessCase: { monthly: bcMonthly, annual: bcAnnual, aro: bcARO, cars: bcCars, planLine },
     actuals: { monthly: actuals, t3, t12, t3Plan, t12Plan, aro, carCount },
     variance: { t3: revT3Var, t12: revT12Var, gapDollars },
@@ -294,11 +294,8 @@ function dayOffset(days) {
   return d.toISOString().slice(0, 10);
 }
 
-/* ---- build the portfolio: ~205 IC cases + 140 JHCC ----------------------- */
-const STORES = [
-  ...Array.from({ length: 205 }, () => buildStore("IC-205")),
-  ...Array.from({ length: 140 }, () => buildStore("JHCC")),
-];
+/* ---- build the portfolio: 345 stores measured against their business case - */
+const STORES = Array.from({ length: 345 }, () => buildStore());
 
 /* ---- DOMO data-foundation status ------------------------------------ */
 const DOMO_DATASETS = [

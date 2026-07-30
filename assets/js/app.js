@@ -29,7 +29,7 @@
     view: "portfolio",
     persona: "cpm",
     storeId: null,
-    filters: { q: "", cohort: "all", region: "all", status: "challenged", sort: "gap" },
+    filters: { q: "", region: "all", status: "challenged", sort: "gap" },
   };
 
   // Action-plan editing. planEditIndex: null = none, "new" = adding, number = editing that step.
@@ -208,9 +208,6 @@
       <div class="toolbar">
         <input type="search" id="q" placeholder="Search store, city, GM, CPM…" value="${f.q}">
         <select id="region">${regionOpts}</select>
-        <div class="seg" id="cohort">
-          ${seg("cohort", "all", "All", f.cohort)}${seg("cohort", "IC-205", "IC ~205", f.cohort)}${seg("cohort", "JHCC", "JHCC", f.cohort)}
-        </div>
         <div class="seg" id="status">
           ${seg("status", "challenged", "Challenged", f.status)}${seg("status", "watch", "Watch", f.status)}${seg("status", "all", "All", f.status)}
         </div>
@@ -224,7 +221,6 @@
   function filteredStores(scoped) {
     const f = state.filters;
     let rows = scoped.slice();
-    if (f.cohort !== "all") rows = rows.filter((s) => s.cohort === f.cohort);
     if (f.region !== "all") rows = rows.filter((s) => s.region === f.region);
     if (f.status === "challenged") rows = rows.filter((s) => s.challenged);
     else if (f.status === "watch") rows = rows.filter((s) => !s.challenged && s.variance.t3 < -0.02);
@@ -250,7 +246,6 @@
       return `<tr class="clickable" data-store="${s.id}">
         <td><div class="store-name">${s.name}</div>
             <div class="store-meta">${s.city}, ${s.state} · GM ${s.gm} · ${s.id}</div></td>
-        <td><span class="chip ${s.cohort === "JHCC" ? "cohort-jhcc" : ""}">${s.cohort}</span></td>
         <td>${flagBadge(s)}</td>
         <td class="num">${bigMoney(s.actuals.t12)}</td>
         <td class="num"><span class="${s.variance.t12 < 0 ? "var-neg" : "var-pos"}">${fmtPct(s.variance.t12)}</span></td>
@@ -265,7 +260,7 @@
         <div class="tbl-wrap">
           <table>
             <thead><tr>
-              <th>Store</th><th>Cohort</th><th>Flag</th>
+              <th>Store</th><th>Flag</th>
               <th class="num">T12 rev</th><th class="num">T12 vs case</th><th class="num">T3 vs case</th>
               <th class="num">Gap $</th><th>Plan</th><th>Trend</th>
             </tr></thead>
@@ -339,7 +334,6 @@
           <div>
             <h1 style="font-size:20px">${s.name}</h1>
             <div class="meta-row">
-              <span class="chip ${s.cohort === "JHCC" ? "cohort-jhcc" : ""}">${s.cohort}</span>
               ${flagBadge(s)} ${planBadge(s.actionPlan.health)}
               <span class="kv">📍 <b>${s.city}, ${s.state}</b> · ${s.region}</span>
             </div>
@@ -663,7 +657,7 @@
             <div class="a-main">
               <b>${a.type} · ${a.store.name}</b>
               <div class="a-desc">${a.desc}</div>
-              <div class="store-meta" style="margin-top:3px">${a.store.city}, ${a.store.state} · CPM ${a.store.cpm} · ${a.store.cohort}</div>
+              <div class="store-meta" style="margin-top:3px">${a.store.city}, ${a.store.state} · CPM ${a.store.cpm}</div>
             </div>
             <div class="a-when">${a.when}</div>
           </div>`).join("")}
@@ -701,11 +695,11 @@
           ${[{ v: "v2.3", d: RULE.effective, note: "Added CBSA share ≥1.5pt YoY drop. Current.", active: true },
             { v: "v2.2", d: "2025-10-01", note: "DRP rank-drop threshold tightened to 2 ranks." },
             { v: "v2.1", d: "2025-07-01", note: "T3 threshold moved from -10% to -8%." },
-            { v: "v2.0", d: "2025-01-01", note: "JHCC cohort onto the same rule set." }].map((h) => `
+            { v: "v2.0", d: "2025-01-01", note: "Baseline challenged rule set across all stores." }].map((h) => `
             <div class="plan-step"><div><div class="p-title">${h.v} ${h.active ? `<span class="badge good" style="margin-left:6px"><span class="dot"></span>Active</span>` : ""}</div>
               <div class="p-meta"><span>effective ${h.d}</span></div>
               <div class="store-meta" style="margin-top:3px">${h.note}</div></div></div>`).join("")}
-          <div class="callout" style="margin-top:12px"><span>⚖</span><div><b>Admin control.</b> Editing a criterion here would open <b>v2.4</b> in draft and re-run detection on a preview cohort before publishing.</div></div>
+          <div class="callout" style="margin-top:12px"><span>⚖</span><div><b>Admin control.</b> Editing a criterion here would open <b>v2.4</b> in draft and re-run detection on a preview set before publishing.</div></div>
         </div>
       </div>`;
   }
