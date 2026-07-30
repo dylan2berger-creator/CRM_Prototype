@@ -1,10 +1,10 @@
 /* =============================================================================
-   Challenged Shop Turnaround Tracker — Prototype mock data
+   Challenged Shop Turnaround Tracker: Prototype mock data
    -----------------------------------------------------------------------------
    Everything here is synthetic and generated deterministically from a fixed
    seed so the prototype looks identical on every load. In the real build these
    records are READ from certified DOMO datasets (T12 / T3 actuals + dimensions)
-   and the investment-committee business cases — the app never restates the
+   and the investment-committee business cases; the app never restates the
    warehouse, it reads it. See README for the data-foundation notes.
    ========================================================================== */
 
@@ -73,7 +73,7 @@ const MONTHS = (() => {
 })();
 const ACTION_MONTH_INDEX = 9; // action plans generally start ~Jan '26
 
-/* ---- rule versioning for the challenged definition (E3) ------------------- */
+/* ---- rule versioning for the challenged definition ------------------- */
 const RULE = {
   version: "v2.3",
   effective: "2026-04-01",
@@ -94,11 +94,11 @@ function buildStore(cohort) {
   const [city, state] = pick(CITIES[region.name]);
   SEQ += 1;
   const id = `${state}-${SEQ}`;
-  const name = `Gerber Collision — ${city} ${pick(STREETS)}`;
+  const name = `Gerber Collision - ${city} ${pick(STREETS)}`;
   const gm = `${pick(GM_FIRST)} ${pick(GM_LAST)}`;
   const cpm = pick(CPMS);
 
-  // Business case (investment committee memo) — the baseline the app measures to
+  // Business case (investment committee memo): the baseline the app measures to
   const bcMonthly = round(rand(180, 620) * 1000, -2);           // target monthly revenue
   const bcAnnual = bcMonthly * 12;
   const bcARO = round(rand(2900, 4200), 0);
@@ -143,7 +143,7 @@ function buildStore(cohort) {
   const revT3Var = (t3 - t3Plan) / t3Plan;
   const revT12Var = (t12 - t12Plan) / t12Plan;
 
-  // Deficiency detail (E4): revenue by client/DRP, PIF, CBSA
+  // Deficiency detail: revenue by client/DRP, PIF, CBSA
   const shuffledCarriers = [...CARRIERS].sort(() => rng() - 0.5).slice(0, randi(5, 7));
   let remaining = t12;
   const revByDRP = shuffledCarriers.map((c, idx) => {
@@ -182,7 +182,7 @@ function buildStore(cohort) {
     };
   });
 
-  // Evaluate the challenged rule (E3) — auditable, per-criterion
+  // Evaluate the challenged rule, auditable, per-criterion
   const reasons = [];
   if (revT3Var <= RULE.criteria[0].threshold)
     reasons.push({ key: "revT3", label: RULE.criteria[0].label, detail: `T3 ${fmtPct(revT3Var)} vs case`, period: MONTHS.slice(-3).join("–") });
@@ -196,8 +196,8 @@ function buildStore(cohort) {
 
   const challenged = reasons.length > 0;
 
-  // Action plan (E5) — only challenged stores carry an active plan (mostly)
-  const OWNERS = [gm, cpm, "Sales — " + pick(GM_FIRST), region.rvp];
+  // Action plan: only challenged stores carry an active plan (mostly)
+  const OWNERS = [gm, cpm, "Sales · " + pick(GM_FIRST), region.rvp];
   const STEP_TEMPLATES = [
     "Rebuild DRP scorecard action items with carrier",
     "Weekend capacity add: 2 techs + 1 estimator",
@@ -236,7 +236,7 @@ function buildStore(cohort) {
   else if (overdue === 1 || openSteps.length > 3) planHealth = "Watch";
   else planHealth = "On track";
 
-  // Sales asks (E5)
+  // Sales asks
   const salesAsks = [];
   const nAsk = challenged ? randi(0, 2) : (rng() > 0.8 ? 1 : 0);
   for (let i = 0; i < nAsk; i++) {
@@ -245,22 +245,22 @@ function buildStore(cohort) {
       client,
       ask: pick([
         `Escalate DRP assignment ratio with ${client}`,
-        `Request tier review — ${client} scorecard improved`,
+        `Request tier review, ${client} scorecard improved`,
         `Reinstate ${client} program after cycle-time fix`,
         `Add ${client} fleet account to store`,
       ]),
-      owner: "Sales — " + pick(GM_FIRST),
-      status: pick(["Open", "Open", "Routed to Sales", "In progress", "Closed — won", "Closed — no change"]),
+      owner: "Sales · " + pick(GM_FIRST),
+      status: pick(["Open", "Open", "Routed to Sales", "In progress", "Closed (won)", "Closed (no change)"]),
       raised: dayOffset(-randi(5, 60)),
     });
   }
 
-  // Past sales activity on the record (E5)
+  // Past sales activity on the record
   const pastActivity = Array.from({ length: randi(2, 4) }, () => ({
     date: dayOffset(-randi(60, 400)),
     client: pick(shuffledCarriers),
     note: pick([
-      "QBR held — reviewed cycle time",
+      "QBR held, reviewed cycle time",
       "Program tier upheld",
       "Won back overflow assignments",
       "Carrier flagged estimate accuracy",
@@ -300,9 +300,9 @@ const STORES = [
   ...Array.from({ length: 140 }, () => buildStore("JHCC")),
 ];
 
-/* ---- DOMO data-foundation status (E1) ------------------------------------ */
+/* ---- DOMO data-foundation status ------------------------------------ */
 const DOMO_DATASETS = [
-  { name: "Exec Dashboard — Revenue T12", rows: "4.1M", latency: "Daily 06:00 ET", certified: true, refreshed: "2026-07-30 06:04 ET", status: "Fresh" },
+  { name: "Exec Dashboard Revenue T12", rows: "4.1M", latency: "Daily 06:00 ET", certified: true, refreshed: "2026-07-30 06:04 ET", status: "Fresh" },
   { name: "Revenue T3 (rolling)", rows: "1.0M", latency: "Daily 06:00 ET", certified: true, refreshed: "2026-07-30 06:04 ET", status: "Fresh" },
   { name: "Store / Client / DRP dimensions", rows: "12.4K", latency: "Weekly", certified: true, refreshed: "2026-07-27 02:10 ET", status: "Fresh" },
   { name: "PIF counts (CCCone → BDAP)", rows: "8.9M", latency: "Daily 07:30 ET", certified: true, refreshed: "2026-07-30 07:33 ET", status: "Fresh" },

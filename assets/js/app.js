@@ -1,5 +1,5 @@
 /* =============================================================================
-   Challenged Shop Turnaround Tracker — app shell, router, and views.
+   Challenged Shop Turnaround Tracker: app shell, router, and views.
    Maps to the Opportunity Canvas increments E1–E6.
    ========================================================================== */
 (function () {
@@ -18,7 +18,7 @@
   /* ---- personas (Target Customers) ---------------------------------------- */
   const PERSONAS = {
     cpm: { name: "Renee Ortiz", role: "Client Performance Manager", scope: "Portfolio-wide", hint: "Primary user. Sees every store, owns the plan and the sales ask." },
-    rvp: { name: "Marcus Whitfield", role: "Regional Vice President — Southeast", scope: "Southeast", hint: "Plan health across the region without asking each GM." },
+    rvp: { name: "Marcus Whitfield", role: "Regional Vice President, Southeast", scope: "Southeast", hint: "Plan health across the region without asking each GM." },
     gm: { name: "Rick Sanders", role: "Shop General Manager", scope: "single store", hint: "Records steps, owners, dates and risks against their store." },
     sales: { name: "Jordan Ellis", role: "Sales", scope: "Sales asks", hint: "Receives and closes sales asks routed from CPMs." },
     finance: { name: "Priya Shah", role: "Finance", scope: "Business cases", hint: "Owns the investment-committee baseline load." },
@@ -32,7 +32,7 @@
     filters: { q: "", cohort: "all", region: "all", status: "challenged", sort: "gap" },
   };
 
-  // Action-plan editing (E5). planEditIndex: null = none, "new" = adding, number = editing that step.
+  // Action-plan editing. planEditIndex: null = none, "new" = adding, number = editing that step.
   let planEditIndex = null;
   let planView = "board"; // "board" (kanban) | "list"
   const DEMO_TODAY = new Date("2026-07-30T00:00:00Z");
@@ -63,7 +63,7 @@
 
   function loadPlanOverrides() {
     let map = {};
-    try { map = JSON.parse(localStorage.getItem(PLAN_KEY) || "{}"); } catch (e) { /* storage blocked — stay in-memory */ }
+    try { map = JSON.parse(localStorage.getItem(PLAN_KEY) || "{}"); } catch (e) { /* storage blocked, stay in-memory */ }
     Object.entries(map).forEach(([id, steps]) => {
       const s = STORES.find((x) => x.id === id);
       if (s && Array.isArray(steps)) { s.actionPlan.steps = steps; recomputePlan(s); }
@@ -75,7 +75,7 @@
       const map = JSON.parse(localStorage.getItem(PLAN_KEY) || "{}");
       map[s.id] = s.actionPlan.steps;
       localStorage.setItem(PLAN_KEY, JSON.stringify(map));
-    } catch (e) { /* storage blocked — edits persist for the session only */ }
+    } catch (e) { /* storage blocked, edits persist for the session only */ }
   }
 
   function escapeAttr(v) { return String(v).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;"); }
@@ -191,18 +191,13 @@
     ];
 
     return `
-      ${topbar("Portfolio", `${p.role} · ${p.scope}. Stores ranked by gap to business case with live plan health — the roll-up that replaces the tracker doc.`, "E6")}
+      ${topbar("Portfolio", `${p.role} · ${p.scope}`)}
       <div class="grid kpi-row">${kpis.map(kpiCard).join("")}</div>
 
       <div class="section-title"><h3>Stores by gap to business case</h3>
         <span class="hint">Reads DOMO T12/T3 · flagged by rule ${RULE.version}</span></div>
       ${portfolioToolbar()}
-      ${portfolioTable(scoped)}
-
-      <div class="footer-note">
-        Baseline = each store's investment-committee business case (E2). Actuals read from certified DOMO datasets (E1).
-        Flags computed by the versioned challenged rule (E3). Click any store for its record.
-      </div>`;
+      ${portfolioTable(scoped)}`;
   }
 
   function portfolioToolbar() {
@@ -260,7 +255,7 @@
         <td class="num">${bigMoney(s.actuals.t12)}</td>
         <td class="num"><span class="${s.variance.t12 < 0 ? "var-neg" : "var-pos"}">${fmtPct(s.variance.t12)}</span></td>
         <td class="num"><span class="${s.variance.t3 < 0 ? "var-neg" : "var-pos"}">${fmtPct(s.variance.t3)}</span></td>
-        <td class="num var-neg">${s.variance.gapDollars < 0 ? bigMoney(s.variance.gapDollars) : "—"}</td>
+        <td class="num var-neg">${s.variance.gapDollars < 0 ? bigMoney(s.variance.gapDollars) : "-"}</td>
         <td>${planBadge(s.actionPlan.health)}</td>
         <td>${spark}</td>
       </tr>`;
@@ -302,12 +297,11 @@
 
       <div class="grid three-col" style="margin-top:16px">
         <div class="card">
-          <div class="card-head"><h4>Plan vs. actual revenue <span class="epic-tag">E6</span></h4></div>
-          <div class="card-sub">Each metric charted from the action date forward, so you can tell whether the plan worked.</div>
+          <div class="card-head"><h4>Plan vs. actual revenue</h4></div>
           ${C.planVsActual(a.monthly, bc.planLine, MONTHS, ACTION_MONTH_INDEX)}
         </div>
         <div class="card">
-          <h4>Why it's flagged <span class="epic-tag">E3</span></h4>
+          <h4>Why it's flagged</h4>
           <div class="card-sub">Rule ${s.ruleVersion} · flagged ${s.flagDate}</div>
           ${s.reasons.length ? `<ul class="reason-list">${s.reasons.map((r) => `
             <li><span class="r-ic">!</span>
@@ -335,9 +329,7 @@
 
       <div style="margin-top:16px">
         ${salesAskCard(s)}
-      </div>
-
-      <div class="footer-note">One record per store carrying the business-case baseline (E2), live actuals (E1), the challenged rationale (E3), the deficiency view (E4), the action plan and sales ask (E5), and progress from the action date (E6).</div>`;
+      </div>`;
   }
 
   function storeHeader(s) {
@@ -372,16 +364,16 @@
   function actionPlanCard(s) {
     const steps = s.actionPlan.steps;
     const sub = planView === "board"
-      ? "Track steps by status — drag a card between columns to update it. Owners, due dates and risk live on the store, not in a deck."
-      : "Steps, owners, dates and risks live on the store — not in a deck or email.";
+      ? "Drag a card between columns to update its status."
+      : "";
     const body = steps.length === 0
-      ? `<div class="empty">No action plan recorded yet.${s.challenged ? " This flagged store needs one — add the first step." : ""}</div>`
+      ? `<div class="empty">No action plan recorded yet.${s.challenged ? " This flagged store needs one. Add the first step." : ""}</div>`
       : (planView === "board" ? kanbanBoard(s) : planList(s));
     return `
       <div class="card">
         <div class="card-head">
-          <div><h4>Action plan <span class="epic-tag">E5</span></h4>
-          <div class="card-sub">${sub}</div></div>
+          <div><h4>Action plan</h4>
+          ${sub ? `<div class="card-sub">${sub}</div>` : ""}</div>
           <div class="card-head-actions">
             ${planBadge(s.actionPlan.health)}
             <div class="seg seg-sm">
@@ -488,7 +480,7 @@
   }
 
   function planOwnerOptions(s, current) {
-    const base = [s.gm, s.cpm, s.rvp, "Sales — Team"];
+    const base = [s.gm, s.cpm, s.rvp, "Sales · Team"];
     const list = [...new Set([current, ...base].filter(Boolean))];
     return list.map((o) => `<option ${o === current ? "selected" : ""}>${escapeAttr(o)}</option>`).join("");
   }
@@ -496,15 +488,14 @@
   function salesAskCard(s) {
     return `
       <div class="card">
-        <div class="card-head"><div><h4>Sales asks &amp; activity <span class="epic-tag">E5</span></h4>
-          <div class="card-sub">Raise an ask, route it to Sales, see it closed. Past activity on the same record.</div></div></div>
+        <div class="card-head"><div><h4>Sales asks &amp; activity</h4></div></div>
         ${s.salesAsks.length ? `<div class="ask-grid">${s.salesAsks.map((a) => `
           <div class="ask-item">
             <div class="a-title">${a.ask}</div>
             <div class="a-meta">Client ${a.client} · owner ${a.owner} · raised ${a.raised}</div>
             <div style="margin-top:6px">${askStatusBadge(a.status)}</div>
           </div>`).join("")}</div>` : `<div class="empty" style="padding:14px">No open sales asks.</div>`}
-        <div class="card-sub" style="margin-top:12px;border-top:1px solid var(--line-2);padding-top:10px">Past sales activity — ${s.pastActivity[0].client} and others</div>
+        <div class="card-sub" style="margin-top:12px;border-top:1px solid var(--line-2);padding-top:10px">Past sales activity</div>
         ${s.pastActivity.map((p) => `<div class="p-meta" style="padding:4px 0"><span>${p.date}</span> · <b>${p.client}</b> · ${p.note}</div>`).join("")}
       </div>`;
   }
@@ -517,8 +508,8 @@
     }));
     return `
       <div class="card">
-        <div class="card-head"><div><h4>Deficiency — revenue by DRP <span class="epic-tag">E4</span></h4>
-          <div class="card-sub">Which carrier relationship is driving the gap. YoY at right.</div></div>
+        <div class="card-head"><div><h4>Deficiency: revenue by DRP</h4>
+</div>
           <a href="#" data-nav-link="deficiency">Full analysis →</a></div>
         ${C.hbars(rows, { w: 520, padL: 96, title: "Revenue by DRP" })}
         <div class="metric-grid" style="margin-top:12px;grid-template-columns:repeat(3,1fr)">
@@ -532,8 +523,7 @@
   function drpScorecardCard(s) {
     return `
       <div class="card">
-        <div class="card-head"><div><h4>DRP scorecard vs area competitors <span class="epic-tag">E4</span></h4>
-          <div class="card-sub">Standing before the carrier meeting. Rank change drives assignment volume.</div></div></div>
+        <div class="card-head"><div><h4>DRP scorecard vs area competitors</h4></div></div>
         <div class="tbl-wrap"><table>
           <thead><tr><th>Carrier</th><th>Metric</th><th class="num">Score</th><th>Rank vs area</th></tr></thead>
           <tbody>${s.drpScorecard.map((d) => `<tr>
@@ -547,7 +537,7 @@
   }
 
   /* =========================================================================
-     VIEW: Deficiency & carrier analysis  (E4)
+     VIEW: Deficiency & carrier analysis 
      ====================================================================== */
   function viewDeficiency() {
     const scoped = personaScopedStores().filter((s) => s.challenged);
@@ -579,7 +569,7 @@
     const avgCbsaPrior = scoped.reduce((a, s) => a + s.deficiency.cbsaPrior, 0) / (scoped.length || 1);
 
     return `
-      ${topbar("Deficiency &amp; carrier analysis", "One analysis view built once against certified DOMO datasets — replacing the per-cycle rebuild of PIF counts, CBSA share, and revenue by client and DRP.", "E4")}
+      ${topbar("Deficiency &amp; carrier analysis", "")}
       <div class="grid kpi-row">
         ${kpiCard({ label: "Challenged stores in view", value: scoped.length, meta: `${PERSONAS[state.persona].scope}` })}
         ${kpiCard({ label: "PIF count (challenged)", value: (totalPif / 1000).toFixed(1) + "K", meta: `${totalPif >= totalPifPrior ? "▲" : "▼"} vs ${(totalPifPrior / 1000).toFixed(1)}K prior year`, cls: totalPif >= totalPifPrior ? "good" : "bad" })}
@@ -589,20 +579,19 @@
 
       <div class="grid two-col">
         <div class="card">
-          <h4>Revenue by DRP — challenged stores <span class="epic-tag">E4</span></h4>
-          <div class="card-sub">Aggregated across ${scoped.length} flagged stores. Tells a shop problem from a market problem.</div>
+          <h4>Revenue by DRP, challenged stores</h4>
+          <div class="card-sub">Aggregated across ${scoped.length} flagged stores.</div>
           ${C.hbars(drpRows, { w: 540, padL: 96 })}
         </div>
         <div class="card">
-          <h4>DRP scorecard slippage vs area competitors <span class="epic-tag">E4</span></h4>
-          <div class="card-sub">Where standing is falling — drives the carrier meeting agenda and assignment volume.</div>
+          <h4>DRP scorecard slippage vs area competitors</h4>
           <div class="tbl-wrap"><table>
             <thead><tr><th>Carrier</th><th class="num">Stores</th><th class="num">Slipping</th><th class="num">Improving</th><th>Net</th></tr></thead>
             <tbody>${slipRows.map(([c, v]) => `<tr>
               <td class="store-name">${c}</td>
               <td class="num">${v.stores}</td>
-              <td class="num var-neg">${v.down || "—"}</td>
-              <td class="num var-pos">${v.up || "—"}</td>
+              <td class="num var-neg">${v.down || "-"}</td>
+              <td class="num var-pos">${v.up || "-"}</td>
               <td>${v.down > v.up ? `<span class="badge bad"><span class="dot"></span>Losing</span>` : v.up > v.down ? `<span class="badge good"><span class="dot"></span>Gaining</span>` : `<span class="badge neutral">Flat</span>`}</td>
             </tr>`).join("")}</tbody>
           </table></div>
@@ -627,14 +616,14 @@
         </tr>`;
     }).join("")}</tbody>
       </table></div></div>
-      <div class="footer-note">Built once against certified DOMO datasets (PIF via CCCone→BDAP, CBSA share monthly). "Market" = share and volume both falling; "Shop" = share holding while revenue lags — a shop-execution problem.</div>`;
+      <div class="footer-note">"Market" = share and volume both falling. "Shop" = share holding while revenue lags.</div>`;
   }
 
   /* =========================================================================
-     VIEW: Slippage alerts  (E6)
+     VIEW: Slippage alerts 
      ====================================================================== */
-  // prio orders the feed so the headline value — a business-case slippage alert
-  // at the first missed period — surfaces above secondary signals.
+  // prio orders the feed so the headline value, a business-case slippage alert
+  // at the first missed period, surfaces above secondary signals.
   function alertsList() {
     const scoped = personaScopedStores();
     const alerts = [];
@@ -642,13 +631,13 @@
       // first-missed-period alert (the E6 headline)
       if (s.variance.t3 <= -0.08)
         alerts.push({ store: s, sev: "bad", prio: 0, type: "Slippage vs business case", when: s.flagDate, sort: s.variance.t3,
-          desc: `T3 revenue ${fmtPct(s.variance.t3)} against the case — caught at the first missed period, not at quarterly review.` });
+          desc: `T3 revenue ${fmtPct(s.variance.t3)} below the business case.` });
       else if (s.variance.t3 <= -0.03)
         alerts.push({ store: s, sev: "warn", prio: 2, type: "Early slippage watch", when: s.flagDate, sort: s.variance.t3,
-          desc: `T3 revenue ${fmtPct(s.variance.t3)} vs case — trending toward the challenged threshold.` });
+          desc: `T3 revenue ${fmtPct(s.variance.t3)} vs case, trending toward the challenged threshold.` });
       s.drpScorecard.filter((d) => d.rank - d.prevRank >= 2).forEach((d) =>
         alerts.push({ store: s, sev: "bad", prio: 1, type: "DRP rank drop", when: s.flagDate, sort: -(d.rank - d.prevRank),
-          desc: `${d.carrier} scorecard slipped #${d.prevRank}→#${d.rank} of ${d.totalComp} — assignment risk.` }));
+          desc: `${d.carrier} scorecard slipped #${d.prevRank} to #${d.rank} of ${d.totalComp}. Assignment risk.` }));
       s.actionPlan.steps.filter((st) => st.overdue).forEach((st) =>
         alerts.push({ store: s, sev: "warn", prio: 3, type: "Overdue action item", when: st.due, sort: 0,
           desc: `"${st.title}" owned by ${st.owner} is past due.` }));
@@ -660,7 +649,7 @@
     const alerts = alertsList();
     const critical = alerts.filter((a) => a.type === "Slippage vs business case").length;
     return `
-      ${topbar("Slippage alerts", "Get ahead of slippage: an alert on the business case at the first missed period, plus overdue items and DRP rank drops. Follow-up stops being reactive.", "E6")}
+      ${topbar("Slippage alerts", "")}
       <div class="grid kpi-row">
         ${kpiCard({ label: "Open alerts", value: alerts.length, meta: `${PERSONAS[state.persona].scope}` })}
         ${kpiCard({ label: "Slippage vs case", value: critical, meta: "at or past challenged threshold", cls: "bad" })}
@@ -672,19 +661,18 @@
           <div class="alert-item clickable" data-store="${a.store.id}">
             <div class="a-ic ${a.sev}">${a.sev === "bad" ? "!" : "⚠"}</div>
             <div class="a-main">
-              <b>${a.type} — ${a.store.name}</b>
+              <b>${a.type} · ${a.store.name}</b>
               <div class="a-desc">${a.desc}</div>
               <div class="store-meta" style="margin-top:3px">${a.store.city}, ${a.store.state} · CPM ${a.store.cpm} · ${a.store.cohort}</div>
             </div>
             <div class="a-when">${a.when}</div>
           </div>`).join("")}
         ${alerts.length > 60 ? `<div class="count-note" style="padding:12px 14px">Showing 60 of ${alerts.length}.</div>` : ""}
-      </div>
-      <div class="footer-note">Alerts fire on the business-case comparison the moment a period misses — measured against baseline (E2) using live DOMO actuals (E1). Time from first missed period to recorded action is a key success metric.</div>`;
+      </div>`;
   }
 
   /* =========================================================================
-     VIEW: Challenged rule  (E3)
+     VIEW: Challenged rule 
      ====================================================================== */
   function viewRule() {
     const scoped = STORES;
@@ -692,7 +680,7 @@
     RULE.criteria.forEach((c) => counts[c.key] = 0);
     scoped.forEach((s) => s.reasons.forEach((r) => counts[r.key] = (counts[r.key] || 0) + 1));
     return `
-      ${topbar("Challenged-store rule", "Boyd's existing challenged definition, applied automatically and kept auditable. Versioned so a definition change does not silently restate history.", "E3")}
+      ${topbar("Challenged-store rule", "")}
       <div class="grid two-col">
         <div class="card">
           <div class="card-head"><div><h4>Definition ${RULE.version}</h4>
@@ -709,7 +697,7 @@
         </div>
         <div class="card">
           <h4>Version history</h4>
-          <div class="card-sub">Changing the definition creates a new version — history is preserved under the version that produced it.</div>
+          <div class="card-sub">Changing the definition creates a new version. History is preserved under the version that produced it.</div>
           ${[{ v: "v2.3", d: RULE.effective, note: "Added CBSA share ≥1.5pt YoY drop. Current.", active: true },
             { v: "v2.2", d: "2025-10-01", note: "DRP rank-drop threshold tightened to 2 ranks." },
             { v: "v2.1", d: "2025-07-01", note: "T3 threshold moved from -10% to -8%." },
@@ -719,18 +707,17 @@
               <div class="store-meta" style="margin-top:3px">${h.note}</div></div></div>`).join("")}
           <div class="callout" style="margin-top:12px"><span>⚖</span><div><b>Admin control.</b> Editing a criterion here would open <b>v2.4</b> in draft and re-run detection on a preview cohort before publishing.</div></div>
         </div>
-      </div>
-      <div class="footer-note">Auditable rule + per-store rationale means CPMs stop building the challenged list from the tracker doc by hand.</div>`;
+      </div>`;
   }
 
   /* =========================================================================
-     VIEW: Data foundation  (E1)
+     VIEW: Data foundation 
      ====================================================================== */
   function viewData() {
     return `
-      ${topbar("Data foundation", "DOMO stays the source of truth; the app reads certified datasets rather than copying the warehouse into a vendor tool. Refresh status is visible so users know how current a view is.", "E1")}
+      ${topbar("Data foundation", "")}
       <div class="card" style="margin-bottom:16px">
-        <h4>Lineage — read, don't restate</h4>
+        <h4>Lineage</h4>
         <div class="card-sub">The app reads certified DOMO datasets. No warehouse copy; no second home for the challenged definition.</div>
         <div class="lineage">
           <span class="node">CCCone</span><span class="arrow">→</span>
@@ -753,20 +740,19 @@
         </table></div>
       </div>
       <div class="grid two-col" style="margin-top:16px">
-        <div class="callout"><span>ⓘ</span><div><b>Why numbers match the exec dashboard.</b> Revenue T12/T3 read the same certified DOMO datasets that back the executive dashboard — CPMs stop pulling it by hand each cycle.</div></div>
+        <div class="callout"><span>ⓘ</span><div><b>Why numbers match the exec dashboard.</b> Revenue T12/T3 read the same certified DOMO datasets that back the executive dashboard.</div></div>
         <div class="callout"><span>⚠</span><div><b>Known gaps.</b> CBSA share refreshes monthly; DRP carrier scorecards arrive on an uncertified weekly feed. Both are surfaced on the record so users read them with the right currency.</div></div>
-      </div>
-      <div class="footer-note">Increment E1 — data foundation. Refresh status visible to users (IT ask). Investment-committee business cases load once per store (E2), owned by Finance.</div>`;
+      </div>`;
   }
 
   /* ---- shared UI bits ----------------------------------------------------- */
-  function topbar(title, sub, epic) {
+  function topbar(title, sub) {
     const fresh = "06:04 ET";
     return `
       <div class="topbar">
         <div>
-          <div class="h">${title} ${epic ? `<span class="epic-tag">${epic}</span>` : ""}</div>
-          <div class="sub">${sub}</div>
+          <div class="h">${title}</div>
+          ${sub ? `<div class="sub">${sub}</div>` : ""}
         </div>
         <div class="pill-row">
           <span class="pill"><span class="dot"></span>DOMO fresh · ${fresh}</span>

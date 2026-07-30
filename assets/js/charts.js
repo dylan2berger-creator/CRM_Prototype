@@ -1,5 +1,5 @@
 /* =============================================================================
-   Tiny inline-SVG chart helpers — no external libraries.
+   Tiny inline-SVG chart helpers. No external libraries.
    Keeps the prototype self-contained and matches the "read, don't restate"
    posture: charts render whatever the app read, nothing more.
    ========================================================================== */
