@@ -1,90 +1,120 @@
-# Challenged Shop Turnaround Tracker, Prototype
+# CRM — Client Recovery Manager (prototype)
 
-An interactive, click-through prototype of the in-house app described in the
-**Challenged Shop Turnaround Tracker** opportunity canvas. It puts one record
-per store, carrying the investment-committee **business-case baseline**, live
-**DOMO actuals**, an auditable **challenged flag**, the **deficiency/carrier
-analysis**, the **action plan and sales ask**, and **progress from the action
-date**, behind a single portfolio roll-up.
+A clickable prototype of an internal Boyd Group application, working name **CRM
+(Client Recovery Manager)**. It holds each shop's KPI targets against actuals
+and gives Client Performance Managers (CPMs) the tools to spot off-target
+stores, diagnose why, and build and track a recovery action plan on the same
+record.
 
-> Scope modeled: **345 stores**, each measured against the business case in its
-> IC memo. Direction: build in
-> house on Boyd's stack; **DOMO stays the source of truth and the app reads it.**
+> **Naming note (for the team, not the build).** "CRM" collides with the
+> industry meaning of *customer relationship management*, which Boyd almost
+> certainly already runs. Expect stakeholders to assume this is a sales tool.
+> The name is used as given but the full expansion **Client Recovery Manager**
+> appears throughout the UI so the app title reads unambiguously. Confirm the
+> name before anything ships with it.
+
+This is a demo-and-feedback prototype. It is **not** a pilot, connects to **no**
+real systems, and writes back nowhere.
 
 ## Run it
 
-No build step. It's static HTML/CSS/vanilla JS.
-
 ```bash
-# from the repo root
-python3 -m http.server 8099
-# then open http://localhost:8099
+npm install && npm run dev
 ```
 
-Or just open `index.html` directly in a browser.
+Then open the printed local URL. Other scripts:
 
-## What to click
+- `npm run build` — type-check and produce a production build.
+- `npm test` — run the unit tests for the challenged-store rule.
 
-Use the **Viewing as** persona switcher (bottom-left) to see the app from each
-target customer's seat, CPM (primary), RVP (region-scoped), Shop GM (single
-store), Sales, Finance, Executive. Then walk the nav:
+## Stack
 
-| View | Increment | What it shows |
-|------|-----------|---------------|
-| **Portfolio** | E6 / E3 | KPI roll-up + every store ranked by gap to business case, with live plan health, T12/T3 variance, and a trend sparkline. Filters by region and status. |
-| **Store record** (click any row) | E2 / E3 / E5 / E6 | Plan-vs-actual charted from the action date; the exact rule reasons the store was flagged; action plan (owners, dates, risks); sales asks + past activity; deficiency mini-view; DRP scorecard. |
-| **Slippage alerts** | E6 | Business-case slippage caught at the first missed period (headline), plus DRP rank drops and overdue action items. |
-| **Deficiency analysis** | E4 | Revenue by client/DRP, PIF counts, CBSA share, and DRP scorecard slippage, the analysis that gets rebuilt every cycle, built once. "Market" vs "Shop" read per store. |
-| **Challenged rule** | E3 | The versioned challenged definition, per-criterion flag counts, and version history so a definition change never silently restates history. |
-| **Data foundation** | E1 | DOMO lineage (CCCone → BDAP → DOMO → app, read-only), certified-dataset status, and refresh currency. |
+Vite + React + TypeScript, Tailwind CSS, Recharts, React Router. No state
+library (React state + context), no backend, no database. All state lives in
+memory and resets on a hard reload.
 
-## How it maps to the canvas increments
+## What's mocked
 
-- **E1, Data foundation.** `Data foundation` view shows the read-only lineage,
-  certified DOMO datasets, latency, and refresh status. The app **reads**
-  certified datasets; it does not restate the warehouse.
-- **E2, Business-case baseline.** Every store carries its IC memo numbers
-  (`memoRef`, target monthly revenue, ARO, car count) as the plan actuals are
-  measured against.
-- **E3, Challenged detection.** A versioned, auditable rule (`v2.3`) flags
-  stores automatically; each flag records the specific metric and period, shown
-  on the store record and rolled up on the `Challenged rule` view.
-- **E4, Deficiency & carrier analysis.** One analysis view: revenue by client
-  and DRP, PIF counts, CBSA market share, and DRP scorecard standing vs area
-  competitors.
-- **E5, Action plan & sales ask.** The plan lives on the store record, steps,
-  owners, dates, risks, plus sales asks routed to Sales and past client
-  activity on the same record.
-- **E6, Progress, alerting, roll-up.** Each metric charts from the action date;
-  slippage alerts fire at the first missed period; the portfolio ranks stores by
-  gap to business case with plan health across markets.
+**Everything.** There is no DOMO, BDAP, or CCCone connection. All data is
+generated locally at startup by a **seeded deterministic generator**
+(`src/mock/generator.ts`, seed in `src/seed.ts`), so screenshots reproduce
+across reloads and machines. The real application would read from **DOMO**
+(metrics and exec dashboard) and **BDAP** (upstream of DOMO, fed by **CCCone**);
+both are simulated here. Each screen showing a DOMO-derived number can name its
+source dataset and say how current it is (all timestamps are mocked too).
 
-## About the data
+The generated world: 345 stores (205 Boyd, 140 JHCC), 12 regions, 60 CBSAs, 14
+carriers (9 DRP), and 36 months of history ending at the current month. Roughly
+18–22% of stores are currently challenged (a struggling Southeast region
+concentrates some of them), about 60% of challenged stores have an action plan,
+and the data deliberately plants the patterns the demo needs to find (distinct
+root-cause signatures, carrier- and region-level underperformance, DRP-volume vs
+revenue splits, internal vs external rules divergence, carrier volume anomalies,
+a "Not loaded" baseline gap, and tasks whose target metric improved, didn't
+move, or got worse).
 
-All records are **synthetic** and generated deterministically from a fixed seed
-(`assets/js/data.js`), so the prototype looks identical on every load. No real
-Boyd data, no customer or employee PII. In the production build these records are
-read from certified DOMO datasets and the loaded IC business cases, this
-prototype simulates that read locally.
+## Screens
 
-Roughly **48% of the modeled portfolio flags as challenged** under the demo rule
-thresholds, tune `RULE.criteria` and the posture bands in `data.js` to explore
-other definitions.
+- **Portfolio** (`/`) — the CPM's book, challenged stores first. The list *is*
+  the identification step; no hunting.
+- **Store record** (`/store/:id`) — everything about one store: baseline,
+  performance chart with per-task markers, why-flagged, diagnosis, client/DRP
+  breakdown, the action plan, and sales activity.
+- **Plan editor** (`/store/:id/plan`) — structured, typed tasks with the metrics
+  they are meant to move, owners, tags, risks, and sales asks.
+- **Analysis** (`/analysis`) — forecast vs actual with a carrier / region / shop
+  / carrier-in-region pivot, root-cause comparison, and a shop-vs-market view.
+- **Benchmarking** (`/benchmarking`) — KPI movement vs plan activity, before/
+  after per task, and aggregate outcome by task type.
+- **Carriers** (`/carriers`) — DRP scorecards, assignment volume vs forecast,
+  anomalies, and scorecard-driver weighting per carrier.
+- **Roll-up** (`/roll-up`) — region and executive roll-up, application metrics,
+  brand split.
+- **Alerts** (`/alerts`) — the proactive alert queue.
 
-## Project layout
+Use the **role switcher** in the header (CPM / RVP / Shop GM / Executive) to
+change the visible scope and landing screen.
 
-```
-index.html              # entry point
-assets/css/styles.css   # theme (light + dark), layout, components
-assets/js/data.js       # seeded mock portfolio + DOMO dataset status + rule
-assets/js/charts.js     # inline-SVG charts (plan-vs-actual, bars, sparklines, rank pills)
-assets/js/app.js         # router, persona switching, all views
-```
+## The challenged-store rule
 
-## Not in this prototype (deliberately)
+A single pure function with a version string
+(`src/logic/challengedRule.ts`, `RULE_VERSION = 'v2.1'`), unit-tested in
+`src/logic/challengedRule.test.ts`. Prototype thresholds (labelled in the UI as
+placeholders): T3 revenue below 90% of plan, or T12 below 95%, or DRP volume
+below 90% of forecast on a carrier over 20% of revenue, or a Watch/At-risk DRP
+tier on such a carrier, or capture rate below 60% for two consecutive months.
+Every flag records its reasons down to the metric, value, and threshold.
 
-This is a UI/UX and data-model prototype to align stakeholders, it is **not**
-wired to DOMO, has no auth, and persists nothing. The canvas's open questions
-(who loads the business-case numbers, DOMO latency/certification/read pattern,
-PIF/CBSA/DRP licensing and granularity, IT sizing of the in-house build) are the
-next steps before implementation.
+## Open questions (surfaced in the UI, not resolved in code)
+
+These are deliberately left visible where they bite, to generate the right
+conversation in a demo:
+
+- **Challenged-rule thresholds** are placeholders pending sign-off from Finance
+  and Client Performance Management.
+- **Business case numbers** may exist only in memos and workbooks — the "Not
+  loaded" baseline state (some JHCC stores have no RO plan) is deliberate.
+- **DRP scorecard data at competitor granularity** may not be licensable; that
+  table is marked as dependent on an unconfirmed source.
+- **JHCC stores** may not share a comparable metric set with the legacy 205.
+- **The app name "CRM"** collides with customer relationship management — confirm
+  before anything ships with it in the UI.
+- **Estimate accuracy, rules adherence, central review, quality recommendation,
+  and supplement counts** may not be available at store and carrier grain in
+  DOMO today.
+- **Internal vs external rules adherence** may not be separable in the source
+  systems; the prototype assumes it is (and keeps them separate everywhere
+  because they point at different fixes). Confirm before the split is
+  load-bearing.
+- **Forecast DRP assignment volume** may not exist as a published number the way
+  revenue forecast does. Confirm who owns it.
+- **The `TaskType` taxonomy** is a first pass drawn from examples — validate it
+  with CPMs before it becomes fixed. A wrong list is worse than free text.
+
+## Application metrics
+
+Surfaced on the roll-up screen with targets left as **TBD**: percent of shops
+with an assigned CPM (expected to decrease), percent of challenged shops meeting
+targets (expected to increase), percent of action plan tasks on track, plus
+supporting operational metrics (rental days, total cost of repair, estimate
+accuracy, percent supplements).
