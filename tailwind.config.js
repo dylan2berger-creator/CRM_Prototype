@@ -1,5 +1,5 @@
 /*
- * CRM (Client Recovery Manager) — theme
+ * Rebound (shop performance recovery) — theme
  *
  * DESIGN DIRECTION (stated per spec):
  * This is a field operations tool a Client Performance Manager keeps open all

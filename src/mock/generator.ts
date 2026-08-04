@@ -1,4 +1,4 @@
-// Seeded, deterministic mock-data generator for CRM (Client Recovery Manager).
+// Seeded, deterministic mock-data generator for Rebound (shop performance recovery).
 //
 // Everything derives from SEED so screenshots reproduce across reloads and
 // machines. The generator's job is not just volume but *shape*: it plants the

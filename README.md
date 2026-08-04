@@ -1,17 +1,16 @@
-# CRM — Client Recovery Manager (prototype)
+# Rebound — Shop performance recovery (prototype)
 
-A clickable prototype of an internal Boyd Group application, working name **CRM
-(Client Recovery Manager)**. It holds each shop's KPI targets against actuals
-and gives Client Performance Managers (CPMs) the tools to spot off-target
-stores, diagnose why, and build and track a recovery action plan on the same
-record.
+A clickable prototype of an internal Boyd Group application, working name
+**Rebound**. It holds each shop's KPI targets against actuals and gives Client
+Performance Managers (CPMs) the tools to spot off-target stores, diagnose why,
+and build and track a recovery action plan on the same record.
 
-> **Naming note (for the team, not the build).** "CRM" collides with the
-> industry meaning of *customer relationship management*, which Boyd almost
-> certainly already runs. Expect stakeholders to assume this is a sales tool.
-> The name is used as given but the full expansion **Client Recovery Manager**
-> appears throughout the UI so the app title reads unambiguously. Confirm the
-> name before anything ships with it.
+> **Naming note.** The original spec used the working name *CRM (Client Recovery
+> Manager)*, which collides with the industry meaning of *customer relationship
+> management* — Boyd almost certainly already runs one, and stakeholders would
+> assume this is a sales tool. It has been renamed **Rebound** (a store bouncing
+> back to plan) to avoid that collision. The name is still a working title;
+> confirm it before anything ships.
 
 This is a demo-and-feedback prototype. It is **not** a pilot, connects to **no**
 real systems, and writes back nowhere.
@@ -97,8 +96,9 @@ conversation in a demo:
 - **DRP scorecard data at competitor granularity** may not be licensable; that
   table is marked as dependent on an unconfirmed source.
 - **JHCC stores** may not share a comparable metric set with the legacy 205.
-- **The app name "CRM"** collides with customer relationship management — confirm
-  before anything ships with it in the UI.
+- **The app name** was changed from the placeholder *CRM* to **Rebound** to
+  avoid the customer-relationship-management collision; it is still a working
+  title, so confirm it before anything ships.
 - **Estimate accuracy, rules adherence, central review, quality recommendation,
   and supplement counts** may not be available at store and carrier grain in
   DOMO today.
