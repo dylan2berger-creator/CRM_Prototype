@@ -6,10 +6,10 @@ import { Link } from 'react-router-dom';
 import { useData } from '@/data/DataContext';
 import { useRole } from '@/app/RoleContext';
 import {
-  cpmName,
   portfolioRow,
   PortfolioRow,
   regionName,
+  spmName,
   storesForScope,
   TIER_ORDER,
 } from '@/data/selectors';
@@ -78,7 +78,7 @@ export function Portfolio() {
         <div>
           <h1 className="text-lg font-semibold text-ink">Portfolio</h1>
           <p className="text-xs text-muted">
-            {role === 'cpm' ? `${config.userName}'s book` : config.label} - {rows.length} stores,{' '}
+            {role === 'spm' || role === 'cpm' ? `${config.userName}'s book` : config.label} - {rows.length} stores,{' '}
             <span className="font-medium text-bad-text">{challengedCount} challenged</span>
             {noPlanCount > 0 && <>, {noPlanCount} with no plan yet</>}. Challenged stores are listed first.
           </p>
@@ -160,7 +160,7 @@ export function Portfolio() {
                 <th>Store</th>
                 <th>Brand</th>
                 <th>Region</th>
-                <th title="CPM for the store's dominant DRP carrier in its division">Lead CPM</th>
+                <th title="Shop Performance Manager who owns this shop">SPM</th>
                 <th>Client mix</th>
                 <th className="text-right">T3 revenue vs plan</th>
                 <th className="text-right">T3 volume vs forecast</th>
@@ -183,7 +183,7 @@ export function Portfolio() {
 }
 
 function Row({ r, data }: { r: PortfolioRow; data: ReturnType<typeof useData>['data'] }) {
-  const unassigned = r.store.cpmId === '';
+  const unassigned = r.store.spmId === '';
   const dominant = r.clientMix[0];
   const rowTone = r.challenged.isChallenged
     ? 'bg-bad-soft/40'
@@ -209,11 +209,11 @@ function Row({ r, data }: { r: PortfolioRow; data: ReturnType<typeof useData>['d
       </td>
       <td>
         {unassigned ? (
-          <span className="chip bg-bad-soft text-bad-text ring-1 ring-inset ring-bad/30" title="No CPM assigned">
+          <span className="chip bg-bad-soft text-bad-text ring-1 ring-inset ring-bad/30" title="No SPM assigned">
             ▲ Unassigned
           </span>
         ) : (
-          <span className="text-xs">{cpmName(data, r.store.cpmId)}</span>
+          <span className="text-xs">{spmName(data, r.store.spmId)}</span>
         )}
       </td>
       <td className="text-xs">

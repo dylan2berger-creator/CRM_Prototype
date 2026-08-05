@@ -52,11 +52,14 @@ and region-level underperformance, DRP-volume vs revenue splits, internal vs
 external rules divergence, carrier volume anomalies, a "Not loaded" baseline
 gap, and tasks whose target metric improved, didn't move, or got worse).
 
-Each Client Performance Manager owns one DRP carrier within one division (9 DRP
-carriers x 3 divisions = 27 seats, a few left vacant), so a CPM's book is the
-stores that trade their carrier in their division, and a store's "lead CPM" is
-the owner of its dominant DRP carrier. The store record lists the CPM for every
-DRP carrier it trades.
+Two manager roles are modeled. A **Shop Performance Manager (SPM)** owns a book
+of shops (the shop's owner, and the primary Rebound user who builds recovery
+plans); a few shops are left unassigned so the "percent of shops with an
+assigned SPM" metric has something to show. A **Client Performance Manager
+(CPM)** owns one DRP carrier within one division (9 DRP carriers x 3 divisions =
+27 seats, a few vacant), so a CPM's book is the shops that trade their carrier
+in their division. The store record shows the shop's SPM and lists the CPM for
+every DRP carrier it trades. Both are switchable in the role menu.
 
 ## Screens
 

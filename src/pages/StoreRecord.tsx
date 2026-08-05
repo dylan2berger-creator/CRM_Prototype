@@ -9,8 +9,8 @@ import {
   cbsaById,
   clientById,
   cpmForCarrierDivision,
-  cpmName,
   divisionOfStore,
+  spmName,
   planForStore,
   regionName,
   storeById,
@@ -98,8 +98,8 @@ export function StoreRecord() {
               <span>GM {store.gmName}</span>
               <span>{regionName(data, store.regionId)}{storeDivision ? ` · ${storeDivision}` : ''}</span>
               <span>{cbsa ? `${cbsa.name}, ${cbsa.state}` : store.cbsaId}</span>
-              <span title="CPM for the store's dominant DRP carrier in this division. CPMs are assigned per carrier - see the breakdown below.">
-                Lead CPM {store.cpmId ? cpmName(data, store.cpmId) : <span className="text-bad-text">unassigned</span>}
+              <span title="Shop Performance Manager who owns this shop. CPMs are assigned per carrier - see the breakdown below.">
+                SPM {store.spmId ? spmName(data, store.spmId) : <span className="text-bad-text">unassigned</span>}
               </span>
               <span className={`chip ${store.brand === 'JHCC' ? 'bg-neutral-soft text-neutral-text' : 'bg-panel text-muted'}`}>{store.brand}</span>
             </div>
@@ -370,17 +370,17 @@ export function StoreRecord() {
 
 function OwnershipPanel({ data, store, plan }: { data: ReturnType<typeof useData>['data']; store: Store; plan?: ActionPlan }) {
   const region = data.regions.find((r) => r.id === store.regionId);
-  const prev = store.previousCpmId ? cpmName(data, store.previousCpmId) : null;
+  const prev = store.previousSpmId ? spmName(data, store.previousSpmId) : null;
   const tenure = monthDiff(data.currentMonth, store.assignedOn.slice(0, 7));
-  const prevSub = store.cpmId ? (prev ? `handed off ${dateLabel(store.assignedOn)}` : 'first owner') : 'book now vacant';
+  const prevSub = store.spmId ? (prev ? `handed off ${dateLabel(store.assignedOn)}` : 'first owner') : 'book now vacant';
   return (
     <Panel title="Ownership &amp; continuity" subtitle="Who owns this book now, who held it before, and the plan reasoning - so a handoff loses nothing.">
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <div className="rounded border border-line bg-surface px-3 py-2">
-          <div className="text-2xs font-medium uppercase tracking-wide text-muted">Current owner (CPM)</div>
-          {store.cpmId ? (
+          <div className="text-2xs font-medium uppercase tracking-wide text-muted">Current owner (SPM)</div>
+          {store.spmId ? (
             <>
-              <div className="mt-0.5 text-sm font-semibold text-ink">{cpmName(data, store.cpmId)}</div>
+              <div className="mt-0.5 text-sm font-semibold text-ink">{spmName(data, store.spmId)}</div>
               <div className="text-2xs text-muted">{tenure} mo on book · since {dateLabel(store.assignedOn)}</div>
             </>
           ) : (
@@ -419,9 +419,9 @@ function RecordTimeline({
   ev.push({
     iso: store.assignedOn,
     kind: 'assign',
-    text: store.cpmId
-      ? `Assigned to ${cpmName(data, store.cpmId)}${store.previousCpmId ? ` (handed off from ${cpmName(data, store.previousCpmId)})` : ' (new book)'}`
-      : `Book vacated${store.previousCpmId ? ` by ${cpmName(data, store.previousCpmId)}` : ''} - now unassigned`,
+    text: store.spmId
+      ? `Assigned to ${spmName(data, store.spmId)}${store.previousSpmId ? ` (handed off from ${spmName(data, store.previousSpmId)})` : ' (new book)'}`
+      : `Book vacated${store.previousSpmId ? ` by ${spmName(data, store.previousSpmId)}` : ''} - now unassigned`,
   });
   if (firstFlaggedMonth) ev.push({ iso: `${firstFlaggedMonth}-01`, kind: 'flag', text: `Flagged challenged by rule ${ruleVersion}` });
   if (plan) {

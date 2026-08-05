@@ -99,12 +99,12 @@ export function RollUp() {
         gapPct: totalPlan > 0 ? (gapSum / totalPlan) * 100 : 0,
         planCoverage: challengedRows.length ? (covered / challengedRows.length) * 100 : null,
         overdueRate: plansInRegion.length ? (overdue / plansInRegion.length) * 100 : null,
-        unassigned: rs.filter((r) => r.store.cpmId === '').length,
+        unassigned: rs.filter((r) => r.store.spmId === '').length,
       };
     });
 
     // Application metrics (scope-wide).
-    const assigned = stores.filter((s) => s.cpmId !== '').length;
+    const assigned = stores.filter((s) => s.spmId !== '').length;
     const meetingTargets = rows.filter((r) => !r.isChallenged).length;
     const recoveredCount = rows.filter((r) => r.recovered).length;
     const allSteps = rows.flatMap((r) => (r.plan ? r.plan.steps : []));
@@ -212,7 +212,7 @@ export function RollUp() {
       {/* Application metrics strip */}
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
         <Stat
-          label="Shops with an assigned CPM"
+          label="Shops with an assigned SPM"
           value={pct(view.appMetrics.cpmAssignedPct)}
           tone={view.appMetrics.cpmAssignedPct < 100 ? 'warn' : 'good'}
           sub={
@@ -487,7 +487,7 @@ function RegionCard({ c }: { c: RegionCardData }) {
           </dd>
         </div>
         <div>
-          <dt className="text-2xs uppercase tracking-wide text-muted">Unassigned CPM</dt>
+          <dt className="text-2xs uppercase tracking-wide text-muted">Unassigned SPM</dt>
           <dd className={`tnum ${c.unassigned > 0 ? 'text-warn-text' : 'text-ink'}`}>{int(c.unassigned)}</dd>
         </div>
       </dl>

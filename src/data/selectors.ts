@@ -34,6 +34,13 @@ export function cpmName(data: DataSet, id: string): string {
 export function cpmById(data: DataSet, id: string) {
   return data.cpms.find((c) => c.id === id);
 }
+// SPM (Shop Performance Manager) - the shop's owner.
+export function spmName(data: DataSet, id: string): string {
+  return data.spms.find((s) => s.id === id)?.name ?? '';
+}
+export function spmById(data: DataSet, id: string) {
+  return data.spms.find((s) => s.id === id);
+}
 
 // The division a store sits in, via its region.
 export function divisionOfStore(data: DataSet, storeId: string): Division | undefined {
@@ -168,11 +175,18 @@ export function challengedInfo(data: DataSet, storeId: string): ChallengedInfo {
 // Stores in scope for a role/user.
 export function storesForScope(
   data: DataSet,
-  scope: { type: 'all' } | { type: 'cpm'; cpmId: string } | { type: 'region'; regionId: string } | { type: 'store'; storeId: string },
+  scope:
+    | { type: 'all' }
+    | { type: 'spm'; spmId: string }
+    | { type: 'cpm'; cpmId: string }
+    | { type: 'region'; regionId: string }
+    | { type: 'store'; storeId: string },
 ): Store[] {
   switch (scope.type) {
     case 'all':
       return data.stores;
+    case 'spm':
+      return data.stores.filter((s) => s.spmId === scope.spmId);
     case 'cpm':
       return storesForCpm(data, scope.cpmId);
     case 'region':

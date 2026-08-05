@@ -97,6 +97,7 @@ interface StoreProfile {
 }
 
 export interface Landmarks {
+  primarySpmId: string;
   primaryCpmId: string;
   gmStoreId: string;
   challengedNoPlan: string;
@@ -234,6 +235,16 @@ export function generate(): GeneratedData {
   // runs under forecast broadly, in the division that carries the Gulf Region.
   const primaryCpmId = cpmByCarrierDiv.get(`${drpClients[2].id}|South Division`)!;
 
+  // --- SPMs -----------------------------------------------------------------
+  // Shop Performance Managers own the shops. Each holds a book of shops and is
+  // the shop's owner (distinct from the carrier-owning CPMs above).
+  const SPM_COUNT = 18;
+  const spms: DataSet['spms'] = [];
+  for (let i = 0; i < SPM_COUNT; i++) {
+    spms.push({ id: `SPM-${String(i + 1).padStart(3, '0')}`, name: personName() });
+  }
+  const primarySpmId = spms[0].id; // the primary demo store owner (rich book)
+
   // --- Stores + profiles ----------------------------------------------------
   const stores: Store[] = [];
   const profiles = new Map<string, StoreProfile>();
@@ -325,26 +336,21 @@ export function generate(): GeneratedData {
     const shareSum = rawShares.reduce((a, b) => a + b, 0);
     const clientShares = rawShares.map((s) => s / shareSum);
 
-    // CPM: a store's owner is the CPM for its dominant DRP carrier within the
-    // store's division. Empty when that carrier x division slot is vacant.
-    const division = region.division;
-    let dominantDrp = '';
-    let dominantShare = -1;
-    for (let k = 0; k < clientIds.length; k++) {
-      const cl = clients.find((c) => c.id === clientIds[k])!;
-      if (cl.isDrp && clientShares[k] > dominantShare) {
-        dominantShare = clientShares[k];
-        dominantDrp = cl.id;
-      }
-    }
-    const cpmId = dominantDrp ? cpmByCarrierDiv.get(`${dominantDrp}|${division}`) ?? '' : '';
+    // Shop owner: the SPM whose book this shop sits in. The primary demo SPM
+    // owns the landmark shops (a rich book); a few shops are left unassigned to
+    // exercise the "percent of shops with an assigned SPM" metric.
+    const isLandmark = Object.values(L).includes(i);
+    let spmId: string;
+    if (isLandmark || i % 17 === 0) spmId = primarySpmId;
+    else spmId = spms[1 + ((i * 7) % (SPM_COUNT - 1))].id;
+    if (!isLandmark && (i === 33 || i === 91 || i === 158 || i === 244 || i === 270)) spmId = '';
 
     // Ownership history: when the current owner took the book and who held it
-    // before. Turnover is common, so most stores carry a prior owner - the
+    // before. Turnover is common, so most shops carry a prior owner - the
     // continuity view exists so a handoff never loses the plan or reasoning.
     const assignedOn = monthStartIso(addMonths(cur, -rint(rng, 2, 34)));
-    let previousCpmId = cpms.length && rint(rng, 1, 100) <= 60 ? cpms[hashStr('prev' + id) % cpms.length].id : '';
-    if (previousCpmId === cpmId) previousCpmId = '';
+    let previousSpmId = rint(rng, 1, 100) <= 60 ? spms[1 + ((i * 13 + 5) % (SPM_COUNT - 1))].id : '';
+    if (previousSpmId === spmId) previousSpmId = '';
 
     const isCh = challengedSet.has(i);
     const isRec = recoveredSet.has(i);
@@ -431,9 +437,9 @@ export function generate(): GeneratedData {
       regionId: region.id,
       cbsaId: cbsa.id,
       gmName: namesLeft(),
-      cpmId,
+      spmId,
       assignedOn,
-      previousCpmId,
+      previousSpmId,
       openedOn,
       acquiredOn,
     };
@@ -816,7 +822,7 @@ export function generate(): GeneratedData {
   // --- Run the real challenged rule over history ----------------------------
   // Build a partial dataset the rule can read.
   const partial: DataSet = {
-    months, currentMonth: cur, regions, cbsas, clients, stores, cpms, metrics,
+    months, currentMonth: cur, regions, cbsas, clients, stores, spms, cpms, metrics,
     businessCases, scorecards, carrierVolumes, cbsaMarkets,
     salesActivities: [], actionPlans: [], alerts: [], freshness: [],
   };
@@ -876,7 +882,7 @@ export function generate(): GeneratedData {
 
   // --- Action plans ---------------------------------------------------------
   const actionPlans: ActionPlan[] = [];
-  const namePool = cpms.map((c) => c.name);
+  const namePool = spms.map((s) => s.name); // plans are owned by shop owners (SPMs)
   const namTags = [personName(), personName(), personName()]; // National Account Managers
 
   // Assign plans against the ACTUAL computed challenged set so coverage lands
@@ -1008,6 +1014,7 @@ export function generate(): GeneratedData {
   ];
 
   const landmarks: Landmarks = {
+    primarySpmId,
     primaryCpmId,
     gmStoreId: gmStore.id,
     challengedNoPlan: stores[L.noPlan].id,
@@ -1134,7 +1141,7 @@ function buildPlan(store: Store, p: StoreProfile, ctx: PlanCtx): ActionPlan {
       targetMetrics: tpl.metrics,
       clientId: carrierSpecific ? dominantDrp : null,
       owner: pick(rng, cpms),
-      ownerRole: k === 1 ? 'gm' : 'cpm',
+      ownerRole: k === 1 ? 'gm' : 'spm',
       dueOn: dayInMonthIso(months[clamp(dueIdx, 0, curIdx + 1 < months.length ? curIdx + 1 : curIdx)], 15),
       startedOn,
       status,

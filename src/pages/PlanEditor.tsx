@@ -45,7 +45,7 @@ export function PlanEditor() {
         <EmptyState title="No action plan yet">
           This store has no plan. Create one to log steps, tag owners, add risks, and raise a sales ask.
           <div className="mt-3">
-            <button className="btn-accent" onClick={() => d.createPlan(store.id, 'You (CPM)')}>
+            <button className="btn-accent" onClick={() => d.createPlan(store.id, 'You (SPM)')}>
               Create action plan
             </button>
           </div>
@@ -210,7 +210,7 @@ function StepRow({
             value={step.owner}
             onChange={(v) => {
               const c = contacts.find((x) => x.name === v);
-              d.updateStep(planId, step.id, { owner: v, ownerRole: (c?.role as Role) ?? 'cpm' });
+              d.updateStep(planId, step.id, { owner: v, ownerRole: (c?.role as Role) ?? 'spm' });
             }}
             options={contacts.filter((c) => c.role !== 'National Account Manager').map((c) => ({ value: c.name, label: `${c.name} (${c.role})` }))}
             aria-label="Owner"
@@ -290,7 +290,7 @@ function TaggedPeople({ planId, storeId, step, contacts }: { planId: string; sto
       occurredOn: today(),
       type: c.role === 'National Account Manager' ? 'Carrier meeting' : 'Call',
       summary: `Tagged ${c.name} on "${step.title}": ${reason.trim()}`,
-      by: 'You (CPM)',
+      by: 'You (SPM)',
     });
     setReason('');
   };
@@ -351,7 +351,7 @@ function AddStepForm({
       targetMetrics: metrics,
       clientId: clientId || null,
       owner,
-      ownerRole: (c?.role as Role) ?? 'cpm',
+      ownerRole: (c?.role as Role) ?? 'spm',
       dueOn: due || today(),
       startedOn: null,
       status: 'Not started',
@@ -430,7 +430,7 @@ function RisksSection({ planId, risks }: { planId: string; risks: Risk[] }) {
 
   const add = () => {
     if (!desc.trim()) return;
-    d.addRisk(planId, { id: d.newId('RK'), description: desc.trim(), severity, owner: owner.trim() || 'You (CPM)', mitigation: mitigation.trim() });
+    d.addRisk(planId, { id: d.newId('RK'), description: desc.trim(), severity, owner: owner.trim() || 'You (SPM)', mitigation: mitigation.trim() });
     setDesc('');
     setMitigation('');
     setOwner('');
@@ -485,7 +485,7 @@ function SalesAsksSection({ planId, storeId, asks }: { planId: string; storeId: 
       clientId,
       request: request.trim(),
       raisedOn: today(),
-      raisedBy: 'You (CPM)',
+      raisedBy: 'You (SPM)',
       status: 'Open',
       outcome: null,
     });
@@ -527,7 +527,7 @@ function SalesAsksSection({ planId, storeId, asks }: { planId: string; storeId: 
         <button className="btn-accent" onClick={add} disabled={!request.trim() || !clientId}>Raise sales ask</button>
       </div>
       <div className="mt-2">
-        <OpenQuestion>The task-type taxonomy is a first pass drawn from examples - validate it with CPMs before it becomes fixed.</OpenQuestion>
+        <OpenQuestion>The task-type taxonomy is a first pass drawn from examples - validate it with the SPMs and CPMs who use them before it becomes fixed.</OpenQuestion>
       </div>
     </Panel>
   );
@@ -545,10 +545,16 @@ function useContacts(storeId: string): Contact[] {
     const store = storeById(data, storeId);
     const list: Contact[] = [];
     if (store) {
+      // the shop's owner (SPM) first - the natural default plan owner
+      if (store.spmId) {
+        const owner = data.spms.find((s) => s.id === store.spmId);
+        if (owner) list.push({ name: owner.name, role: 'spm' });
+      }
       if (store.gmName) list.push({ name: store.gmName, role: 'gm' });
       const region = data.regions.find((r) => r.id === store.regionId);
       if (region) list.push({ name: region.rvpName, role: 'rvp' });
     }
+    for (const s of data.spms) list.push({ name: s.name, role: 'spm' });
     for (const c of data.cpms) list.push({ name: c.name, role: c.role });
     // National Account Managers (fictional) available for tagging on outreach.
     list.push({ name: 'Dana Kirkwood', role: 'National Account Manager' });

@@ -21,7 +21,7 @@ export function UserMenu() {
   const choose = (r: Role) => {
     setRole(r);
     setOpen(false);
-    navigate(r === 'cpm' ? '/' : r === 'gm' ? `/store/${landmarks.gmStoreId}` : '/roll-up');
+    navigate(r === 'spm' || r === 'cpm' ? '/' : r === 'gm' ? `/store/${landmarks.gmStoreId}` : '/roll-up');
   };
 
   return (

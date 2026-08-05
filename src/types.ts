@@ -1,7 +1,9 @@
 // Domain types for Rebound (shop performance recovery).
 // Terms follow the spec's domain vocabulary exactly - do not substitute synonyms.
 
-export type Role = 'cpm' | 'rvp' | 'gm' | 'exec';
+// A Shop Performance Manager (SPM) owns a book of shops; a Client Performance
+// Manager (CPM) owns a DRP carrier within a division. Both are managers.
+export type Role = 'spm' | 'cpm' | 'rvp' | 'gm' | 'exec';
 
 export type Division = 'North Division' | 'South Division' | 'West Division';
 
@@ -19,9 +21,9 @@ export interface Store {
   regionId: string;
   cbsaId: string;
   gmName: string;
-  cpmId: string; // '' when unassigned
-  assignedOn: string; // when the current CPM took this store (ISO date)
-  previousCpmId: string; // prior owner, '' when this is the first owner
+  spmId: string; // Shop Performance Manager who owns this shop ('' when unassigned)
+  assignedOn: string; // when the current SPM took this store (ISO date)
+  previousSpmId: string; // prior owner, '' when this is the first owner
   openedOn: string; // ISO date
   acquiredOn: string | null;
 }
@@ -288,6 +290,8 @@ export interface DataSet {
   cbsas: Cbsa[];
   clients: Client[];
   stores: Store[];
+  // Shop Performance Managers own books of shops (the shop's owner).
+  spms: { id: string; name: string }[];
   // A CPM (Client Performance Manager) owns one DRP carrier within one division.
   cpms: { id: string; name: string; role: Role; carrierId?: string; division?: Division }[];
   metrics: MetricPeriod[];

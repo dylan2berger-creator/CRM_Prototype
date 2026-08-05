@@ -7,6 +7,7 @@ import { useData } from '@/data/DataContext';
 
 export type Scope =
   | { type: 'all' }
+  | { type: 'spm'; spmId: string }
   | { type: 'cpm'; cpmId: string }
   | { type: 'region'; regionId: string }
   | { type: 'store'; storeId: string };
@@ -29,6 +30,7 @@ interface RoleContextValue {
 const Ctx = createContext<RoleContextValue | null>(null);
 
 export const ROLE_LABELS: Record<Role, string> = {
+  spm: 'Shop Performance Manager',
   cpm: 'Client Performance Manager',
   rvp: 'Regional VP',
   gm: 'Shop GM',
@@ -37,13 +39,22 @@ export const ROLE_LABELS: Record<Role, string> = {
 
 export function RoleProvider({ children }: { children: ReactNode }) {
   const { data, landmarks } = useData();
-  const [role, setRole] = useState<Role>('cpm');
+  const [role, setRole] = useState<Role>('spm');
 
   const config = useMemo<RoleConfig>(() => {
+    const spm = data.spms.find((s) => s.id === landmarks.primarySpmId);
     const cpm = data.cpms.find((c) => c.id === landmarks.primaryCpmId);
     const gmStore = data.stores.find((s) => s.id === landmarks.gmStoreId);
     const region = data.regions.find((r) => r.id === landmarks.underperformingRegionId);
     switch (role) {
+      case 'spm':
+        return {
+          role,
+          label: ROLE_LABELS.spm,
+          userName: spm?.name ?? 'SPM',
+          scope: { type: 'spm', spmId: landmarks.primarySpmId },
+          landing: '/',
+        };
       case 'cpm': {
         const carrierName = data.clients.find((c) => c.id === cpm?.carrierId)?.name;
         const beat = cpm?.carrierId && cpm?.division ? `${carrierName} · ${cpm.division}` : '';
