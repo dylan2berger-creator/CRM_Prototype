@@ -169,6 +169,66 @@ export function StoreRecord() {
         )}
       </Panel>
 
+      {/* Action plan - kept directly under Performance so the plan reads against the trend */}
+      <Panel
+        title="Action plan"
+        subtitle={plan ? `Created ${dateLabel(plan.createdOn)} by ${plan.createdBy}` : 'No plan yet'}
+        right={
+          <Link to={`/store/${store.id}/plan`} className="btn-accent">
+            {plan ? 'Open plan editor' : 'Create action plan'}
+          </Link>
+        }
+      >
+        {plan ? (
+          <div className="space-y-3">
+            <ActionPlanBoard plan={plan} storeId={store.id} />
+
+            {plan.risks.length > 0 && (
+              <div>
+                <h3 className="mb-1 text-2xs font-semibold uppercase tracking-wide text-muted">Risks</h3>
+                <ul className="space-y-1">
+                  {plan.risks.map((rk) => (
+                    <li key={rk.id} className="flex items-start gap-2 rounded border border-line px-2.5 py-1.5 text-xs">
+                      <SeverityBadge severity={rk.severity} />
+                      <div>
+                        <div className="text-ink">{rk.description}</div>
+                        <div className="text-2xs text-muted">Mitigation: {rk.mitigation} · owner {rk.owner}</div>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {plan.salesAsks.length > 0 && (
+              <div>
+                <h3 className="mb-1 text-2xs font-semibold uppercase tracking-wide text-muted">Sales asks</h3>
+                <ul className="space-y-1">
+                  {plan.salesAsks.map((a) => (
+                    <li key={a.id} className="flex items-start gap-2 rounded border border-line px-2.5 py-1.5 text-xs">
+                      <SalesAskBadge status={a.status} />
+                      <div>
+                        <div className="text-ink">{a.request}</div>
+                        <div className="text-2xs text-muted">
+                          {clientById(data, a.clientId)?.name} · raised {dateLabel(a.raisedOn)} by {a.raisedBy}
+                          {a.outcome && ` · ${a.outcome}`}
+                        </div>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        ) : (
+          <EmptyState title="No action plan yet">
+            {ci.isChallenged
+              ? 'This challenged store has no plan. Open the plan editor to log steps, tag owners, add risks, and raise a sales ask.'
+              : 'This store is on track. Create a plan if you want to run a proactive intervention.'}
+          </EmptyState>
+        )}
+      </Panel>
+
       <div className="grid gap-3 lg:grid-cols-2">
         {/* Why flagged */}
         <Panel title="Why this store is flagged" subtitle={`Rule ${ev.ruleVersion}`}>
@@ -295,66 +355,6 @@ export function StoreRecord() {
         <div className="mt-2">
           <OpenQuestion>DRP program names are real; the tier, CBSA rank, and competitor counts are illustrative - the carrier scorecard feed at competitor granularity is carrier-proprietary and not yet in BDAP.</OpenQuestion>
         </div>
-      </Panel>
-
-      {/* Action plan */}
-      <Panel
-        title="Action plan"
-        subtitle={plan ? `Created ${dateLabel(plan.createdOn)} by ${plan.createdBy}` : 'No plan yet'}
-        right={
-          <Link to={`/store/${store.id}/plan`} className="btn-accent">
-            {plan ? 'Open plan editor' : 'Create action plan'}
-          </Link>
-        }
-      >
-        {plan ? (
-          <div className="space-y-3">
-            <ActionPlanBoard plan={plan} storeId={store.id} />
-
-            {plan.risks.length > 0 && (
-              <div>
-                <h3 className="mb-1 text-2xs font-semibold uppercase tracking-wide text-muted">Risks</h3>
-                <ul className="space-y-1">
-                  {plan.risks.map((rk) => (
-                    <li key={rk.id} className="flex items-start gap-2 rounded border border-line px-2.5 py-1.5 text-xs">
-                      <SeverityBadge severity={rk.severity} />
-                      <div>
-                        <div className="text-ink">{rk.description}</div>
-                        <div className="text-2xs text-muted">Mitigation: {rk.mitigation} · owner {rk.owner}</div>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {plan.salesAsks.length > 0 && (
-              <div>
-                <h3 className="mb-1 text-2xs font-semibold uppercase tracking-wide text-muted">Sales asks</h3>
-                <ul className="space-y-1">
-                  {plan.salesAsks.map((a) => (
-                    <li key={a.id} className="flex items-start gap-2 rounded border border-line px-2.5 py-1.5 text-xs">
-                      <SalesAskBadge status={a.status} />
-                      <div>
-                        <div className="text-ink">{a.request}</div>
-                        <div className="text-2xs text-muted">
-                          {clientById(data, a.clientId)?.name} · raised {dateLabel(a.raisedOn)} by {a.raisedBy}
-                          {a.outcome && ` · ${a.outcome}`}
-                        </div>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </div>
-        ) : (
-          <EmptyState title="No action plan yet">
-            {ci.isChallenged
-              ? 'This challenged store has no plan. Open the plan editor to log steps, tag owners, add risks, and raise a sales ask.'
-              : 'This store is on track. Create a plan if you want to run a proactive intervention.'}
-          </EmptyState>
-        )}
       </Panel>
     </div>
   );
