@@ -49,7 +49,7 @@ import {
   CLIENT_NAMES,
   FIRST_NAMES,
   LAST_NAMES,
-  REGION_NAMES,
+  REGIONS,
 } from '@/mock/names';
 import { makeRng, pick, rfloat, rint, Rng, shuffle } from '@/seed';
 import { SEED } from '@/seed';
@@ -192,11 +192,12 @@ export function generate(): GeneratedData {
   for (let i = 0; i < REGION_COUNT; i++) {
     regions.push({
       id: `R-${String(i + 1).padStart(2, '0')}`,
-      name: REGION_NAMES[i],
+      name: REGIONS[i].name,
       rvpName: personName(),
+      division: REGIONS[i].division,
     });
   }
-  const underperformingRegionId = regions.find((r) => r.name === 'Southeast')!.id;
+  const underperformingRegionId = regions.find((r) => r.name === 'Gulf Region')!.id;
 
   // --- CBSAs ----------------------------------------------------------------
   const cbsas: Cbsa[] = [];
@@ -458,13 +459,13 @@ export function generate(): GeneratedData {
       p.archetype = 'chronic';
       p.cause = 'mixed';
       p.divergeIdx = curIdx - rint(rng, 6, 12);
-      // Mix of soft and hard: about a third dip below the flag (so Southeast
+      // Mix of soft and hard: about a third dip below the flag (so Gulf Region
       // carries visibly more challenged stores), the rest just drag the rollup.
       p.depth = rfloat(rng, 0.87, 0.985);
     }
   }
   // And drag the region's DRP assignment volume harder than revenue, so the
-  // "carrier within region" pivot shows the Southeast short across carriers.
+  // "carrier within region" pivot shows the Gulf Region short across carriers.
   // (applied in the carrier-volume loop via underperformingRegionId)
 
   // JHCC baseline gap: pick 8-12 JHCC stores whose RO plan never loaded.
@@ -726,7 +727,7 @@ export function generate(): GeneratedData {
         // rollup reads under forecast without flagging every store on volume.
         if (clientId === underforecastClientId && t >= curIdx - 9) vol *= rfloat(vRng, 0.93, 0.98);
         // region-wide underperformance drags volume across carriers so the
-        // carrier-in-region pivot shows the Southeast short of forecast broadly
+        // carrier-in-region pivot shows the Gulf Region short of forecast broadly
         if (store.regionId === underperformingRegionId && t >= curIdx - 8) vol *= rfloat(vRng, 0.86, 0.94);
 
         let assignmentActual = Math.max(0, Math.round(assignmentForecast * vol));

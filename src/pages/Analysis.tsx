@@ -1,7 +1,7 @@
 // Screen 4 - /analysis: forecast vs actual, deficiency, and root cause.
 // The pivot control is the point: one toggle re-aggregates the whole screen
 // across carrier / region / shop / carrier-in-region so the VP can answer
-// "which carriers are underperforming forecast across the Southeast" without
+// "which carriers are underperforming forecast across the Gulf Region" without
 // leaving the page. Everything reads from PerformanceRollup + the diagnostic
 // metric set. Portfolio-wide by default (this is a cross-shop exec/VP screen);
 // the filter controls, not role scope, narrow it.
@@ -456,7 +456,7 @@ export function Analysis() {
           {level === 'carrier' && (region !== 'all' || cbsa !== 'all' || brand !== 'all') && (
             <OpenQuestion>
               Carrier rollups are portfolio-wide across every shop. Region, CBSA, and brand filters do not constrain
-              them - switch to carrier within region to scope a carrier to the Southeast or any single region.
+              them - switch to carrier within region to scope a carrier to the Gulf Region or any single region.
             </OpenQuestion>
           )}
         </div>
@@ -550,6 +550,9 @@ export function Analysis() {
                           </Link>
                         ) : (
                           r.label
+                        )}
+                        {r.regionId && (level === 'region' || level === 'carrier-in-region') && (
+                          <div className="text-2xs text-muted">{data.regions.find((x) => x.id === r.regionId)?.division}</div>
                         )}
                       </td>
                       <td className="num">{money(r.revenueActual)}</td>

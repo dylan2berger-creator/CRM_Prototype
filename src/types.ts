@@ -3,10 +3,13 @@
 
 export type Role = 'cpm' | 'rvp' | 'gm' | 'exec';
 
+export type Division = 'North Division' | 'South Division' | 'West Division';
+
 export interface Region {
   id: string;
   name: string;
   rvpName: string;
+  division: Division;
 }
 
 export interface Store {

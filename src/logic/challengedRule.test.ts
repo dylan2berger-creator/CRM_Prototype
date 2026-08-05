@@ -45,7 +45,7 @@ interface Opts {
 
 function buildData(opts: Opts): DataSet {
   const store = baseStore();
-  const region: Region = { id: 'R-01', name: 'Test Region', rvpName: 'RVP' };
+  const region: Region = { id: 'R-01', name: 'Test Region', rvpName: 'RVP', division: 'North Division' };
   const cbsa: Cbsa = { id: 'CBSA-01', name: 'Testville', state: 'IL' };
   const clients: Client[] = [{ id: 'C-01', name: 'Test Carrier', isDrp: true }];
   const metrics: MetricPeriod[] = [];

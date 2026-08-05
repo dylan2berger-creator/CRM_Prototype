@@ -16,7 +16,8 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { ActionPlan, Store } from '@/types';
+import { ActionPlan, Region, Store } from '@/types';
+import { DIVISIONS } from '@/mock/names';
 import { useData } from '@/data/DataContext';
 import { useRole } from '@/app/RoleContext';
 import { challengedStoreIds } from '@/data/rollups';
@@ -154,7 +155,29 @@ export function RollUp() {
       gapSum: rows.reduce((s, r) => s + r.gap, 0),
     };
 
-    return { regionCards, appMetrics, ranked, brandSplit, trend, totals };
+    // Group region cards under their division (North / South / West), with a
+    // subtotal per division, mirroring a Division > Region > Grand Total pivot.
+    const planCount = (cards: typeof regionCards) => {
+      const rs = rows.filter((r) => cards.some((c) => c.region.id === r.store.regionId));
+      const ch = rs.filter((r) => r.isChallenged);
+      const covered = ch.filter((r) => r.plan).length;
+      const planTotal = rs.reduce((s, r) => s + storeMonthRevenue(data, r.store.id, cm).plan, 0);
+      const gapSum = rs.reduce((s, r) => s + r.gap, 0);
+      return {
+        stores: rs.length,
+        challenged: ch.length,
+        gapSum,
+        gapPct: planTotal > 0 ? (gapSum / planTotal) * 100 : 0,
+        planCoverage: ch.length ? (covered / ch.length) * 100 : null,
+      };
+    };
+    const divisions = DIVISIONS.map((division) => {
+      const cards = regionCards.filter((c) => c.region.division === division);
+      return { division, cards, subtotal: planCount(cards) };
+    }).filter((d) => d.cards.length > 0);
+    const grandTotal = planCount(regionCards);
+
+    return { regionCards, divisions, grandTotal, appMetrics, ranked, brandSplit, trend, totals };
   }, [data, cm, scopedRegionId]);
 
   const scopeLabel = scopedRegionId ? regionName(data, scopedRegionId) : 'all regions';
@@ -228,50 +251,47 @@ export function RollUp() {
         />
       </div>
 
-      {/* Region cards */}
-      <Panel title="Regions" subtitle="Challenged load, gap to business case, and plan health per region" right={<SourceTag dataset={DATASET} />}>
-        <div className="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-3">
-          {view.regionCards.map((c) => (
-            <div key={c.region.id} className="rounded border border-line bg-panel p-3">
-              <div className="flex items-start justify-between gap-2">
-                <div>
-                  <div className="text-sm font-semibold text-ink">{c.region.name}</div>
-                  <div className="text-2xs text-muted">RVP {c.region.rvpName} · {int(c.stores)} shops</div>
+      {/* Divisions and regions */}
+      <Panel
+        title="Divisions and regions"
+        subtitle="Challenged load, gap to business case, and plan health, grouped by division"
+        right={<SourceTag dataset={DATASET} />}
+      >
+        <div className="space-y-4">
+          {view.divisions.map((d) => (
+            <div key={d.division}>
+              <div className="mb-2 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 border-b border-line-strong pb-1">
+                <h3 className="text-sm font-semibold text-ink">{d.division}</h3>
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-2xs">
+                  <span className="text-muted">{int(d.subtotal.stores)} shops</span>
+                  <span className={d.subtotal.challenged > 0 ? 'text-bad-text' : 'text-muted'}>{int(d.subtotal.challenged)} challenged</span>
+                  <span className={d.subtotal.gapSum < 0 ? 'text-bad-text' : 'text-good-text'}>
+                    {moneyCompact(d.subtotal.gapSum)} gap ({pct(d.subtotal.gapPct)})
+                  </span>
+                  <span className="text-muted">{d.subtotal.planCoverage == null ? '-' : pct(d.subtotal.planCoverage)} plan coverage</span>
                 </div>
-                {c.challenged > 0 ? (
-                  <Badge variant="bad" title={`${c.challenged} challenged shops`}>{int(c.challenged)} challenged</Badge>
-                ) : (
-                  <Badge variant="good">On track</Badge>
-                )}
               </div>
-              <dl className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1.5 text-sm">
-                <div>
-                  <dt className="text-2xs uppercase tracking-wide text-muted">Challenged</dt>
-                  <dd className="tnum font-semibold text-ink">{int(c.challenged)}</dd>
-                </div>
-                <div>
-                  <dt className="text-2xs uppercase tracking-wide text-muted">Gap to plan</dt>
-                  <dd className={`tnum font-semibold ${c.gapSum < 0 ? 'text-bad-text' : 'text-good-text'}`}>
-                    {moneyCompact(c.gapSum)} <span className="text-2xs font-normal text-muted">({pct(c.gapPct)})</span>
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-2xs uppercase tracking-wide text-muted">Plan coverage</dt>
-                  <dd className="tnum text-ink">{c.planCoverage == null ? '-' : pct(c.planCoverage)}</dd>
-                </div>
-                <div>
-                  <dt className="text-2xs uppercase tracking-wide text-muted">Overdue step rate</dt>
-                  <dd className={`tnum ${c.overdueRate != null && c.overdueRate > 0 ? 'text-warn-text' : 'text-ink'}`}>
-                    {c.overdueRate == null ? '-' : pct(c.overdueRate)}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-2xs uppercase tracking-wide text-muted">Unassigned CPM</dt>
-                  <dd className={`tnum ${c.unassigned > 0 ? 'text-warn-text' : 'text-ink'}`}>{int(c.unassigned)}</dd>
-                </div>
-              </dl>
+              <div className="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-4">
+                {d.cards.map((c) => (
+                  <RegionCard key={c.region.id} c={c} />
+                ))}
+              </div>
             </div>
           ))}
+
+          <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 rounded border border-line-strong bg-panel px-3 py-2">
+            <span className="text-sm font-semibold text-ink">Grand total</span>
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-0.5 text-xs">
+              <span className="text-muted">{int(view.grandTotal.stores)} shops</span>
+              <span className={view.grandTotal.challenged > 0 ? 'font-medium text-bad-text' : 'text-muted'}>
+                {int(view.grandTotal.challenged)} challenged
+              </span>
+              <span className={`font-medium ${view.grandTotal.gapSum < 0 ? 'text-bad-text' : 'text-good-text'}`}>
+                {moneyCompact(view.grandTotal.gapSum)} gap ({pct(view.grandTotal.gapPct)})
+              </span>
+              <span className="text-muted">{view.grandTotal.planCoverage == null ? '-' : pct(view.grandTotal.planCoverage)} plan coverage</span>
+            </div>
+          </div>
         </div>
       </Panel>
 
@@ -416,6 +436,61 @@ export function RollUp() {
           </table>
         </div>
       </Panel>
+    </div>
+  );
+}
+
+interface RegionCardData {
+  region: Region;
+  stores: number;
+  challenged: number;
+  gapSum: number;
+  gapPct: number;
+  planCoverage: number | null;
+  overdueRate: number | null;
+  unassigned: number;
+}
+
+function RegionCard({ c }: { c: RegionCardData }) {
+  return (
+    <div className="rounded border border-line bg-panel p-3">
+      <div className="flex items-start justify-between gap-2">
+        <div>
+          <div className="text-sm font-semibold text-ink">{c.region.name}</div>
+          <div className="text-2xs text-muted">RVP {c.region.rvpName} · {int(c.stores)} shops</div>
+        </div>
+        {c.challenged > 0 ? (
+          <Badge variant="bad" title={`${c.challenged} challenged shops`}>{int(c.challenged)} challenged</Badge>
+        ) : (
+          <Badge variant="good">On track</Badge>
+        )}
+      </div>
+      <dl className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1.5 text-sm">
+        <div>
+          <dt className="text-2xs uppercase tracking-wide text-muted">Challenged</dt>
+          <dd className="tnum font-semibold text-ink">{int(c.challenged)}</dd>
+        </div>
+        <div>
+          <dt className="text-2xs uppercase tracking-wide text-muted">Gap to plan</dt>
+          <dd className={`tnum font-semibold ${c.gapSum < 0 ? 'text-bad-text' : 'text-good-text'}`}>
+            {moneyCompact(c.gapSum)} <span className="text-2xs font-normal text-muted">({pct(c.gapPct)})</span>
+          </dd>
+        </div>
+        <div>
+          <dt className="text-2xs uppercase tracking-wide text-muted">Plan coverage</dt>
+          <dd className="tnum text-ink">{c.planCoverage == null ? '-' : pct(c.planCoverage)}</dd>
+        </div>
+        <div>
+          <dt className="text-2xs uppercase tracking-wide text-muted">Overdue step rate</dt>
+          <dd className={`tnum ${c.overdueRate != null && c.overdueRate > 0 ? 'text-warn-text' : 'text-ink'}`}>
+            {c.overdueRate == null ? '-' : pct(c.overdueRate)}
+          </dd>
+        </div>
+        <div>
+          <dt className="text-2xs uppercase tracking-wide text-muted">Unassigned CPM</dt>
+          <dd className={`tnum ${c.unassigned > 0 ? 'text-warn-text' : 'text-ink'}`}>{int(c.unassigned)}</dd>
+        </div>
+      </dl>
     </div>
   );
 }

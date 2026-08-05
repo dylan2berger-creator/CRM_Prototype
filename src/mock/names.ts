@@ -85,11 +85,28 @@ export const CITIES: { city: string; state: string; cbsa: string }[] = [
   { city: 'Knoxville', state: 'TN', cbsa: 'Knoxville' },
 ];
 
-// 12 region names.
-export const REGION_NAMES = [
-  'Great Lakes', 'South Central', 'Gulf Coast', 'Desert Southwest',
-  'Mountain West', 'Southeast', 'Pacific Northwest', 'Florida',
-  'Mid-South', 'Carolinas', 'Upper Midwest', 'Great Plains',
+// 12 regions grouped into 3 divisions (4 regions each). Order is division-first
+// so the roll-up and analysis breakdowns read North, then South, then West.
+export const REGIONS: { name: string; division: 'North Division' | 'South Division' | 'West Division' }[] = [
+  { name: 'Michiana Region', division: 'North Division' },
+  { name: 'Midwest Region', division: 'North Division' },
+  { name: 'Northeast Region', division: 'North Division' },
+  { name: 'Tennessee Valley', division: 'North Division' },
+  { name: 'Carolinas Region', division: 'South Division' },
+  { name: 'Florida Region', division: 'South Division' },
+  { name: 'Georgia Region', division: 'South Division' },
+  { name: 'Gulf Region', division: 'South Division' },
+  { name: 'Great Plains Region', division: 'West Division' },
+  { name: 'Northwest Region', division: 'West Division' },
+  { name: 'Southwest Region', division: 'West Division' },
+  { name: 'Texas Region', division: 'West Division' },
+];
+
+// Division display order.
+export const DIVISIONS: ('North Division' | 'South Division' | 'West Division')[] = [
+  'North Division',
+  'South Division',
+  'West Division',
 ];
 
 // 14 clients (carriers). Real US property and casualty auto insurers; isDrp is
