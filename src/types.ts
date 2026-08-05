@@ -104,8 +104,8 @@ export interface CarrierVolume {
 // Pre-aggregated forecast vs actual at each level the VP needs to pivot on.
 // The prototype computes these from MetricPeriod and CarrierVolume at load.
 export interface PerformanceRollup {
-  level: 'store' | 'carrier' | 'region' | 'carrier-in-region';
-  keys: { storeId?: string; clientId?: string; regionId?: string };
+  level: 'store' | 'carrier' | 'region' | 'carrier-in-region' | 'division';
+  keys: { storeId?: string; clientId?: string; regionId?: string; division?: Division };
   month: string;
   revenueActual: number;
   revenueForecast: number;

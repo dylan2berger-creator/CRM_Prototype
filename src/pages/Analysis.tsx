@@ -25,6 +25,7 @@ import {
 import { PerformanceRollup } from '@/types';
 import { useData } from '@/data/DataContext';
 import { PivotLevel, challengedStoreIds, rollupsForMonth, rollupTrend } from '@/data/rollups';
+import { DIVISIONS } from '@/mock/names';
 import {
   clientById,
   cbsaById,
@@ -48,6 +49,7 @@ type SortKey = 'gap' | 'trend' | 'noplan';
 
 const LEVEL_OPTIONS: { value: PivotLevel; label: string }[] = [
   { value: 'carrier', label: 'Carrier' },
+  { value: 'division', label: 'Division' },
   { value: 'region', label: 'Region' },
   { value: 'store', label: 'Shop' },
   { value: 'carrier-in-region', label: 'Carrier within region' },
@@ -55,6 +57,7 @@ const LEVEL_OPTIONS: { value: PivotLevel; label: string }[] = [
 
 const LEVEL_NOUN: Record<PivotLevel, string> = {
   carrier: 'carrier',
+  division: 'division',
   region: 'region',
   store: 'shop',
   'carrier-in-region': 'carrier within region',
@@ -67,6 +70,7 @@ interface Row {
   storeId?: string;
   clientId?: string;
   regionId?: string;
+  division?: string;
   revenueActual: number;
   revenueForecast: number;
   assignmentActual: number;
@@ -79,7 +83,8 @@ interface Row {
   groupStoreIds: string[];
 }
 
-const rowKeyOf = (k: PerformanceRollup['keys']): string => `${k.storeId ?? ''}|${k.clientId ?? ''}|${k.regionId ?? ''}`;
+const rowKeyOf = (k: PerformanceRollup['keys']): string =>
+  `${k.storeId ?? ''}|${k.clientId ?? ''}|${k.regionId ?? ''}|${k.division ?? ''}`;
 const gapPct = (actual: number, forecast: number): number | null => (forecast > 0 ? ((actual - forecast) / forecast) * 100 : null);
 
 export function Analysis() {
@@ -89,6 +94,7 @@ export function Analysis() {
 
   const [level, setLevel] = useState<PivotLevel>('carrier');
   const [sort, setSort] = useState<SortKey>('gap');
+  const [division, setDivision] = useState('all');
   const [region, setRegion] = useState('all');
   const [client, setClient] = useState('all');
   const [drp, setDrp] = useState<'all' | 'drp' | 'nondrp'>('all');
@@ -97,17 +103,30 @@ export function Analysis() {
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
 
   const challenged = challengedStoreIds(data);
+  const regionDivision = useMemo(() => new Map(data.regions.map((r) => [r.id, r.division])), [data.regions]);
+
+  // Region options narrow to the chosen division; picking a division resets the region.
+  const regionOptions = [
+    { value: 'all', label: 'All regions' },
+    ...data.regions.filter((r) => division === 'all' || r.division === division).map((r) => ({ value: r.id, label: r.name })),
+  ];
+  const onDivisionChange = (v: string) => {
+    setDivision(v);
+    setRegion('all');
+    setSelectedKey(null);
+  };
 
   // --- Filter universes ------------------------------------------------------
   const filteredStores = useMemo(
     () =>
       data.stores.filter(
         (s) =>
+          (division === 'all' || regionDivision.get(s.regionId) === division) &&
           (region === 'all' || s.regionId === region) &&
           (brand === 'all' || s.brand === brand) &&
           (cbsa === 'all' || s.cbsaId === cbsa),
       ),
-    [data.stores, region, brand, cbsa],
+    [data.stores, division, region, brand, cbsa, regionDivision],
   );
   const filteredStoreIds = useMemo(() => new Set(filteredStores.map((s) => s.id)), [filteredStores]);
   const filteredRegionIds = useMemo(
@@ -152,6 +171,7 @@ export function Analysis() {
       if (k.storeId != null && !filteredStoreIds.has(k.storeId)) return false;
       if (k.regionId != null && !filteredRegionIds.has(k.regionId)) return false;
       if (k.clientId != null && !filteredClientIds.has(k.clientId)) return false;
+      if (k.division != null && division !== 'all' && k.division !== division) return false;
       return true;
     };
     const label = (k: PerformanceRollup['keys']): string => {
@@ -160,6 +180,8 @@ export function Analysis() {
           return storeById(data, k.storeId!)?.name ?? k.storeId!;
         case 'carrier':
           return clientById(data, k.clientId!)?.name ?? k.clientId!;
+        case 'division':
+          return k.division ?? '';
         case 'region':
           return regionName(data, k.regionId!);
         case 'carrier-in-region':
@@ -170,6 +192,8 @@ export function Analysis() {
       switch (level) {
         case 'store':
           return [k.storeId!];
+        case 'division':
+          return filteredStores.filter((s) => regionDivision.get(s.regionId) === k.division).map((s) => s.id);
         case 'region':
           return filteredStores.filter((s) => s.regionId === k.regionId).map((s) => s.id);
         case 'carrier':
@@ -192,6 +216,7 @@ export function Analysis() {
         storeId: r.keys.storeId,
         clientId: r.keys.clientId,
         regionId: r.keys.regionId,
+        division: r.keys.division,
         revenueActual: r.revenueActual,
         revenueForecast: r.revenueForecast,
         assignmentActual: r.assignmentActual,
@@ -204,7 +229,7 @@ export function Analysis() {
         groupStoreIds: groupStores(r.keys),
       };
     });
-  }, [curRollups, priorByKey, level, data, filteredStores, filteredStoreIds, filteredRegionIds, filteredClientIds, clientStores]);
+  }, [curRollups, priorByKey, level, data, division, regionDivision, filteredStores, filteredStoreIds, filteredRegionIds, filteredClientIds, clientStores]);
 
   // Default sort surfaces the entities worth acting on, never alphabetical.
   const sortedRows = useMemo(() => {
@@ -260,6 +285,7 @@ export function Analysis() {
       const k = r.keys;
       if (level === 'store') return k.storeId === selectedRow.storeId;
       if (level === 'carrier') return k.clientId === selectedRow.clientId;
+      if (level === 'division') return k.division === selectedRow.division;
       if (level === 'region') return k.regionId === selectedRow.regionId;
       return k.clientId === selectedRow.clientId && k.regionId === selectedRow.regionId;
     };
@@ -387,8 +413,8 @@ export function Analysis() {
       <div>
         <h1 className="text-lg font-semibold text-ink">Forecast vs actual, deficiency, and root cause</h1>
         <p className="mt-0.5 text-sm text-muted">
-          Pivot the whole view across carrier, region, shop, or carrier within region to see where actuals miss
-          forecast, how deep the deficiency runs, and whether the cause is execution or the market.
+          Pivot the whole view across carrier, division, region, shop, or carrier within region to see where actuals
+          miss forecast, how deep the deficiency runs, and whether the cause is execution or the market.
         </p>
       </div>
 
@@ -403,14 +429,17 @@ export function Analysis() {
             <span className="text-2xs font-medium uppercase tracking-wide text-muted">Pivot by</span>
             <Segmented value={level} onChange={(v) => { setLevel(v); setSelectedKey(null); }} options={LEVEL_OPTIONS} />
           </div>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-            <Field label="Region">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+            <Field label="Division">
               <Select
-                value={region}
-                onChange={setRegion}
-                aria-label="Filter by region"
-                options={[{ value: 'all', label: 'All regions' }, ...data.regions.map((r) => ({ value: r.id, label: r.name }))]}
+                value={division}
+                onChange={onDivisionChange}
+                aria-label="Filter by division"
+                options={[{ value: 'all', label: 'All divisions' }, ...DIVISIONS.map((dv) => ({ value: dv, label: dv }))]}
               />
+            </Field>
+            <Field label="Region">
+              <Select value={region} onChange={setRegion} aria-label="Filter by region" options={regionOptions} />
             </Field>
             <Field label="Carrier">
               <Select

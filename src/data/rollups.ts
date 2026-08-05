@@ -5,7 +5,7 @@
 import { DataSet, PerformanceRollup } from '@/types';
 import { evaluateStore } from '@/logic/challengedRule';
 
-export type PivotLevel = 'store' | 'carrier' | 'region' | 'carrier-in-region';
+export type PivotLevel = 'store' | 'carrier' | 'region' | 'carrier-in-region' | 'division';
 
 // Memoize the challenged set for the current month (used for challengedStoreCount).
 const challengedCache = new WeakMap<DataSet, Set<string>>();
@@ -29,13 +29,14 @@ interface Accum {
 }
 
 function keyOf(keys: PerformanceRollup['keys']): string {
-  return `${keys.storeId ?? ''}|${keys.clientId ?? ''}|${keys.regionId ?? ''}`;
+  return `${keys.storeId ?? ''}|${keys.clientId ?? ''}|${keys.regionId ?? ''}|${keys.division ?? ''}`;
 }
 
 // Build rollups for a single month at the requested level.
 export function rollupsForMonth(data: DataSet, level: PivotLevel, month: string): PerformanceRollup[] {
   const challenged = challengedSet(data);
   const storeRegion = new Map(data.stores.map((s) => [s.id, s.regionId]));
+  const regionDivision = new Map(data.regions.map((r) => [r.id, r.division]));
   const acc = new Map<string, Accum>();
 
   const bump = (keys: PerformanceRollup['keys'], storeId: string) => {
@@ -60,6 +61,8 @@ export function rollupsForMonth(data: DataSet, level: PivotLevel, month: string)
         return { regionId };
       case 'carrier-in-region':
         return { clientId, regionId };
+      case 'division':
+        return { division: regionId ? regionDivision.get(regionId) : undefined };
     }
   };
 
