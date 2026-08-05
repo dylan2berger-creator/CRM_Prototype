@@ -99,7 +99,6 @@ export function Analysis() {
   const [client, setClient] = useState('all');
   const [drp, setDrp] = useState<'all' | 'drp' | 'nondrp'>('all');
   const [cbsa, setCbsa] = useState('all');
-  const [brand, setBrand] = useState('all');
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
 
   const challenged = challengedStoreIds(data);
@@ -123,10 +122,9 @@ export function Analysis() {
         (s) =>
           (division === 'all' || regionDivision.get(s.regionId) === division) &&
           (region === 'all' || s.regionId === region) &&
-          (brand === 'all' || s.brand === brand) &&
           (cbsa === 'all' || s.cbsaId === cbsa),
       ),
-    [data.stores, division, region, brand, cbsa, regionDivision],
+    [data.stores, division, region, cbsa, regionDivision],
   );
   const filteredStoreIds = useMemo(() => new Set(filteredStores.map((s) => s.id)), [filteredStores]);
   const filteredRegionIds = useMemo(
@@ -469,22 +467,10 @@ export function Analysis() {
                 options={[{ value: 'all', label: 'All CBSAs' }, ...data.cbsas.map((c) => ({ value: c.id, label: `${c.name}, ${c.state}` }))]}
               />
             </Field>
-            <Field label="Brand">
-              <Select
-                value={brand}
-                onChange={setBrand}
-                aria-label="Filter by brand"
-                options={[
-                  { value: 'all', label: 'All brands' },
-                  { value: 'Boyd', label: 'Boyd' },
-                  { value: 'JHCC', label: 'JHCC' },
-                ]}
-              />
-            </Field>
           </div>
-          {level === 'carrier' && (region !== 'all' || cbsa !== 'all' || brand !== 'all') && (
+          {level === 'carrier' && (region !== 'all' || cbsa !== 'all') && (
             <OpenQuestion>
-              Carrier rollups are portfolio-wide across every shop. Region, CBSA, and brand filters do not constrain
+              Carrier rollups are portfolio-wide across every shop. Region and CBSA filters do not constrain
               them - switch to carrier within region to scope a carrier to the Gulf Region or any single region.
             </OpenQuestion>
           )}

@@ -1,7 +1,7 @@
 // Screen 6 - /roll-up. The executive / VP / RVP cross-region view. Rolls the
 // challenged-store picture up to region cards, a small set of application
-// metrics, a ranked worst-shops table by gap to business case, a 12-month
-// trend, and a Boyd-vs-JHCC split so integration performance reads separately.
+// metrics, a ranked worst-shops table by gap to business case, and a 12-month
+// trend.
 // Read-only; every figure traces to the DOMO exec revenue dataset.
 
 import { useMemo } from 'react';
@@ -120,20 +120,6 @@ export function RollUp() {
     // Ranked worst shops by gap to business case (most negative first).
     const ranked = [...rows].sort((a, b) => a.gap - b.gap).slice(0, 25);
 
-    // Brand split - keeps JHCC integration performance readable on its own.
-    const brandSplit = (['Boyd', 'JHCC'] as const).map((brand) => {
-      const bs = rows.filter((r) => r.store.brand === brand);
-      const challengedRows = bs.filter((r) => r.isChallenged);
-      const covered = challengedRows.filter((r) => r.plan).length;
-      return {
-        brand,
-        stores: bs.length,
-        challenged: challengedRows.length,
-        gapSum: bs.reduce((s, r) => s + r.gap, 0),
-        planCoverage: challengedRows.length ? (covered / challengedRows.length) * 100 : null,
-      };
-    });
-
     // 12-month trend: challenged store count and total revenue gap.
     const window = trailing(data.months, cm, 12);
     const scopeIds = new Set(stores.map((s) => s.id));
@@ -177,7 +163,7 @@ export function RollUp() {
     }).filter((d) => d.cards.length > 0);
     const grandTotal = planCount(regionCards);
 
-    return { regionCards, divisions, grandTotal, appMetrics, ranked, brandSplit, trend, totals };
+    return { regionCards, divisions, grandTotal, appMetrics, ranked, trend, totals };
   }, [data, cm, scopedRegionId]);
 
   const scopeLabel = scopedRegionId ? regionName(data, scopedRegionId) : 'all regions';
@@ -362,38 +348,6 @@ export function RollUp() {
         </div>
       </Panel>
 
-      {/* Brand split */}
-      <Panel
-        title="By brand"
-        subtitle="Boyd and JHCC read separately so integration performance is visible"
-        right={<SourceTag dataset={DATASET} />}
-      >
-        <div className="overflow-x-auto">
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Brand</th>
-                <th className="text-right">Shops</th>
-                <th className="text-right">Challenged</th>
-                <th className="text-right">Gap to plan</th>
-                <th className="text-right">Plan coverage</th>
-              </tr>
-            </thead>
-            <tbody>
-              {view.brandSplit.map((b) => (
-                <tr key={b.brand}>
-                  <td className="font-medium text-ink">{b.brand}</td>
-                  <td className="num">{int(b.stores)}</td>
-                  <td className="num">{int(b.challenged)}</td>
-                  <td className={`num ${b.gapSum < 0 ? 'text-bad-text' : 'text-good-text'}`}>{money(b.gapSum)}</td>
-                  <td className="num">{b.planCoverage == null ? '-' : pct(b.planCoverage)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </Panel>
-
       {/* Ranked worst shops */}
       <Panel
         title="Worst shops by gap to business case"
@@ -406,7 +360,6 @@ export function RollUp() {
               <tr>
                 <th>Shop</th>
                 <th>Region</th>
-                <th>Brand</th>
                 <th className="text-right">T3 revenue % of plan</th>
                 <th className="text-right">Gap this month</th>
                 <th>Flag</th>
@@ -423,7 +376,6 @@ export function RollUp() {
                     <div className="text-2xs text-muted">{r.store.id}</div>
                   </td>
                   <td className="text-muted">{regionName(data, r.store.regionId)}</td>
-                  <td className="text-muted">{r.store.brand}</td>
                   <td className="num">
                     <PctOfPlan value={r.t3Pct} />
                   </td>

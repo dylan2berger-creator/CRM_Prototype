@@ -17,7 +17,6 @@ export interface Region {
 export interface Store {
   id: string; // "S-0142"
   name: string; // "Boyd Collision - Naperville"
-  brand: 'Boyd' | 'JHCC';
   regionId: string;
   cbsaId: string;
   gmName: string;
@@ -72,7 +71,7 @@ export interface BusinessCase {
   storeId: string;
   approvedOn: string;
   annualRevenuePlan: number;
-  annualRoPlan: number; // 0 means "Not loaded" (JHCC baseline gap)
+  annualRoPlan: number; // 0 means "Not loaded" (baseline gap)
   source: 'Investment committee memo' | 'Model workbook';
   loadedFrom: string; // e.g. "IC-2024-0087.pdf" - shown as provenance
 }

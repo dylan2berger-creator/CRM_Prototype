@@ -101,7 +101,6 @@ export function StoreRecord() {
               <span title="Shop Performance Manager who owns this shop. CPMs are assigned per carrier - see the breakdown below.">
                 SPM {store.spmId ? spmName(data, store.spmId) : <span className="text-bad-text">unassigned</span>}
               </span>
-              <span className={`chip ${store.brand === 'JHCC' ? 'bg-neutral-soft text-neutral-text' : 'bg-panel text-muted'}`}>{store.brand}</span>
             </div>
           </div>
           <div className="flex flex-col items-end gap-1">

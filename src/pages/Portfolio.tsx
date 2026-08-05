@@ -34,7 +34,6 @@ export function Portfolio() {
   const [client, setClient] = useState('all');
   const [tier, setTier] = useState('all');
   const [planFilter, setPlanFilter] = useState<PlanFilter>('all');
-  const [brand, setBrand] = useState('all');
 
   const regionDivision = useMemo(() => new Map(data.regions.map((r) => [r.id, r.division])), [data.regions]);
 
@@ -56,7 +55,6 @@ export function Portfolio() {
     if (challengedOnly) out = out.filter((r) => r.challenged.isChallenged);
     if (division !== 'all') out = out.filter((r) => regionDivision.get(r.store.regionId) === division);
     if (region !== 'all') out = out.filter((r) => r.store.regionId === region);
-    if (brand !== 'all') out = out.filter((r) => r.store.brand === brand);
     if (tier !== 'all') out = out.filter((r) => r.worstTier === tier);
     if (client !== 'all') out = out.filter((r) => r.clientMix.some((c) => c.client.id === client));
     if (planFilter === 'has-plan') out = out.filter((r) => r.plan);
@@ -67,7 +65,7 @@ export function Portfolio() {
       if (a.challenged.isChallenged !== b.challenged.isChallenged) return a.challenged.isChallenged ? -1 : 1;
       return (a.t3RevenuePct ?? 999) - (b.t3RevenuePct ?? 999);
     });
-  }, [rows, challengedOnly, division, region, client, tier, planFilter, brand, regionDivision]);
+  }, [rows, challengedOnly, division, region, client, tier, planFilter, regionDivision]);
 
   const challengedCount = rows.filter((r) => r.challenged.isChallenged).length;
   const noPlanCount = rows.filter((r) => r.challenged.isChallenged && !r.plan).length;
@@ -131,18 +129,6 @@ export function Portfolio() {
             ]}
           />
         </Field>
-        <Field label="Brand">
-          <Select
-            value={brand}
-            onChange={setBrand}
-            aria-label="Brand filter"
-            options={[
-              { value: 'all', label: 'Both brands' },
-              { value: 'Boyd', label: 'Boyd' },
-              { value: 'JHCC', label: 'JHCC' },
-            ]}
-          />
-        </Field>
         <span className="ml-auto self-center text-2xs text-muted">
           {filtered.length} of {rows.length} shown
         </span>
@@ -158,7 +144,6 @@ export function Portfolio() {
             <thead>
               <tr>
                 <th>Store</th>
-                <th>Brand</th>
                 <th>Region</th>
                 <th title="Shop Performance Manager who owns this shop">SPM</th>
                 <th>Client mix</th>
@@ -197,11 +182,6 @@ function Row({ r, data }: { r: PortfolioRow; data: ReturnType<typeof useData>['d
           {r.store.name}
         </Link>
         <div className="text-2xs text-muted">{r.store.id}</div>
-      </td>
-      <td>
-        <span className={`chip ${r.store.brand === 'JHCC' ? 'bg-neutral-soft text-neutral-text' : 'bg-panel text-muted'}`}>
-          {r.store.brand}
-        </span>
       </td>
       <td className="text-xs">
         {regionName(data, r.store.regionId)}

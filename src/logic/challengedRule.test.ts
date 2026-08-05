@@ -22,7 +22,6 @@ function baseStore(): Store {
   return {
     id: 'S-0001',
     name: 'Boyd Collision - Testville',
-    brand: 'Boyd',
     regionId: 'R-01',
     cbsaId: 'CBSA-01',
     gmName: 'Test GM',

@@ -57,7 +57,6 @@ import { SEED } from '@/seed';
 
 const HISTORY_MONTHS = 36;
 const STORE_COUNT = 345;
-const BOYD_COUNT = 205; // remaining 140 are JHCC (205 + 140 = 345)
 const REGION_COUNT = 12;
 const CBSA_COUNT = 60;
 const CLIENT_COUNT = 14;
@@ -113,7 +112,7 @@ export interface Landmarks {
   twoCarrierDisagreeStoreId: string;
   underforecastClientId: string; // one carrier under forecast across many stores
   underperformingRegionId: string; // one region under across many carriers
-  jhccBaselineGap: string;
+  baselineGapStoreId: string;
   interventionWorkedStoreId: string;
   interventionFailedStoreId: string;
 }
@@ -285,7 +284,7 @@ export function generate(): GeneratedData {
     noPlan: chArr[9],
     worked: chArr[10],
     failed: chArr[11],
-    jhccGap: -1, // set later among JHCC stores
+    baselineGapIdx: -1, // set later: a store whose RO baseline never loaded
     gm: -1,
   };
 
@@ -297,7 +296,6 @@ export function generate(): GeneratedData {
   const namesLeft = () => personName();
 
   for (let i = 0; i < STORE_COUNT; i++) {
-    const brand: Store['brand'] = i < BOYD_COUNT ? 'Boyd' : 'JHCC';
     const region = regions[i % REGION_COUNT];
     const cbsa = cbsas[i % CBSA_COUNT];
     const id = `S-${String(i + 1).padStart(4, '0')}`;
@@ -306,9 +304,11 @@ export function generate(): GeneratedData {
     const openedOn = isoDate(
       new Date(Date.UTC(new Date().getUTCFullYear() - openedYearsAgo, rint(rng, 0, 11), rint(rng, 1, 28))),
     );
+    // Some shops were acquired rather than opened greenfield; assigned
+    // deterministically per shop, independent of any brand.
     const acquiredOn =
-      brand === 'JHCC'
-        ? monthStartIso(addMonths(cur, -rint(rng, 1, 30)))
+      hashStr(id + 'acq') % 5 < 2
+        ? monthStartIso(addMonths(cur, -(1 + (hashStr(id + 'acqmo') % 30))))
         : null;
 
     // Client mix: 3-6 clients, DRP-weighted so most stores have a major DRP.
@@ -444,8 +444,7 @@ export function generate(): GeneratedData {
 
     const store: Store = {
       id,
-      name: `${brand === 'Boyd' ? 'Boyd Collision' : 'JHCC Collision'} - ${CITIES[i % CITIES.length].city}`,
-      brand,
+      name: `Boyd Collision - ${CITIES[i % CITIES.length].city}`,
       regionId: region.id,
       cbsaId: cbsa.id,
       gmName: namesLeft(),
@@ -500,12 +499,12 @@ export function generate(): GeneratedData {
   // "carrier within region" pivot shows the Gulf Region short across carriers.
   // (applied in the carrier-volume loop via underperformingRegionId)
 
-  // JHCC baseline gap: pick 8-12 JHCC stores whose RO plan never loaded.
-  const jhccStores = stores.filter((s) => s.brand === 'JHCC');
-  const gapStores = shuffle(rng, jhccStores).slice(0, rint(rng, 8, 12));
+  // Baseline gap: pick 8-12 stores whose annual RO plan never loaded, so the
+  // "Not loaded" business-case state appears in the demo.
+  const gapStores = shuffle(rng, stores.slice()).slice(0, rint(rng, 8, 12));
   for (const s of gapStores) profiles.get(s.id)!.baselineGap = true;
-  const jhccGapStore = gapStores[0];
-  L.jhccGap = stores.indexOf(jhccGapStore);
+  const baselineGapStore = gapStores[0];
+  L.baselineGapIdx = stores.indexOf(baselineGapStore);
 
   // Pick a GM-role landmark store (one the Shop GM role lands on): the estimate
   // landmark works well because it has a clear diagnosis.
@@ -1020,7 +1019,7 @@ export function generate(): GeneratedData {
     twoCarrierDisagreeStoreId: stores[L.twoCarrier].id,
     underforecastClientId,
     underperformingRegionId,
-    jhccBaselineGap: jhccGapStore.id,
+    baselineGapStoreId: baselineGapStore.id,
     interventionWorkedStoreId: stores[L.worked].id,
     interventionFailedStoreId: stores[L.failed].id,
   };
