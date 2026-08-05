@@ -27,6 +27,8 @@ function baseStore(): Store {
     cbsaId: 'CBSA-01',
     gmName: 'Test GM',
     cpmId: 'U-001',
+    assignedOn: '2024-01-01',
+    previousCpmId: '',
     openedOn: '2015-01-01',
     acquiredOn: null,
   };

@@ -17,6 +17,8 @@ export interface Store {
   cbsaId: string;
   gmName: string;
   cpmId: string; // '' when unassigned
+  assignedOn: string; // when the current CPM took this store (ISO date)
+  previousCpmId: string; // prior owner, '' when this is the first owner
   openedOn: string; // ISO date
   acquiredOn: string | null;
 }

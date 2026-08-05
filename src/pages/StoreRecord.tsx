@@ -32,8 +32,8 @@ import { ChallengedBadge, PlanStatusBadge, RecoveredBadge, SalesAskBadge, Severi
 import { Variance } from '@/components/Variance';
 import { SourceTag } from '@/components/Provenance';
 import { dateLabel, money, moneyCompact, int, num2, monthLabel } from '@/utils/format';
-import { trailing } from '@/utils/dates';
-import { TargetMetric } from '@/types';
+import { trailing, monthDiff } from '@/utils/dates';
+import { ActionPlan, Store, TargetMetric } from '@/types';
 
 export function StoreRecord() {
   const { id = '' } = useParams();
@@ -104,6 +104,9 @@ export function StoreRecord() {
           </div>
         </div>
       </header>
+
+      {/* Ownership & continuity — who owns the book, prior owner, rationale */}
+      <OwnershipPanel data={data} store={store} plan={plan} />
 
       {/* Baseline strip */}
       <Panel title="Business case baseline" subtitle="The investment committee plan everything is measured against" right={<SourceTag dataset="Business case baseline (IC memos & workbooks)" />}>
@@ -365,7 +368,102 @@ export function StoreRecord() {
       <Panel title="Sales activity" subtitle="Read-only history, most recent first">
         <SalesActivityList data={data} storeId={store.id} />
       </Panel>
+
+      {/* Consolidated record timeline — flag, plan, tasks, asks, activity in one
+          thread so an inheriting CPM reads the whole story chronologically. */}
+      <Panel title="Record timeline" subtitle="Plan, history, and reasoning in one thread — kept through turnover">
+        <RecordTimeline data={data} store={store} plan={plan} firstFlaggedMonth={ci.firstFlaggedMonth} ruleVersion={ev.ruleVersion} />
+      </Panel>
     </div>
+  );
+}
+
+function OwnershipPanel({ data, store, plan }: { data: ReturnType<typeof useData>['data']; store: Store; plan?: ActionPlan }) {
+  const region = data.regions.find((r) => r.id === store.regionId);
+  const prev = store.previousCpmId ? cpmName(data, store.previousCpmId) : null;
+  const tenure = monthDiff(data.currentMonth, store.assignedOn.slice(0, 7));
+  const prevSub = store.cpmId ? (prev ? `handed off ${dateLabel(store.assignedOn)}` : 'first owner') : 'book now vacant';
+  return (
+    <Panel title="Ownership &amp; continuity" subtitle="Who owns this book now, who held it before, and the plan reasoning — so a handoff loses nothing.">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="rounded border border-line bg-surface px-3 py-2">
+          <div className="text-2xs font-medium uppercase tracking-wide text-muted">Current owner (CPM)</div>
+          {store.cpmId ? (
+            <>
+              <div className="mt-0.5 text-sm font-semibold text-ink">{cpmName(data, store.cpmId)}</div>
+              <div className="text-2xs text-muted">{tenure} mo on book · since {dateLabel(store.assignedOn)}</div>
+            </>
+          ) : (
+            <div className="mt-0.5 text-sm font-semibold text-bad-text">Unassigned</div>
+          )}
+        </div>
+        <Stat label="Previous owner" value={prev ?? '—'} sub={prevSub} />
+        <Stat label="RVP" value={region?.rvpName ?? '—'} sub={region?.name} />
+        <Stat label="GM" value={store.gmName} />
+      </div>
+      <div className="mt-3 rounded border border-line bg-panel px-3 py-2">
+        <div className="text-2xs font-semibold uppercase tracking-wide text-muted">Plan rationale</div>
+        <p className="mt-0.5 text-xs text-ink">
+          {plan ? plan.summary : 'No action plan yet — the reasoning will live here once a plan is created.'}
+        </p>
+      </div>
+    </Panel>
+  );
+}
+
+type TimelineKind = 'assign' | 'flag' | 'plan' | 'task' | 'ask' | 'activity';
+function RecordTimeline({
+  data,
+  store,
+  plan,
+  firstFlaggedMonth,
+  ruleVersion,
+}: {
+  data: ReturnType<typeof useData>['data'];
+  store: Store;
+  plan?: ActionPlan;
+  firstFlaggedMonth: string | null;
+  ruleVersion: string;
+}) {
+  const ev: { iso: string; kind: TimelineKind; text: string }[] = [];
+  ev.push({
+    iso: store.assignedOn,
+    kind: 'assign',
+    text: store.cpmId
+      ? `Assigned to ${cpmName(data, store.cpmId)}${store.previousCpmId ? ` (handed off from ${cpmName(data, store.previousCpmId)})` : ' (new book)'}`
+      : `Book vacated${store.previousCpmId ? ` by ${cpmName(data, store.previousCpmId)}` : ''} — now unassigned`,
+  });
+  if (firstFlaggedMonth) ev.push({ iso: `${firstFlaggedMonth}-01`, kind: 'flag', text: `Flagged challenged by rule ${ruleVersion}` });
+  if (plan) {
+    ev.push({ iso: plan.createdOn, kind: 'plan', text: `Action plan created (${plan.steps.length} step${plan.steps.length === 1 ? '' : 's'}) by ${plan.createdBy}` });
+    for (const s of plan.steps) if (s.startedOn) ev.push({ iso: s.startedOn, kind: 'task', text: `Work started: ${s.title}` });
+    for (const a of plan.salesAsks) ev.push({ iso: a.raisedOn, kind: 'ask', text: `Sales ask raised: ${a.request}` });
+  }
+  for (const a of data.salesActivities.filter((x) => x.storeId === store.id)) ev.push({ iso: a.occurredOn, kind: 'activity', text: `${a.type}: ${a.summary}` });
+  ev.sort((a, b) => (a.iso < b.iso ? 1 : -1));
+
+  if (!ev.length) return <p className="text-sm text-muted">No recorded history for this store yet.</p>;
+
+  const dot: Record<TimelineKind, string> = { assign: 'bg-neutral', flag: 'bg-bad', plan: 'bg-accent', task: 'bg-accent', ask: 'bg-warn', activity: 'bg-good' };
+  const kindLabel: Record<TimelineKind, string> = { assign: 'Ownership', flag: 'Flag', plan: 'Plan', task: 'Task', ask: 'Sales ask', activity: 'Activity' };
+  return (
+    <ol className="space-y-0">
+      {ev.map((e, i) => (
+        <li key={i} className="flex gap-3">
+          <div className="flex flex-col items-center">
+            <span className={`mt-1 h-2.5 w-2.5 shrink-0 rounded-full ${dot[e.kind]}`} />
+            {i < ev.length - 1 && <span className="w-px flex-1 bg-line" />}
+          </div>
+          <div className="flex w-full items-start justify-between gap-3 pb-3">
+            <div className="min-w-0">
+              <span className="chip mr-2 bg-panel text-2xs text-muted">{kindLabel[e.kind]}</span>
+              <span className="text-xs text-ink">{e.text}</span>
+            </div>
+            <span className="shrink-0 text-2xs text-muted">{dateLabel(e.iso)}</span>
+          </div>
+        </li>
+      ))}
+    </ol>
   );
 }
 

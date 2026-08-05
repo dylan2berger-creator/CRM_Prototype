@@ -280,6 +280,13 @@ export function generate(): GeneratedData {
         ? monthStartIso(addMonths(cur, -rint(rng, 1, 30)))
         : null;
 
+    // Ownership history: when the current CPM took the book, and who held it
+    // before. Turnover is common, so most stores carry a prior owner — the
+    // continuity view exists so a handoff never loses the plan or reasoning.
+    const assignedOn = monthStartIso(addMonths(cur, -rint(rng, 2, 34)));
+    let previousCpmId = rint(rng, 1, 100) <= 60 ? cpms[1 + ((i * 13 + 5) % (CPM_COUNT - 1))].id : '';
+    if (previousCpmId === cpmId) previousCpmId = '';
+
     // Client mix: 3-6 clients, DRP-weighted so most stores have a major DRP.
     const nClients = rint(rng, 3, 6);
     const clientPool = shuffle(rng, clients.slice());
@@ -403,11 +410,18 @@ export function generate(): GeneratedData {
       cbsaId: cbsa.id,
       gmName: namesLeft(),
       cpmId,
+      assignedOn,
+      previousCpmId,
       openedOn,
       acquiredOn,
     };
-    // Unassigned CPM for a few non-landmark stores.
-    if (!isLandmark && (i === 33 || i === 91 || i === 158 || i === 244)) store.cpmId = '';
+    // Unassigned CPM for a few non-landmark stores. The book just vacated, so
+    // the outgoing owner becomes the previous owner — an inherited store with
+    // no current owner is exactly when continuity matters most.
+    if (!isLandmark && (i === 33 || i === 91 || i === 158 || i === 244)) {
+      store.previousCpmId = store.previousCpmId || cpmId;
+      store.cpmId = '';
+    }
 
     stores.push(store);
     profiles.set(id, {
