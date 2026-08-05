@@ -41,6 +41,13 @@ describe('DRP program + scorecard data', () => {
     expect(tiers.has('Watch') || tiers.has('At risk')).toBe(true);
   });
 
+  it('gives every action plan at least five steps', () => {
+    expect(data.actionPlans.length).toBeGreaterThan(0);
+    for (const plan of data.actionPlans) {
+      expect(plan.steps.length).toBeGreaterThanOrEqual(5);
+    }
+  });
+
   it('keeps the challenged rate in a believable band', () => {
     let challenged = 0;
     for (const s of data.stores) if (evaluateStore(s.id, data.currentMonth, data).isChallenged) challenged++;

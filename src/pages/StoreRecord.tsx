@@ -244,7 +244,6 @@ export function StoreRecord() {
             <thead>
               <tr>
                 <th>Client</th>
-                <th>DRP</th>
                 <th>CPM</th>
                 <th className="text-right">T12 revenue</th>
                 <th className="text-right">Share of store</th>
@@ -266,7 +265,6 @@ export function StoreRecord() {
                         <div className="text-2xs font-normal text-muted">{m.client.drpProgram}</div>
                       )}
                     </td>
-                    <td className="text-2xs">{m.client.isDrp ? 'DRP' : '-'}</td>
                     <td className="text-xs">
                       {m.client.isDrp ? (
                         storeDivision ? (

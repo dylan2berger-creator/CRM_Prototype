@@ -1062,41 +1062,62 @@ interface PlanCtx {
   forceStatus?: ActionPlan['status'];
 }
 
-// Task templates keyed by cause so the plan reads as a relevant response.
+// Task templates keyed by cause so the plan reads as a relevant response. Each
+// cause carries at least five steps so every seeded plan is a full recovery
+// plan; the lead steps are the primary actions (they receive progress first).
 const TASK_LIBRARY: Record<Cause, { title: string; type: TaskType; metrics: TargetMetric[] }[]> = {
   estimate: [
     { title: 'Retrain estimators on photo/supplement discipline', type: 'Training', metrics: ['estimateAccuracyPct', 'supplementsPerRo'] },
     { title: 'Tighten central review rules on supplement thresholds', type: 'Central review rule change', metrics: ['supplementsPerRo', 'totalCostOfRepair'] },
+    { title: 'Blueprint every estimate at teardown', type: 'Estimating process', metrics: ['estimateAccuracyPct', 'supplementsPerRo'] },
+    { title: 'Calibrate parts sourcing to cut cost variance', type: 'Parts or supply', metrics: ['totalCostOfRepair'] },
+    { title: 'Weekly estimate QA review with the carrier reviewer', type: 'Carrier outreach', metrics: ['estimateAccuracyPct', 'externalRulesAdherencePct'] },
     { title: 'Monitor estimate accuracy weekly', type: 'Metric monitoring', metrics: ['estimateAccuracyPct'] },
   ],
   'rules-internal': [
     { title: 'Update central review rule set to Boyd standard', type: 'Central review rule change', metrics: ['internalRulesAdherencePct', 'centralReviewPassPct'] },
     { title: 'Train front office on internal rules adherence', type: 'Training', metrics: ['internalRulesAdherencePct'] },
+    { title: 'Add a pre-closeout SOP checklist audit', type: 'Estimating process', metrics: ['internalRulesAdherencePct'] },
+    { title: 'Weekly file-compliance huddle with production', type: 'Staffing', metrics: ['centralReviewPassPct', 'internalRulesAdherencePct'] },
     { title: 'Monitor central review pass rate', type: 'Metric monitoring', metrics: ['centralReviewPassPct'] },
   ],
   'rules-external': [
     { title: 'Carrier compliance training on DRP rule pack', type: 'Training', metrics: ['externalRulesAdherencePct'] },
     { title: 'Reach out to carrier on rules interpretation', type: 'Carrier outreach', metrics: ['externalRulesAdherencePct', 'drpScore'] },
+    { title: 'Align estimating templates to carrier guidelines', type: 'Estimating process', metrics: ['externalRulesAdherencePct', 'estimateAccuracyPct'] },
+    { title: 'Review rejected line items with the carrier monthly', type: 'Carrier outreach', metrics: ['externalRulesAdherencePct', 'drpScore'] },
     { title: 'Monitor external rules adherence by carrier', type: 'Metric monitoring', metrics: ['externalRulesAdherencePct'] },
   ],
   market: [
     { title: 'Carrier outreach to lift DRP assignment volume', type: 'Carrier outreach', metrics: ['assignmentActual', 'revenueActual'] },
     { title: 'Staffing review to protect capture rate', type: 'Staffing', metrics: ['captureRatePct', 'roCount'] },
+    { title: 'Improve capture at first call and estimate', type: 'Estimating process', metrics: ['captureRatePct'] },
+    { title: 'Cut keys-to-keys cycle time to raise throughput', type: 'Parts or supply', metrics: ['rentalDays', 'roCount'] },
+    { title: 'Escalate assignment shortfall to the National Account Manager', type: 'Carrier outreach', metrics: ['assignmentActual', 'drpScore'] },
     { title: 'Monitor revenue and RO count vs plan', type: 'Metric monitoring', metrics: ['revenueActual', 'roCount'] },
   ],
   'volume-drp': [
     { title: 'Carrier outreach on assignment shortfall', type: 'Carrier outreach', metrics: ['assignmentActual'] },
     { title: 'Improve DRP scorecard drivers', type: 'Estimating process', metrics: ['drpScore', 'externalRulesAdherencePct'] },
+    { title: 'Lift CSI to protect scorecard standing', type: 'Training', metrics: ['qualityRecAcceptedPct', 'drpScore'] },
+    { title: 'Reduce keys-to-keys cycle time for the carrier', type: 'Parts or supply', metrics: ['rentalDays', 'drpScore'] },
+    { title: 'Quarterly business review with the carrier', type: 'Carrier outreach', metrics: ['assignmentActual', 'drpScore'] },
     { title: 'Monitor assignment volume vs forecast', type: 'Metric monitoring', metrics: ['assignmentActual'] },
   ],
   mixed: [
     { title: 'Estimating process review', type: 'Estimating process', metrics: ['estimateAccuracyPct', 'totalCostOfRepair'] },
     { title: 'Parts procurement fix for cycle time', type: 'Parts or supply', metrics: ['rentalDays', 'totalCostOfRepair'] },
     { title: 'Carrier outreach on scorecard', type: 'Carrier outreach', metrics: ['drpScore', 'externalRulesAdherencePct'] },
+    { title: 'Staffing plan to stabilize capture and throughput', type: 'Staffing', metrics: ['captureRatePct', 'roCount'] },
+    { title: 'CSI recovery focus on customer communication', type: 'Training', metrics: ['qualityRecAcceptedPct'] },
+    { title: 'Weekly review across the diagnostic set', type: 'Metric monitoring', metrics: ['revenueActual', 'estimateAccuracyPct'] },
   ],
   none: [
     { title: 'Monitor performance vs plan', type: 'Metric monitoring', metrics: ['revenueActual'] },
     { title: 'General staffing review', type: 'Staffing', metrics: ['captureRatePct'] },
+    { title: 'Hold cycle time and rental days steady', type: 'Metric monitoring', metrics: ['rentalDays'] },
+    { title: 'Maintain CSI and quality scores', type: 'Training', metrics: ['qualityRecAcceptedPct'] },
+    { title: 'Sustain DRP assignment volume with carriers', type: 'Carrier outreach', metrics: ['assignmentActual', 'drpScore'] },
   ],
 };
 
