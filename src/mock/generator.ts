@@ -47,6 +47,7 @@ import {
   CITIES,
   CLIENT_NAMES,
   DIVISIONS,
+  DRP_PROGRAMS,
   FIRST_NAMES,
   LAST_NAMES,
   REGIONS,
@@ -121,28 +122,30 @@ export interface GeneratedData extends DataSet {
   landmarks: Landmarks;
 }
 
+// The four dimensions that appear across essentially every carrier DRP
+// scorecard. Order is fixed and matches CARRIER_WEIGHTS below.
 const SCORECARD_DRIVERS = [
-  'Cycle time',
-  'Estimate accuracy',
-  'Repair quality',
-  'Customer satisfaction',
-  'DRP rules adherence',
-  'Cost control',
+  'Cycle time (keys-to-keys)',
+  'Customer satisfaction (CSI)',
+  'Estimate & severity control',
+  'Administrative & quality compliance',
 ] as const;
 
-// Per-carrier weighting of scorecard drivers (percent, sums ~100). Different
-// carriers weight different things, so the same store gets different advice.
+// Per-carrier weighting of the four scorecard dimensions (percent, sums to 100).
+// Carriers weight different things, so the same store gets different advice: CSI
+// tends to carry the most weight (highest for USAA STARS and Allstate GHRN),
+// while cycle time leads for the speed-driven programs (Progressive, GEICO ARX,
+// Liberty Mutual GRN). Index is the DRP client index 0..8.
 const CARRIER_WEIGHTS: Record<number, number[]> = {
-  // index by DRP client index 0..8; order matches SCORECARD_DRIVERS
-  0: [30, 15, 15, 15, 15, 10], // cycle-time led
-  1: [10, 30, 20, 10, 20, 10], // estimate-accuracy led
-  2: [15, 10, 15, 30, 20, 10], // CSAT led
-  3: [10, 20, 15, 10, 35, 10], // rules-adherence led
-  4: [20, 15, 25, 15, 15, 10], // repair-quality led
-  5: [15, 15, 10, 15, 15, 30], // cost-control led
-  6: [25, 20, 15, 15, 15, 10],
-  7: [12, 25, 18, 12, 23, 10],
-  8: [18, 12, 22, 20, 18, 10],
+  0: [25, 35, 22, 18], // State Farm Select Service - CSI led
+  1: [38, 27, 20, 15], // GEICO ARX - cycle-time led
+  2: [40, 25, 20, 15], // Progressive - cycle-time led
+  3: [22, 40, 20, 18], // Allstate GHRN - CSI led
+  4: [20, 42, 20, 18], // USAA STARS - CSI led (highest)
+  5: [36, 26, 22, 16], // Liberty Mutual GRN - cycle-time led
+  6: [22, 28, 34, 16], // Farmers COD - severity/cost led
+  7: [26, 34, 22, 18], // Nationwide OYS - CSI led
+  8: [22, 26, 22, 30], // American Family CRSP - compliance led
 };
 
 function seasonal(month: string, amp: number): number {
@@ -206,7 +209,17 @@ export function generate(): GeneratedData {
   // --- Clients --------------------------------------------------------------
   const clients: Client[] = [];
   for (let i = 0; i < CLIENT_COUNT; i++) {
-    clients.push({ id: `C-${String(i + 1).padStart(2, '0')}`, name: CLIENT_NAMES[i], isDrp: i < DRP_COUNT });
+    const name = CLIENT_NAMES[i];
+    const isDrp = i < DRP_COUNT;
+    const prog = isDrp ? DRP_PROGRAMS[name] : undefined;
+    clients.push({
+      id: `C-${String(i + 1).padStart(2, '0')}`,
+      name,
+      isDrp,
+      drpProgram: prog?.program,
+      scorecardName: prog?.scorecard,
+      scorePlatform: prog?.platform,
+    });
   }
   const drpClients = clients.filter((c) => c.isDrp);
   const underforecastClientId = drpClients[2].id; // Progressive under forecast broadly
@@ -674,14 +687,21 @@ export function generate(): GeneratedData {
         const month = months[t];
         const mp = storeMetricsByClientMonth.get(clientId + month);
         if (!mp) continue;
-        // driver values pulled from the store's real metrics where sensible
+        // Each dimension is graded on a DRP points scale, not the raw compliance
+        // percentage: a carrier grades against a high bar, so a strong-but-imperfect
+        // operation lands in the low 80s and weak metrics fall into Watch/At-risk
+        // territory. Grounded in the store's real metrics - cycle time from
+        // keys-to-keys days, CSI from the quality survey, severity from estimate
+        // accuracy blended with cost control, compliance from internal SOP +
+        // carrier rules + central review.
+        const costControlPts = clamp(100 - (mp.totalCostOfRepair - 3200) / 40, 40, 98);
+        const severityRaw = (mp.estimateAccuracyPct + costControlPts) / 2;
+        const complianceRaw = (mp.internalRulesAdherencePct + mp.externalRulesAdherencePct + mp.centralReviewPassPct) / 3;
         const driverVals: Record<(typeof SCORECARD_DRIVERS)[number], number> = {
-          'Cycle time': clamp(100 - (mp.cycleTimeDays - 6) * 6, 40, 98),
-          'Estimate accuracy': mp.estimateAccuracyPct,
-          'Repair quality': mp.qualityRecAcceptedPct,
-          'Customer satisfaction': clamp(mp.captureRatePct + 20, 50, 98),
-          'DRP rules adherence': mp.externalRulesAdherencePct,
-          'Cost control': clamp(100 - (mp.totalCostOfRepair - 3200) / 40, 40, 98),
+          'Cycle time (keys-to-keys)': clamp(96 - (mp.cycleTimeDays - 6) * 8, 30, 99),
+          'Customer satisfaction (CSI)': clamp((mp.qualityRecAcceptedPct - 70) * 1.7 + 54, 30, 99),
+          'Estimate & severity control': clamp((severityRaw - 72) * 1.8 + 52, 30, 99),
+          'Administrative & quality compliance': clamp((complianceRaw - 76) * 1.7 + 53, 30, 99),
         };
         const drivers: ScorecardDriver[] = SCORECARD_DRIVERS.map((name, k) => ({
           name,
@@ -690,7 +710,7 @@ export function generate(): GeneratedData {
           carrierTarget: round1(clamp(driverVals[name] + rfloat(sRng, 2, 9), 60, 99)),
         }));
         let score = drivers.reduce((acc, d) => acc + (d.weightPct / 100) * d.storeValue, 0);
-        score = clamp(score + (sRng() - 0.5) * 3, 20, 99);
+        score = clamp(score + (sRng() - 0.5) * 12, 20, 99);
         let tier = tierFromScore(score);
         // tier-flagged stores: force Watch/At risk on the dominant carrier now
         if (p.flagVia === 'tier' && ci === 0 && t >= curIdx - 2) {

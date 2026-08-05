@@ -260,7 +260,12 @@ export function StoreRecord() {
                 const mkt = cbsaMarketTrend(data, store.cbsaId, m.client.id);
                 return (
                   <tr key={m.client.id}>
-                    <td className="text-xs font-medium">{m.client.name}</td>
+                    <td className="text-xs font-medium">
+                      {m.client.name}
+                      {m.client.drpProgram && (
+                        <div className="text-2xs font-normal text-muted">{m.client.drpProgram}</div>
+                      )}
+                    </td>
                     <td className="text-2xs">{m.client.isDrp ? 'DRP' : '-'}</td>
                     <td className="text-xs">
                       {m.client.isDrp ? (
@@ -290,7 +295,7 @@ export function StoreRecord() {
           </table>
         </div>
         <div className="mt-2">
-          <OpenQuestion>DRP scorecard data at competitor granularity may not be licensable - this table depends on a data source that is not yet confirmed.</OpenQuestion>
+          <OpenQuestion>DRP program names are real; the tier, CBSA rank, and competitor counts are illustrative - the carrier scorecard feed at competitor granularity is carrier-proprietary and not yet in BDAP.</OpenQuestion>
         </div>
       </Panel>
 

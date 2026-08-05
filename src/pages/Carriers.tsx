@@ -226,10 +226,27 @@ export function Carriers() {
         </p>
       </div>
 
+      {(carrier.drpProgram || carrier.scorecardName) && (
+        <div className="card flex flex-wrap items-center gap-x-4 gap-y-1.5 p-3 text-xs">
+          {carrier.drpProgram && <span className="chip bg-accent-soft text-accent">{carrier.drpProgram}</span>}
+          {carrier.scorecardName && (
+            <span className="text-muted">
+              Scorecard <span className="font-medium text-ink">{carrier.scorecardName}</span>
+            </span>
+          )}
+          {carrier.scorePlatform && (
+            <span className="text-muted">
+              Scored in <span className="font-medium text-ink">{carrier.scorePlatform}</span>
+            </span>
+          )}
+        </div>
+      )}
+
       <OpenQuestion>
-        DRP scorecard data at competitor granularity may not be licensable; this view depends on a source not yet
-        confirmed. Carrier priorities vary by carrier, so what a store must fix to hold its tier differs from one
-        carrier to the next - the driver weights below are per carrier, not a Boyd-wide standard.
+        Program and scorecard names shown here are real (Select Service, STARS, ARX, GHRN, and so on). The scores, CBSA
+        ranks, and competitor counts are illustrative: the carrier scorecard feed at that granularity is
+        carrier-proprietary and is not present in BDAP today. Driver weights are per carrier, not a Boyd-wide standard -
+        CSI usually carries the most weight, with cycle time close behind.
       </OpenQuestion>
 
       <Panel title="Scope" subtitle="Pick the carrier, then narrow to one store or region as needed.">
@@ -326,7 +343,7 @@ export function Carriers() {
 
       {/* Scorecard trend ----------------------------------------------------- */}
       <Panel
-        title="DRP scorecard trend"
+        title={carrier.scorecardName ? `${carrier.scorecardName} trend` : 'DRP scorecard trend'}
         subtitle={
           scorecardStore
             ? `${carrier.name} at ${scorecardStore.name} over ${scorecardSeries.length} months, with tier changes marked.${effectiveStoreId === 'all' ? ' Showing a representative store - select a store above to change it.' : ''}`

@@ -38,6 +38,11 @@ export interface Client {
   id: string;
   name: string;
   isDrp: boolean;
+  // DRP program identity - real program and scorecard names. Only set for DRP
+  // carriers; the scores/ranks attributed to them are still illustrative.
+  drpProgram?: string; // e.g. "Select Service"
+  scorecardName?: string; // e.g. "RPM Score (Repairer Performance Management)"
+  scorePlatform?: string; // scoring/portal platform, e.g. "State Farm B2B Portal"
 }
 
 // One row per store per client per month. This is the fact table.

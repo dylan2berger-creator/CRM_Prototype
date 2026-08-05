@@ -110,11 +110,32 @@ export const DIVISIONS: ('North Division' | 'South Division' | 'West Division')[
 ];
 
 // 14 clients (carriers). Real US property and casualty auto insurers; isDrp is
-// set in the generator so the first 9 are DRP. All performance, scorecard, and
-// volume data attributed to these names is fabricated for the demo.
+// set in the generator so the first 9 are DRP. The first 9 are the carriers Boyd
+// runs a direct repair program with; each maps to a real, named DRP program in
+// DRP_PROGRAMS below. All performance, scorecard, and volume data attributed to
+// these names is fabricated for the demo.
 export const CLIENT_NAMES = [
   'State Farm', 'GEICO', 'Progressive', 'Allstate',
   'USAA', 'Liberty Mutual', 'Farmers Insurance', 'Nationwide',
-  'Travelers', 'American Family Insurance', 'Erie Insurance', 'Auto-Owners Insurance',
+  'American Family Insurance', 'Travelers', 'Erie Insurance', 'Auto-Owners Insurance',
   'The Hartford', 'Mercury Insurance',
 ];
+
+// Real DRP program identities, keyed by carrier name. Program, scorecard, and
+// scoring-platform names are the carriers' actual public program names; the
+// scores and ranks the prototype shows against them remain illustrative (the
+// scorecard feed at competitor granularity is carrier-proprietary, not in BDAP).
+export const DRP_PROGRAMS: Record<
+  string,
+  { program: string; scorecard: string; platform: string }
+> = {
+  'State Farm': { program: 'Select Service®', scorecard: 'RPM Score (Repairer Performance Management)', platform: 'State Farm B2B Portal' },
+  GEICO: { program: 'Auto Repair Xpress® (ARX)', scorecard: 'ARX Performance Scorecard', platform: 'CCC ONE / ARX Portal' },
+  Progressive: { program: 'Network Repair Program', scorecard: 'Progressive DRP Scorecard', platform: 'CCC ONE / Mitchell' },
+  Allstate: { program: 'Good Hands Repair Network (GHRN)', scorecard: 'Good Hands Scorecard / Performance Index', platform: 'CCC ONE / Encompass' },
+  USAA: { program: 'STARS (Select Trusted Auto Repairer)', scorecard: 'STARS Performance Scorecard', platform: 'CCC ONE / Mitchell' },
+  'Liberty Mutual': { program: 'Guaranteed Repair Network (GRN)', scorecard: 'GRN Performance Scorecard', platform: 'CCC ONE Scorecard' },
+  'Farmers Insurance': { program: 'Circle of Dependability (COD)', scorecard: 'COD KPI Scorecard / Performance Matrix', platform: 'CCC ONE / Mitchell' },
+  Nationwide: { program: 'On Your Side® (OYS) Auto Repair Network', scorecard: 'On Your Side (OYS) Scorecard', platform: 'CCC ONE / Mitchell' },
+  'American Family Insurance': { program: 'Customer Repair Service Program (CRSP)', scorecard: 'CRSP Performance Scorecard', platform: 'CCC ONE' },
+};
