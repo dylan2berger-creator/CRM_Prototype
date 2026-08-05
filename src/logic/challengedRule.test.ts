@@ -21,7 +21,7 @@ const CUR = MONTHS[MONTHS.length - 1];
 function baseStore(): Store {
   return {
     id: 'S-0001',
-    name: 'Boyd Collision - Testville',
+    name: 'Testville',
     regionId: 'R-01',
     cbsaId: 'CBSA-01',
     gmName: 'Test GM',

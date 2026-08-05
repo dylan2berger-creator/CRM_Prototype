@@ -19,9 +19,8 @@ export const LAST_NAMES = [
   'Gunderson', 'Haas', 'Ito', 'Keller', 'Lund', 'Mireles', 'Nagel',
 ];
 
-// City, state, and the CBSA name it anchors. Fictional store names are
-// "Boyd Collision - <city>" (or a nearby suburb) so they read as real
-// locations without naming real shops.
+// City, state, and the CBSA name it anchors. A shop is named for its
+// location (the city), so shops read as real places without naming real shops.
 export const CITIES: { city: string; state: string; cbsa: string }[] = [
   { city: 'Naperville', state: 'IL', cbsa: 'Chicago-Naperville-Elgin' },
   { city: 'Aurora', state: 'IL', cbsa: 'Chicago-Naperville-Elgin' },

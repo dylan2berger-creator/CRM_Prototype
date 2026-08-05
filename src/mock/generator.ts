@@ -444,7 +444,7 @@ export function generate(): GeneratedData {
 
     const store: Store = {
       id,
-      name: `Boyd Collision - ${CITIES[i % CITIES.length].city}`,
+      name: CITIES[i % CITIES.length].city,
       regionId: region.id,
       cbsaId: cbsa.id,
       gmName: namesLeft(),

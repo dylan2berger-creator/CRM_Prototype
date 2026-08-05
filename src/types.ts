@@ -16,7 +16,7 @@ export interface Region {
 
 export interface Store {
   id: string; // "S-0142"
-  name: string; // "Boyd Collision - Naperville"
+  name: string; // location/city name, e.g. "Naperville"
   regionId: string;
   cbsaId: string;
   gmName: string;
