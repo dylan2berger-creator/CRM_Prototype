@@ -1,4 +1,4 @@
-// The challenged-store rule — a single pure function with a version string.
+// The challenged-store rule - a single pure function with a version string.
 //
 // PROTOTYPE THRESHOLDS. These are placeholders pending sign-off from Finance
 // and Client Performance Management; the UI labels them as such. If they

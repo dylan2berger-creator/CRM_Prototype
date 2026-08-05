@@ -1,4 +1,4 @@
-// Metric registry — the single source of truth for every benchmarkable metric:
+// Metric registry - the single source of truth for every benchmarkable metric:
 // its label, unit, direction, source dataset (for provenance), and how to read
 // a store/scope value for a month. Charts, the diagnosis panel, the metric
 // toggle, and the benchmarking screen all read from here so they stay in sync.

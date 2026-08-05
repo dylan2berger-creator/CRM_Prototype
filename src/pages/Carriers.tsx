@@ -1,4 +1,4 @@
-// Screen 7 — /carriers, the carrier and DRP view.
+// Screen 7 - /carriers, the carrier and DRP view.
 // Built for the National Account Manager and for a CPM preparing for a carrier
 // meeting: how a carrier scores a store, whether its assignment volume tracks
 // forecast, how it rolls up across the book and within a region, which
@@ -169,7 +169,7 @@ export function Carriers() {
   }, [data, carrierId]);
 
   // --- Driver comparison: same store, two carriers ---------------------------
-  // The demo point — two carriers on one store disagree about what matters.
+  // The demo point - two carriers on one store disagree about what matters.
   const [cmpStoreId, setCmpStoreId] = useState<string>(landmarks.twoCarrierDisagreeStoreId);
 
   const cmpStoreCarriers = useMemo(() => {
@@ -229,7 +229,7 @@ export function Carriers() {
       <OpenQuestion>
         DRP scorecard data at competitor granularity may not be licensable; this view depends on a source not yet
         confirmed. Carrier priorities vary by carrier, so what a store must fix to hold its tier differs from one
-        carrier to the next — the driver weights below are per carrier, not a Boyd-wide standard.
+        carrier to the next - the driver weights below are per carrier, not a Boyd-wide standard.
       </OpenQuestion>
 
       <Panel title="Scope" subtitle="Pick the carrier, then narrow to one store or region as needed.">
@@ -248,7 +248,7 @@ export function Carriers() {
 
       {/* Carrier-level roll-up ------------------------------------------------ */}
       <Panel
-        title={`${carrier.name} — roll-up this month`}
+        title={`${carrier.name} - roll-up this month`}
         subtitle={`Revenue and assignment volume vs forecast across all stores, ${monthLabel(cur)}.`}
         right={<SourceTag dataset="BDAP - DRP Assignments" />}
       >
@@ -329,7 +329,7 @@ export function Carriers() {
         title="DRP scorecard trend"
         subtitle={
           scorecardStore
-            ? `${carrier.name} at ${scorecardStore.name} over ${scorecardSeries.length} months, with tier changes marked.${effectiveStoreId === 'all' ? ' Showing a representative store — select a store above to change it.' : ''}`
+            ? `${carrier.name} at ${scorecardStore.name} over ${scorecardSeries.length} months, with tier changes marked.${effectiveStoreId === 'all' ? ' Showing a representative store - select a store above to change it.' : ''}`
             : 'No scorecard for this scope.'
         }
         right={<SourceTag dataset="DOMO - DRP Scorecards" />}
@@ -394,7 +394,7 @@ export function Carriers() {
                     <span aria-hidden style={{ color: t.worse ? WORSE : BETTER }}>{t.worse ? '▼' : '▲'}</span>
                     <span>
                       moved from {t.from} to {t.to}
-                      {t.worse ? ' — a step down that puts assignments at risk' : ' — an improvement'}
+                      {t.worse ? ' - a step down that puts assignments at risk' : ' - an improvement'}
                     </span>
                   </li>
                 ))}
@@ -411,14 +411,14 @@ export function Carriers() {
       {/* Assignment volume vs forecast --------------------------------------- */}
       <Panel
         title="Assignment volume vs forecast"
-        subtitle={`${carrier.name} — ${effectiveStoreId === 'all' ? 'all stores aggregated' : storeById(data, effectiveStoreId)?.name ?? effectiveStoreId}.`}
+        subtitle={`${carrier.name} - ${effectiveStoreId === 'all' ? 'all stores aggregated' : storeById(data, effectiveStoreId)?.name ?? effectiveStoreId}.`}
         right={<SourceTag dataset="BDAP - DRP Assignments" />}
       >
         <div className="mb-2 flex flex-wrap items-center gap-2 text-sm">
           <span className="text-muted">This month:</span>
-          <span className="tnum font-medium text-ink">{volNow ? int(volNow.actual) : '—'} actual</span>
+          <span className="tnum font-medium text-ink">{volNow ? int(volNow.actual) : '-'} actual</span>
           <span className="text-muted">vs</span>
-          <span className="tnum text-muted">{volNow ? int(volNow.forecast) : '—'} forecast</span>
+          <span className="tnum text-muted">{volNow ? int(volNow.forecast) : '-'} forecast</span>
           <span className="text-muted">·</span>
           <span className="tnum font-medium" style={{ color: volGapUnits < 0 ? WORSE : BETTER }}>
             gap {volGapUnits >= 0 ? '+' : ''}{int(volGapUnits)} units
@@ -496,7 +496,7 @@ export function Carriers() {
 
       {/* Driver comparison --------------------------------------------------- */}
       <Panel
-        title="Scorecard driver breakdown — two carriers, one store"
+        title="Scorecard driver breakdown - two carriers, one store"
         subtitle="Carriers weight the same store differently. Compare what each one rewards so a plan targets the carrier that matters most for this store's volume."
         right={<SourceTag dataset="DOMO - DRP Scorecards" />}
       >
@@ -592,7 +592,7 @@ export function Carriers() {
             </div>
             <p className="mt-1.5 text-2xs text-muted">
               Highest-weighted driver per carrier shown in teal. A store value below the carrier's target is shown in
-              red — that is where the store loses points with that carrier.
+              red - that is where the store loses points with that carrier.
             </p>
           </>
         ) : (
@@ -630,7 +630,7 @@ export function Carriers() {
                     <td className="tnum whitespace-nowrap text-muted">{dateLabel(ask.raisedOn)}</td>
                     <td className="whitespace-nowrap text-muted">{ask.raisedBy}</td>
                     <td><SalesAskBadge status={ask.status} /></td>
-                    <td className="text-muted">{ask.outcome ?? '—'}</td>
+                    <td className="text-muted">{ask.outcome ?? '-'}</td>
                   </tr>
                 ))}
               </tbody>

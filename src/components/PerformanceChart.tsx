@@ -1,4 +1,4 @@
-// The performance chart — the one element worth designing carefully, because
+// The performance chart - the one element worth designing carefully, because
 // "which intervention moved this" is the question the whole app exists to
 // answer. Actual vs baseline over time, with a MARKER RAIL below the plot (not
 // full-height picket-fence lines) carrying the plan-start date and each task's

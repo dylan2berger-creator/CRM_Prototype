@@ -1,4 +1,4 @@
-# Rebound — Shop performance recovery (prototype)
+# Rebound - Shop performance recovery (prototype)
 
 A clickable prototype of an internal Boyd Group application, working name
 **Rebound**. It holds each shop's KPI targets against actuals and gives Client
@@ -7,7 +7,7 @@ and build and track a recovery action plan on the same record.
 
 > **Naming note.** The original spec used the working name *CRM (Client Recovery
 > Manager)*, which collides with the industry meaning of *customer relationship
-> management* — Boyd almost certainly already runs one, and stakeholders would
+> management* - Boyd almost certainly already runs one, and stakeholders would
 > assume this is a sales tool. It has been renamed **Rebound** (a store bouncing
 > back to plan) to avoid that collision. The name is still a working title;
 > confirm it before anything ships.
@@ -23,8 +23,8 @@ npm install && npm run dev
 
 Then open the printed local URL. Other scripts:
 
-- `npm run build` — type-check and produce a production build.
-- `npm test` — run the unit tests for the challenged-store rule.
+- `npm run build` - type-check and produce a production build.
+- `npm test` - run the unit tests for the challenged-store rule.
 
 ## Stack
 
@@ -44,7 +44,7 @@ source dataset and say how current it is (all timestamps are mocked too).
 
 The generated world: 345 stores (205 Boyd, 140 JHCC), 12 regions, 60 CBSAs, 14
 carriers (9 DRP), and 36 months of history ending at the current month. Roughly
-18–22% of stores are currently challenged (a struggling Southeast region
+18-22% of stores are currently challenged (a struggling Southeast region
 concentrates some of them), about 60% of challenged stores have an action plan,
 and the data deliberately plants the patterns the demo needs to find (distinct
 root-cause signatures, carrier- and region-level underperformance, DRP-volume vs
@@ -54,22 +54,22 @@ move, or got worse).
 
 ## Screens
 
-- **Portfolio** (`/`) — the CPM's book, challenged stores first. The list *is*
+- **Portfolio** (`/`) - the CPM's book, challenged stores first. The list *is*
   the identification step; no hunting.
-- **Store record** (`/store/:id`) — everything about one store: baseline,
+- **Store record** (`/store/:id`) - everything about one store: baseline,
   performance chart with per-task markers, why-flagged, diagnosis, client/DRP
   breakdown, the action plan, and sales activity.
-- **Plan editor** (`/store/:id/plan`) — structured, typed tasks with the metrics
+- **Plan editor** (`/store/:id/plan`) - structured, typed tasks with the metrics
   they are meant to move, owners, tags, risks, and sales asks.
-- **Analysis** (`/analysis`) — forecast vs actual with a carrier / region / shop
+- **Analysis** (`/analysis`) - forecast vs actual with a carrier / region / shop
   / carrier-in-region pivot, root-cause comparison, and a shop-vs-market view.
-- **Benchmarking** (`/benchmarking`) — KPI movement vs plan activity, before/
+- **Benchmarking** (`/benchmarking`) - KPI movement vs plan activity, before/
   after per task, and aggregate outcome by task type.
-- **Carriers** (`/carriers`) — DRP scorecards, assignment volume vs forecast,
+- **Carriers** (`/carriers`) - DRP scorecards, assignment volume vs forecast,
   anomalies, and scorecard-driver weighting per carrier.
-- **Roll-up** (`/roll-up`) — region and executive roll-up, application metrics,
+- **Roll-up** (`/roll-up`) - region and executive roll-up, application metrics,
   brand split.
-- **Alerts** (`/alerts`) — the proactive alert queue.
+- **Alerts** (`/alerts`) - the proactive alert queue.
 
 Use the **role switcher** in the header (CPM / RVP / Shop GM / Executive) to
 change the visible scope and landing screen.
@@ -91,7 +91,7 @@ conversation in a demo:
 
 - **Challenged-rule thresholds** are placeholders pending sign-off from Finance
   and Client Performance Management.
-- **Business case numbers** may exist only in memos and workbooks — the "Not
+- **Business case numbers** may exist only in memos and workbooks - the "Not
   loaded" baseline state (some JHCC stores have no RO plan) is deliberate.
 - **DRP scorecard data at competitor granularity** may not be licensable; that
   table is marked as dependent on an unconfirmed source.
@@ -108,7 +108,7 @@ conversation in a demo:
   load-bearing.
 - **Forecast DRP assignment volume** may not exist as a published number the way
   revenue forecast does. Confirm who owns it.
-- **The `TaskType` taxonomy** is a first pass drawn from examples — validate it
+- **The `TaskType` taxonomy** is a first pass drawn from examples - validate it
   with CPMs before it becomes fixed. A wrong list is worse than free text.
 
 ## Application metrics

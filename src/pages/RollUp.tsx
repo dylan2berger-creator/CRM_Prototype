@@ -1,4 +1,4 @@
-// Screen 6 — /roll-up. The executive / VP / RVP cross-region view. Rolls the
+// Screen 6 - /roll-up. The executive / VP / RVP cross-region view. Rolls the
 // challenged-store picture up to region cards, a small set of application
 // metrics, a ranked worst-shops table by gap to business case, a 12-month
 // trend, and a Boyd-vs-JHCC split so integration performance reads separately.
@@ -119,7 +119,7 @@ export function RollUp() {
     // Ranked worst shops by gap to business case (most negative first).
     const ranked = [...rows].sort((a, b) => a.gap - b.gap).slice(0, 25);
 
-    // Brand split — keeps JHCC integration performance readable on its own.
+    // Brand split - keeps JHCC integration performance readable on its own.
     const brandSplit = (['Boyd', 'JHCC'] as const).map((brand) => {
       const bs = rows.filter((r) => r.store.brand === brand);
       const challengedRows = bs.filter((r) => r.isChallenged);
@@ -184,7 +184,7 @@ export function RollUp() {
         </div>
       </header>
 
-      <OpenQuestion>Application-metric targets are not set — shown as TBD.</OpenQuestion>
+      <OpenQuestion>Application-metric targets are not set - shown as TBD.</OpenQuestion>
 
       {/* Application metrics strip */}
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
@@ -210,7 +210,7 @@ export function RollUp() {
         />
         <Stat
           label="Action plan tasks on track"
-          value={view.appMetrics.tasksOnTrackPct == null ? '—' : pct(view.appMetrics.tasksOnTrackPct)}
+          value={view.appMetrics.tasksOnTrackPct == null ? '-' : pct(view.appMetrics.tasksOnTrackPct)}
           tone={
             view.appMetrics.tasksOnTrackPct == null
               ? 'default'
@@ -257,12 +257,12 @@ export function RollUp() {
                 </div>
                 <div>
                   <dt className="text-2xs uppercase tracking-wide text-muted">Plan coverage</dt>
-                  <dd className="tnum text-ink">{c.planCoverage == null ? '—' : pct(c.planCoverage)}</dd>
+                  <dd className="tnum text-ink">{c.planCoverage == null ? '-' : pct(c.planCoverage)}</dd>
                 </div>
                 <div>
                   <dt className="text-2xs uppercase tracking-wide text-muted">Overdue step rate</dt>
                   <dd className={`tnum ${c.overdueRate != null && c.overdueRate > 0 ? 'text-warn-text' : 'text-ink'}`}>
-                    {c.overdueRate == null ? '—' : pct(c.overdueRate)}
+                    {c.overdueRate == null ? '-' : pct(c.overdueRate)}
                   </dd>
                 </div>
                 <div>
@@ -366,7 +366,7 @@ export function RollUp() {
                   <td className="num">{int(b.stores)}</td>
                   <td className="num">{int(b.challenged)}</td>
                   <td className={`num ${b.gapSum < 0 ? 'text-bad-text' : 'text-good-text'}`}>{money(b.gapSum)}</td>
-                  <td className="num">{b.planCoverage == null ? '—' : pct(b.planCoverage)}</td>
+                  <td className="num">{b.planCoverage == null ? '-' : pct(b.planCoverage)}</td>
                 </tr>
               ))}
             </tbody>
@@ -408,7 +408,7 @@ export function RollUp() {
                     <PctOfPlan value={r.t3Pct} />
                   </td>
                   <td className={`num font-medium ${r.gap < 0 ? 'text-bad-text' : 'text-good-text'}`}>{money(r.gap)}</td>
-                  <td>{r.isChallenged ? <ChallengedBadge months={r.months} /> : <span className="text-2xs text-muted">—</span>}</td>
+                  <td>{r.isChallenged ? <ChallengedBadge months={r.months} /> : <span className="text-2xs text-muted">-</span>}</td>
                   <td>{r.plan ? <PlanStatusBadge status={r.plan.status} /> : <span className="text-2xs text-muted">No plan</span>}</td>
                 </tr>
               ))}

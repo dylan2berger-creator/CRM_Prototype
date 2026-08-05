@@ -1,6 +1,6 @@
 // Benchmarking: does a task move what it was meant to move? We compare the
 // target metric in the 3 months before a task's startedOn to the 3 months
-// after. This is CORRELATION, not proof — the app shows what happened after the
+// after. This is CORRELATION, not proof - the app shows what happened after the
 // task, not that the task caused it. Every consumer must label it that way.
 
 import { ActionStep, DataSet, TargetMetric } from '@/types';

@@ -1,4 +1,4 @@
-// Screen 4 — /analysis: forecast vs actual, deficiency, and root cause.
+// Screen 4 - /analysis: forecast vs actual, deficiency, and root cause.
 // The pivot control is the point: one toggle re-aggregates the whole screen
 // across carrier / region / shop / carrier-in-region so the VP can answer
 // "which carriers are underperforming forecast across the Southeast" without
@@ -326,7 +326,7 @@ export function Analysis() {
         shareDelta,
       };
     });
-    // shrinking markets first — the ones that reframe a shop miss as a market miss
+    // shrinking markets first - the ones that reframe a shop miss as a market miss
     out.sort((a, b) => a.shareDelta - b.shareDelta);
     return out;
   }, [data, filteredStores, cur]);
@@ -456,7 +456,7 @@ export function Analysis() {
           {level === 'carrier' && (region !== 'all' || cbsa !== 'all' || brand !== 'all') && (
             <OpenQuestion>
               Carrier rollups are portfolio-wide across every shop. Region, CBSA, and brand filters do not constrain
-              them — switch to carrier within region to scope a carrier to the Southeast or any single region.
+              them - switch to carrier within region to scope a carrier to the Southeast or any single region.
             </OpenQuestion>
           )}
         </div>
@@ -467,18 +467,18 @@ export function Analysis() {
         <Stat
           label="Revenue actual vs forecast"
           value={moneyCompact(totals.ra)}
-          sub={`Forecast ${moneyCompact(totals.rf)} · gap ${moneyCompact(gapDollars)} (${revGapPct == null ? '—' : pctSigned(revGapPct)})`}
+          sub={`Forecast ${moneyCompact(totals.rf)} · gap ${moneyCompact(gapDollars)} (${revGapPct == null ? '-' : pctSigned(revGapPct)})`}
           tone={revGapPct != null && revGapPct < -2 ? 'bad' : revGapPct != null && revGapPct < 0 ? 'warn' : 'good'}
         />
         <Stat
           label="DRP volume actual vs forecast"
           value={int(totals.aa)}
-          sub={`Forecast ${int(totals.af)} · gap ${int(volGapUnits)} (${volGapPct == null ? '—' : pctSigned(volGapPct)})`}
+          sub={`Forecast ${int(totals.af)} · gap ${int(volGapUnits)} (${volGapPct == null ? '-' : pctSigned(volGapPct)})`}
           tone={volGapPct != null && volGapPct < -2 ? 'bad' : volGapPct != null && volGapPct < 0 ? 'warn' : 'good'}
         />
         <Stat
           label={`Avg DRP score (${noun})`}
-          value={totals.avgScore == null ? '—' : totals.avgScore.toFixed(1)}
+          value={totals.avgScore == null ? '-' : totals.avgScore.toFixed(1)}
           sub={`Across ${rows.length} ${noun}${rows.length === 1 ? '' : 's'} in view`}
         />
         <Stat
@@ -492,7 +492,7 @@ export function Analysis() {
       {/* Main pivot table ---------------------------------------------------- */}
       <Panel
         title={`Forecast vs actual by ${noun}`}
-        subtitle="Revenue and DRP assignment volume side by side — a shop can hit revenue and still miss DRP volume."
+        subtitle="Revenue and DRP assignment volume side by side - a shop can hit revenue and still miss DRP volume."
         right={
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-2xs uppercase tracking-wide text-muted">Sort</span>
@@ -561,8 +561,8 @@ export function Analysis() {
                       <td className="num text-muted">{int(r.assignmentForecast)}</td>
                       <td className="num">{int(vGap)}</td>
                       <td className="num"><Variance pct={vPct} /></td>
-                      <td className="num">{r.drpScoreAvg == null ? '—' : r.drpScoreAvg.toFixed(1)}</td>
-                      <td className="num">{r.challengedStoreCount || '—'}</td>
+                      <td className="num">{r.drpScoreAvg == null ? '-' : r.drpScoreAvg.toFixed(1)}</td>
+                      <td className="num">{r.challengedStoreCount || '-'}</td>
                       {level === 'store' && (
                         <td>
                           {r.hasPlan ? (
@@ -570,7 +570,7 @@ export function Analysis() {
                           ) : rGap < 0 ? (
                             <span className="chip bg-warn-soft text-warn-text ring-1 ring-inset ring-warn/30">No plan</span>
                           ) : (
-                            <span className="text-2xs text-muted">—</span>
+                            <span className="text-2xs text-muted">-</span>
                           )}
                         </td>
                       )}
@@ -596,7 +596,7 @@ export function Analysis() {
       {/* Score trend + root cause ------------------------------------------- */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <Panel
-          title={`DRP score trend — ${selectedRow?.label ?? '—'}`}
+          title={`DRP score trend - ${selectedRow?.label ?? '-'}`}
           subtitle="Score decay at the group level shows before individual shops flag."
           right={
             selectorOptions.length > 1 ? (
@@ -633,7 +633,7 @@ export function Analysis() {
                 <Tooltip
                   contentStyle={{ fontSize: 12, borderRadius: 6, border: '1px solid #e2e8f0' }}
                   labelFormatter={(m) => monthLabel(m as string)}
-                  formatter={(v: number) => [v == null ? '—' : v.toFixed(1), 'Avg DRP score']}
+                  formatter={(v: number) => [v == null ? '-' : v.toFixed(1), 'Avg DRP score']}
                 />
                 <Line type="monotone" dataKey="score" name="Avg DRP score" stroke="#0f766e" strokeWidth={2} dot={false} isAnimationActive={false} connectNulls />
               </LineChart>
@@ -647,7 +647,7 @@ export function Analysis() {
           subtitle={
             rootCause?.kind === 'store'
               ? 'Diagnostic metrics ranked by how far this shop is off its comparator.'
-              : `Diagnostic metrics across the group vs the filtered portfolio — a shared pattern separates from a single-shop miss.`
+              : `Diagnostic metrics across the group vs the filtered portfolio - a shared pattern separates from a single-shop miss.`
           }
         >
           {rootCause?.kind === 'store' ? (
@@ -739,7 +739,7 @@ export function Analysis() {
                 tickLine={false}
                 axisLine={{ stroke: '#cbd5e1' }}
                 domain={['dataMin - 1', 'dataMax + 1']}
-                label={{ value: 'Boyd share of CBSA (%) — latest', position: 'insideBottom', offset: -14, fontSize: 11, fill: '#64748b' }}
+                label={{ value: 'Boyd share of CBSA (%) - latest', position: 'insideBottom', offset: -14, fontSize: 11, fill: '#64748b' }}
               />
               <YAxis
                 type="number"
@@ -781,8 +781,8 @@ export function Analysis() {
                 height={24}
                 payload={[
                   { value: 'At or above plan', type: 'circle', color: '#0f766e', id: 'ok' },
-                  { value: 'Below plan, growing market — execution', type: 'circle', color: '#b45309', id: 'exec' },
-                  { value: 'Below plan, shrinking market — market', type: 'circle', color: '#b91c1c', id: 'mkt' },
+                  { value: 'Below plan, growing market - execution', type: 'circle', color: '#b45309', id: 'exec' },
+                  { value: 'Below plan, shrinking market - market', type: 'circle', color: '#b91c1c', id: 'mkt' },
                 ]}
                 wrapperStyle={{ fontSize: 11 }}
               />
@@ -838,7 +838,7 @@ export function Analysis() {
         right={<SourceTag dataset="DOMO - DRP Scorecards" />}
       >
         <OpenQuestion>
-          DRP scorecard competitor-granularity data may not be licensable — the rank-in-CBSA and competitor-count
+          DRP scorecard competitor-granularity data may not be licensable - the rank-in-CBSA and competitor-count
           columns depend on a source not yet confirmed.
         </OpenQuestion>
         {standingRows.length === 0 ? (
@@ -874,7 +874,7 @@ export function Analysis() {
                     <td><TierBadge tier={s.tier} /></td>
                     <td className="text-2xs">
                       {s.priorTier == null ? (
-                        <span className="text-muted">—</span>
+                        <span className="text-muted">-</span>
                       ) : s.tierMove > 0 ? (
                         <span className="text-good-text">▲ up from {s.priorTier}</span>
                       ) : s.tierMove < 0 ? (

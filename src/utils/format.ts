@@ -44,7 +44,7 @@ export function monthShort(month: string): string {
 
 // ISO date "2026-06-14" -> "Jun 14, 2026"
 export function dateLabel(iso: string | null): string {
-  if (!iso) return '—';
+  if (!iso) return '-';
   const d = new Date(iso + (iso.length === 10 ? 'T00:00:00Z' : ''));
   return d.toLocaleDateString('en-US', {
     month: 'short',

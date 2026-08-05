@@ -1,4 +1,4 @@
-// Action-plan kanban board — drag a card between columns to update its status.
+// Action-plan kanban board - drag a card between columns to update its status.
 // Board and List views. Status changes commit through the DataContext (moving a
 // card to In progress sets its startedOn benchmark date; Done sets completedOn).
 // Detailed editing (target metrics, tagging, carrier) lives in the plan editor;

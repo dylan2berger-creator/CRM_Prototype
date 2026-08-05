@@ -11,7 +11,7 @@ export function Sparkline({
   height?: number;
   tone?: 'neutral' | 'good' | 'bad' | 'warn';
 }) {
-  if (!values.length) return <span className="text-2xs text-muted">—</span>;
+  if (!values.length) return <span className="text-2xs text-muted">-</span>;
   const min = Math.min(...values);
   const max = Math.max(...values);
   const span = max - min || 1;

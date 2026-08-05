@@ -1,4 +1,4 @@
-// 8. /alerts — Alert queue.
+// 8. /alerts - Alert queue.
 // Proactive alerts grouped by kind, newest first, acknowledgeable. Each alert
 // message already states what changed, by how much, and against what baseline;
 // this screen makes them triageable and traceable back to the store record (and
@@ -86,7 +86,7 @@ export function Alerts() {
           <h1 className="text-lg font-semibold text-ink">Alert queue</h1>
           <p className="mt-0.5 max-w-2xl text-xs text-muted">
             Proactive alerts fire when a store or carrier moves against its baseline. Each one
-            states what changed, by how much, and against what — read it, open the record, then
+            states what changed, by how much, and against what - read it, open the record, then
             acknowledge to clear it from the queue.
           </p>
         </div>

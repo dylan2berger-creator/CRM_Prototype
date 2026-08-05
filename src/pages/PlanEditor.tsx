@@ -1,4 +1,4 @@
-// 3. Plan editor — structured, not a generic to-do list. Every task carries a
+// 3. Plan editor - structured, not a generic to-do list. Every task carries a
 // type and the metrics it is meant to move, so the benchmarking view can show
 // whether the task moved what it was supposed to move.
 
@@ -78,7 +78,7 @@ export function PlanEditor() {
             />
           </label>
         </div>
-        <p className="mt-2 text-2xs text-muted">Created {dateLabel(plan.createdOn)} by {plan.createdBy}. Edits save immediately — this is the single source of truth for the plan.</p>
+        <p className="mt-2 text-2xs text-muted">Created {dateLabel(plan.createdOn)} by {plan.createdBy}. Edits save immediately - this is the single source of truth for the plan.</p>
       </Panel>
 
       <StepsSection storeId={store.id} planId={plan.id} steps={plan.steps} />
@@ -164,7 +164,7 @@ function StepRow({
 
   const setStatus = (status: StepStatus) => {
     const patch: Partial<ActionStep> = { status };
-    // startedOn is set when the task moves to In progress — the benchmark date.
+    // startedOn is set when the task moves to In progress - the benchmark date.
     if (status === 'In progress' && !step.startedOn) patch.startedOn = today();
     if (status === 'Done') patch.completedOn = today();
     d.updateStep(planId, step.id, patch);
@@ -226,7 +226,7 @@ function StepRow({
 
       {/* Carrier-specific */}
       <div className="mt-2 grid gap-2 md:grid-cols-2">
-        <Field label="Carrier (optional — for a carrier-specific task)">
+        <Field label="Carrier (optional - for a carrier-specific task)">
           <Select
             value={step.clientId ?? ''}
             onChange={(v) => d.updateStep(planId, step.id, { clientId: v || null })}
@@ -242,7 +242,7 @@ function StepRow({
 
       {/* Target metrics */}
       <div className="mt-2">
-        <span className="text-2xs font-medium uppercase tracking-wide text-muted">Target metrics (at least one — drives the chart markers)</span>
+        <span className="text-2xs font-medium uppercase tracking-wide text-muted">Target metrics (at least one - drives the chart markers)</span>
         <div className="mt-1 flex flex-wrap gap-1">
           {METRIC_ORDER.map((m) => {
             const on = step.targetMetrics.includes(m);
@@ -447,7 +447,7 @@ function RisksSection({ planId, risks }: { planId: string; risks: Risk[] }) {
                   <span className="mr-2 font-medium">[{r.severity}]</span>
                   {r.description}
                 </div>
-                <div className="text-2xs text-muted">Mitigation: {r.mitigation || '—'} · owner {r.owner}</div>
+                <div className="text-2xs text-muted">Mitigation: {r.mitigation || '-'} · owner {r.owner}</div>
               </div>
               <button className="btn text-bad-text" onClick={() => d.deleteRisk(planId, r.id)}>Remove</button>
             </li>
@@ -527,7 +527,7 @@ function SalesAsksSection({ planId, storeId, asks }: { planId: string; storeId: 
         <button className="btn-accent" onClick={add} disabled={!request.trim() || !clientId}>Raise sales ask</button>
       </div>
       <div className="mt-2">
-        <OpenQuestion>The task-type taxonomy is a first pass drawn from examples — validate it with CPMs before it becomes fixed.</OpenQuestion>
+        <OpenQuestion>The task-type taxonomy is a first pass drawn from examples - validate it with CPMs before it becomes fixed.</OpenQuestion>
       </div>
     </Panel>
   );

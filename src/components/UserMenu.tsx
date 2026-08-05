@@ -1,4 +1,4 @@
-// User / role dropdown. No auth — role is chosen here, and changing it changes
+// User / role dropdown. No auth - role is chosen here, and changing it changes
 // the visible store scope and the default landing route.
 
 import { useState } from 'react';
@@ -59,7 +59,7 @@ export function UserMenu() {
               ))}
             </ul>
             <div className="mt-1 border-t border-line px-2 py-1.5 text-2xs text-muted">
-              No authentication — role is switched here for the demo. It changes the visible store scope and landing screen.
+              No authentication - role is switched here for the demo. It changes the visible store scope and landing screen.
             </div>
           </div>
         </>

@@ -1,5 +1,5 @@
 // Header data-freshness indicator. Every screen reading DOMO-derived numbers
-// must be able to say how current they are — click to see per-dataset refresh.
+// must be able to say how current they are - click to see per-dataset refresh.
 
 import { useState } from 'react';
 import { useData } from '@/data/DataContext';

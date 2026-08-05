@@ -2,7 +2,7 @@
 // this constant so screenshots are reproducible across reloads and machines.
 export const SEED = 0x5eed_b00d;
 
-// mulberry32 — small, fast, deterministic PRNG.
+// mulberry32 - small, fast, deterministic PRNG.
 export function makeRng(seed: number) {
   let a = seed >>> 0;
   return function rng(): number {

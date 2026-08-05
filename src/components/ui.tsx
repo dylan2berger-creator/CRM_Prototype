@@ -66,7 +66,7 @@ export function Select({
   );
 }
 
-// Segmented toggle — used for the analysis pivot control and metric toggles.
+// Segmented toggle - used for the analysis pivot control and metric toggles.
 export function Segmented<T extends string>({
   value,
   onChange,
@@ -107,7 +107,7 @@ export function EmptyState({ title, children }: { title: string; children?: Reac
   );
 }
 
-// A placeholder / open-question callout — used to surface the spec's unresolved
+// A placeholder / open-question callout - used to surface the spec's unresolved
 // questions in the UI where they bite.
 export function OpenQuestion({ children }: { children: ReactNode }) {
   return (

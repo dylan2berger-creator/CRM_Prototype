@@ -1,4 +1,4 @@
-// 2. Store record — the core screen. Everything about one store on one page, in
+// 2. Store record - the core screen. Everything about one store on one page, in
 // the spec's order. Continuity is a design requirement: whoever inherits this
 // store should be able to read the plan, history, and reasoning here.
 
@@ -68,7 +68,7 @@ export function StoreRecord() {
       list.push({
         month,
         label: shortType(tm.step.type),
-        full: `${tm.step.title} — started ${dateLabel(tm.startedOn)} (${tm.step.type})`,
+        full: `${tm.step.title} - started ${dateLabel(tm.startedOn)} (${tm.step.type})`,
         kind: 'task',
         tone: tm.ba.improved == null ? 'neutral' : tm.ba.improved ? 'good' : 'bad',
       });
@@ -106,7 +106,7 @@ export function StoreRecord() {
         </div>
       </header>
 
-      {/* Ownership & continuity — who owns the book, prior owner, rationale */}
+      {/* Ownership & continuity - who owns the book, prior owner, rationale */}
       <OwnershipPanel data={data} store={store} plan={plan} />
 
       {/* Baseline strip */}
@@ -131,11 +131,11 @@ export function StoreRecord() {
             </div>
           </div>
         ) : (
-          <p className="text-sm text-bad-text">No business case is loaded for this store. The baseline was never captured — this gap is the point, not an error.</p>
+          <p className="text-sm text-bad-text">No business case is loaded for this store. The baseline was never captured - this gap is the point, not an error.</p>
         )}
         {bc && bc.annualRoPlan === 0 && (
           <div className="mt-2">
-            <OpenQuestion>Business case numbers may live only in memos and workbooks. This store's RO plan was never loaded — a deliberate "Not loaded" state pending baseline capture.</OpenQuestion>
+            <OpenQuestion>Business case numbers may live only in memos and workbooks. This store's RO plan was never loaded - a deliberate "Not loaded" state pending baseline capture.</OpenQuestion>
           </div>
         )}
       </Panel>
@@ -143,7 +143,7 @@ export function StoreRecord() {
       {/* Performance chart */}
       <Panel
         title="Performance"
-        subtitle={`Monthly ${meta.label.toLowerCase()} over 24 months. Markers show the plan start and each task's start date — only tasks meant to move this metric appear.`}
+        subtitle={`Monthly ${meta.label.toLowerCase()} over 24 months. Markers show the plan start and each task's start date - only tasks meant to move this metric appear.`}
         right={<SourceTag dataset={meta.source} />}
       >
         <div className="mb-2 flex flex-wrap gap-1">
@@ -190,8 +190,8 @@ export function StoreRecord() {
 
         {/* Diagnosis */}
         <Panel
-          title="Diagnosis — what is causing this"
-          subtitle="Diagnostic metrics ranked by how far off they are. Internal and external rules adherence stay separate — they point at different fixes."
+          title="Diagnosis - what is causing this"
+          subtitle="Diagnostic metrics ranked by how far off they are. Internal and external rules adherence stay separate - they point at different fixes."
           right={<SourceTag dataset="DOMO - Rules Adherence" />}
         >
           {worstAdverse && (
@@ -255,13 +255,13 @@ export function StoreRecord() {
                 return (
                   <tr key={m.client.id}>
                     <td className="text-xs font-medium">{m.client.name}</td>
-                    <td className="text-2xs">{m.client.isDrp ? 'DRP' : '—'}</td>
+                    <td className="text-2xs">{m.client.isDrp ? 'DRP' : '-'}</td>
                     <td className="num text-xs">{moneyCompact(m.revenueT12)}</td>
                     <td className="num text-xs">{m.sharePct.toFixed(1)}%</td>
-                    <td>{sc ? <TierBadge tier={sc.tier} /> : <span className="text-2xs text-muted">—</span>}</td>
-                    <td className="num text-xs">{sc ? `${sc.rankInCbsa} / ${sc.competitorsInCbsa}` : '—'}</td>
-                    <td className="num text-xs">{mkt ? <Variance pct={mkt.pifChangePct} good={mkt.pifChangePct >= 0} /> : '—'}</td>
-                    <td className="num text-xs">{mkt ? `${mkt.boydSharePct.toFixed(1)}%` : '—'}</td>
+                    <td>{sc ? <TierBadge tier={sc.tier} /> : <span className="text-2xs text-muted">-</span>}</td>
+                    <td className="num text-xs">{sc ? `${sc.rankInCbsa} / ${sc.competitorsInCbsa}` : '-'}</td>
+                    <td className="num text-xs">{mkt ? <Variance pct={mkt.pifChangePct} good={mkt.pifChangePct >= 0} /> : '-'}</td>
+                    <td className="num text-xs">{mkt ? `${mkt.boydSharePct.toFixed(1)}%` : '-'}</td>
                   </tr>
                 );
               })}
@@ -269,7 +269,7 @@ export function StoreRecord() {
           </table>
         </div>
         <div className="mt-2">
-          <OpenQuestion>DRP scorecard data at competitor granularity may not be licensable — this table depends on a data source that is not yet confirmed.</OpenQuestion>
+          <OpenQuestion>DRP scorecard data at competitor granularity may not be licensable - this table depends on a data source that is not yet confirmed.</OpenQuestion>
         </div>
       </Panel>
 
@@ -338,9 +338,9 @@ export function StoreRecord() {
         <SalesActivityList data={data} storeId={store.id} />
       </Panel>
 
-      {/* Consolidated record timeline — flag, plan, tasks, asks, activity in one
+      {/* Consolidated record timeline - flag, plan, tasks, asks, activity in one
           thread so an inheriting CPM reads the whole story chronologically. */}
-      <Panel title="Record timeline" subtitle="Plan, history, and reasoning in one thread — kept through turnover">
+      <Panel title="Record timeline" subtitle="Plan, history, and reasoning in one thread - kept through turnover">
         <RecordTimeline data={data} store={store} plan={plan} firstFlaggedMonth={ci.firstFlaggedMonth} ruleVersion={ev.ruleVersion} />
       </Panel>
     </div>
@@ -353,7 +353,7 @@ function OwnershipPanel({ data, store, plan }: { data: ReturnType<typeof useData
   const tenure = monthDiff(data.currentMonth, store.assignedOn.slice(0, 7));
   const prevSub = store.cpmId ? (prev ? `handed off ${dateLabel(store.assignedOn)}` : 'first owner') : 'book now vacant';
   return (
-    <Panel title="Ownership &amp; continuity" subtitle="Who owns this book now, who held it before, and the plan reasoning — so a handoff loses nothing.">
+    <Panel title="Ownership &amp; continuity" subtitle="Who owns this book now, who held it before, and the plan reasoning - so a handoff loses nothing.">
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <div className="rounded border border-line bg-surface px-3 py-2">
           <div className="text-2xs font-medium uppercase tracking-wide text-muted">Current owner (CPM)</div>
@@ -366,14 +366,14 @@ function OwnershipPanel({ data, store, plan }: { data: ReturnType<typeof useData
             <div className="mt-0.5 text-sm font-semibold text-bad-text">Unassigned</div>
           )}
         </div>
-        <Stat label="Previous owner" value={prev ?? '—'} sub={prevSub} />
-        <Stat label="RVP" value={region?.rvpName ?? '—'} sub={region?.name} />
+        <Stat label="Previous owner" value={prev ?? '-'} sub={prevSub} />
+        <Stat label="RVP" value={region?.rvpName ?? '-'} sub={region?.name} />
         <Stat label="GM" value={store.gmName} />
       </div>
       <div className="mt-3 rounded border border-line bg-panel px-3 py-2">
         <div className="text-2xs font-semibold uppercase tracking-wide text-muted">Plan rationale</div>
         <p className="mt-0.5 text-xs text-ink">
-          {plan ? plan.summary : 'No action plan yet — the reasoning will live here once a plan is created.'}
+          {plan ? plan.summary : 'No action plan yet - the reasoning will live here once a plan is created.'}
         </p>
       </div>
     </Panel>
@@ -400,7 +400,7 @@ function RecordTimeline({
     kind: 'assign',
     text: store.cpmId
       ? `Assigned to ${cpmName(data, store.cpmId)}${store.previousCpmId ? ` (handed off from ${cpmName(data, store.previousCpmId)})` : ' (new book)'}`
-      : `Book vacated${store.previousCpmId ? ` by ${cpmName(data, store.previousCpmId)}` : ''} — now unassigned`,
+      : `Book vacated${store.previousCpmId ? ` by ${cpmName(data, store.previousCpmId)}` : ''} - now unassigned`,
   });
   if (firstFlaggedMonth) ev.push({ iso: `${firstFlaggedMonth}-01`, kind: 'flag', text: `Flagged challenged by rule ${ruleVersion}` });
   if (plan) {
@@ -437,7 +437,7 @@ function RecordTimeline({
 }
 
 function CarrierSpecificDiag({ data, storeId }: { data: ReturnType<typeof useData>['data']; storeId: string }) {
-  // Show external rules adherence per carrier — internal is a Boyd process
+  // Show external rules adherence per carrier - internal is a Boyd process
   // problem, external is a carrier compliance problem; a store can pass one DRP
   // and fail another.
   const rows = carrierBreakdown(data, storeId, 'externalRulesAdherencePct');

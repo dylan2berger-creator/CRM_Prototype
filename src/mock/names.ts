@@ -92,10 +92,12 @@ export const REGION_NAMES = [
   'Mid-South', 'Carolinas', 'Upper Midwest', 'Great Plains',
 ];
 
-// 14 clients (carriers). isDrp set in the generator; first 9 are DRP.
+// 14 clients (carriers). Real US property and casualty auto insurers; isDrp is
+// set in the generator so the first 9 are DRP. All performance, scorecard, and
+// volume data attributed to these names is fabricated for the demo.
 export const CLIENT_NAMES = [
-  'Meridian Mutual', 'Vanguard Casualty', 'Northwind Insurance', 'Ironclad Auto',
-  'Summit General', 'Cardinal Assurance', 'Beacon Indemnity', 'Cascade Mutual',
-  'Granite State Auto', 'Harborview Insurance', 'Sterling Direct', 'Palmetto Casualty',
-  'Yellowstone Mutual', 'Redwood National',
+  'State Farm', 'GEICO', 'Progressive', 'Allstate',
+  'USAA', 'Liberty Mutual', 'Farmers Insurance', 'Nationwide',
+  'Travelers', 'American Family Insurance', 'Erie Insurance', 'Auto-Owners Insurance',
+  'The Hartford', 'Mercury Insurance',
 ];

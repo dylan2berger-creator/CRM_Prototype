@@ -1,9 +1,9 @@
-// 5. /benchmarking — KPI improvement vs action plan activity.
+// 5. /benchmarking - KPI improvement vs action plan activity.
 // The screen that answers whether the plans are working. It charts a target
 // metric over a scope of stores, marks every task meant to move it, and shows
 // before/after around each task and an aggregate by task type. Everything here
 // is CORRELATION, not proof: it shows what happened after a task, not that the
-// task caused it — every section says so.
+// task caused it - every section says so.
 
 import { useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
@@ -58,7 +58,7 @@ export function Benchmarking() {
     return ids;
   }, [data]);
 
-  // Carriers (clients) that at least one plan-store trades with — the carrier
+  // Carriers (clients) that at least one plan-store trades with - the carrier
   // scope options. Also the store-id list per carrier.
   const carrierStoreIds = useMemo(() => {
     const planSet = new Set(storesWithPlans);
@@ -115,10 +115,10 @@ export function Benchmarking() {
     scopeType === 'all'
       ? 'All stores with plans'
       : scopeType === 'region'
-        ? `Region — ${regionName(data, regionId)}`
+        ? `Region - ${regionName(data, regionId)}`
         : scopeType === 'carrier'
-          ? `Carrier — ${data.clients.find((c) => c.id === clientId)?.name ?? clientId}`
-          : `Store — ${storeById(data, storeId)?.name ?? storeId}`;
+          ? `Carrier - ${data.clients.find((c) => c.id === clientId)?.name ?? clientId}`
+          : `Store - ${storeById(data, storeId)?.name ?? storeId}`;
 
   const chartData = useMemo(
     () => data.months.map((month) => ({ month, value: scopeMetricValue(data, storeIds, metric, month), baseline: null })),
@@ -129,12 +129,12 @@ export function Benchmarking() {
   const chartMarkers: ChartMarker[] = markers.map((m) => ({
     month: m.startedOn.slice(0, 7),
     label: TASK_ABBREV[m.step.type],
-    full: `${m.step.title} — ${m.step.type}, started ${dateLabel(m.startedOn)}`,
+    full: `${m.step.title} - ${m.step.type}, started ${dateLabel(m.startedOn)}`,
     kind: 'task',
     tone: toneFor(m.ba.improved),
   }));
 
-  // Aggregate by task type — the VP view. Optionally scoped to the chosen metric.
+  // Aggregate by task type - the VP view. Optionally scoped to the chosen metric.
   const [aggScope, setAggScope] = useState<'metric' | 'all'>('metric');
   const aggregate = useMemo(
     () => aggregateByTaskType(data, aggScope === 'metric' ? metric : undefined),
@@ -227,7 +227,7 @@ export function Benchmarking() {
 
       <Panel title={`${meta.label} over time`} subtitle="Line is the scope value each month; markers sit on each task's start month.">
         {storeIds.length === 0 ? (
-          <EmptyState title="No stores in scope">Pick a different scope — this one has no stores with action plans.</EmptyState>
+          <EmptyState title="No stores in scope">Pick a different scope - this one has no stores with action plans.</EmptyState>
         ) : (
           <>
             <div className="overflow-x-auto">
@@ -284,8 +284,8 @@ export function Benchmarking() {
                         </Link>
                       </td>
                       <td className="whitespace-nowrap tnum text-muted">{dateLabel(m.startedOn)}</td>
-                      <td className="num">{m.ba.before == null ? '—' : formatMetric(metric, m.ba.before)}</td>
-                      <td className="num">{m.ba.after == null ? '—' : formatMetric(metric, m.ba.after)}</td>
+                      <td className="num">{m.ba.before == null ? '-' : formatMetric(metric, m.ba.before)}</td>
+                      <td className="num">{m.ba.after == null ? '-' : formatMetric(metric, m.ba.after)}</td>
                       <td className="num">
                         <Variance pct={deltaPct(m.ba.before, m.ba.after)} good={m.ba.improved ?? undefined} />
                       </td>
@@ -300,7 +300,7 @@ export function Benchmarking() {
 
       <Panel
         title="Which kinds of intervention move the metric"
-        subtitle="Across all stores with plans — task-metric pairs grouped by task type, sorted by average change."
+        subtitle="Across all stores with plans - task-metric pairs grouped by task type, sorted by average change."
         right={
           <Segmented<'metric' | 'all'>
             value={aggScope}
@@ -368,7 +368,7 @@ export function Benchmarking() {
               </tbody>
             </table>
             <p className="mt-2 text-2xs text-muted">
-              Worse and flat outcomes are kept in view on purpose — the point is to see which intervention types are worth
+              Worse and flat outcomes are kept in view on purpose - the point is to see which intervention types are worth
               repeating and which are not.
             </p>
           </div>

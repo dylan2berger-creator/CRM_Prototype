@@ -1,4 +1,4 @@
-// 1. Portfolio (CPM home) — the list that replaces the tracker doc. The list is
+// 1. Portfolio (CPM home) - the list that replaces the tracker doc. The list is
 // the identification step: challenged stores surface at the top, no hunting.
 
 import { useMemo, useState } from 'react';
@@ -62,7 +62,7 @@ export function Portfolio() {
         <div>
           <h1 className="text-lg font-semibold text-ink">Portfolio</h1>
           <p className="text-xs text-muted">
-            {role === 'cpm' ? `${config.userName}'s book` : config.label} — {rows.length} stores,{' '}
+            {role === 'cpm' ? `${config.userName}'s book` : config.label} - {rows.length} stores,{' '}
             <span className="font-medium text-bad-text">{challengedCount} challenged</span>
             {noPlanCount > 0 && <>, {noPlanCount} with no plan yet</>}. Challenged stores are listed first.
           </p>
@@ -131,7 +131,7 @@ export function Portfolio() {
 
       {filtered.length === 0 ? (
         <EmptyState title="No stores match these filters">
-          Widen a filter to bring stores back — clear "challenged only" or pick "All regions" to see the full book.
+          Widen a filter to bring stores back - clear "challenged only" or pick "All regions" to see the full book.
         </EmptyState>
       ) : (
         <div className="card overflow-x-auto">
@@ -201,7 +201,7 @@ function Row({ r, data }: { r: PortfolioRow; data: ReturnType<typeof useData>['d
             {r.clientMix.length > 1 && <span className="text-muted"> +{r.clientMix.length - 1}</span>}
           </span>
         ) : (
-          <span className="text-muted">—</span>
+          <span className="text-muted">-</span>
         )}
       </td>
       <td className="num">
@@ -237,10 +237,10 @@ function Row({ r, data }: { r: PortfolioRow; data: ReturnType<typeof useData>['d
             ◆ No plan yet
           </Link>
         ) : (
-          <span className="text-2xs text-muted">—</span>
+          <span className="text-2xs text-muted">-</span>
         )}
       </td>
-      <td className="text-xs">{r.nextStepDue ? dateLabel(r.nextStepDue) : <span className="text-muted">—</span>}</td>
+      <td className="text-xs">{r.nextStepDue ? dateLabel(r.nextStepDue) : <span className="text-muted">-</span>}</td>
       <td>
         <TierBadge tier={r.worstTier} />
       </td>

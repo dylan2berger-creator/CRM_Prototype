@@ -1,5 +1,5 @@
 /*
- * Rebound (shop performance recovery) — theme
+ * Rebound (shop performance recovery) - theme
  *
  * DESIGN DIRECTION (stated per spec):
  * This is a field operations tool a Client Performance Manager keeps open all
@@ -12,7 +12,7 @@
  *  - One interactive accent (teal) carries "this is actionable / selected".
  *  - Status uses a blue / amber / red ramp, deliberately avoiding a red-green
  *    pairing so it stays legible for the ~8% of male users with color vision
- *    deficiency. Status is NEVER encoded in color alone anywhere in the UI —
+ *    deficiency. Status is NEVER encoded in color alone anywhere in the UI -
  *    every status also carries a text label and/or a shape (dot, icon, ring).
  */
 /** @type {import('tailwindcss').Config} */
@@ -22,12 +22,12 @@ export default {
     extend: {
       colors: {
         accent: {
-          DEFAULT: '#0f766e', // teal-700 — interactive / selected
+          DEFAULT: '#0f766e', // teal-700 - interactive / selected
           hover: '#115e59', // teal-800
-          soft: '#f0fdfa', // teal-50 — selected row wash
+          soft: '#f0fdfa', // teal-50 - selected row wash
           ring: '#5eead4', // teal-300
         },
-        // Status ramp — blue (good) / amber (watch) / red (bad) / slate (neutral).
+        // Status ramp - blue (good) / amber (watch) / red (bad) / slate (neutral).
         good: { DEFAULT: '#1d4ed8', soft: '#eff6ff', text: '#1e40af' },
         warn: { DEFAULT: '#b45309', soft: '#fffbeb', text: '#92400e' },
         bad: { DEFAULT: '#b91c1c', soft: '#fef2f2', text: '#991b1b' },

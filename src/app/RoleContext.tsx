@@ -1,4 +1,4 @@
-// Role switching. No auth — the role is chosen from a control in the header.
+// Role switching. No auth - the role is chosen from a control in the header.
 // Changing role changes the visible store scope and the default landing route.
 
 import { createContext, ReactNode, useContext, useMemo, useState } from 'react';

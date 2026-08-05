@@ -1,6 +1,6 @@
 // Diagnosis: rank a store's diagnostic metrics by how far off they are, so the
 // panel answers "what is causing this" well enough to write a relevant plan.
-// Internal and external rules adherence stay separate — they point at different
+// Internal and external rules adherence stay separate - they point at different
 // fixes. Carrier-specific metrics are also available broken down per carrier.
 
 import { DataSet, TargetMetric } from '@/types';
@@ -61,7 +61,7 @@ export function diagnose(data: DataSet, storeId: string): DiagnosisRow[] {
   return rows.sort((a, b) => b.offBy - a.offBy);
 }
 
-// The single worst diagnostic metric — used to suggest a task's target metric.
+// The single worst diagnostic metric - used to suggest a task's target metric.
 export function worstDiagnostic(data: DataSet, storeId: string): TargetMetric | null {
   const rows = diagnose(data, storeId).filter((r) => r.adverse);
   return rows.length ? rows[0].metric : null;

@@ -135,7 +135,7 @@ export function storesForScope(
   }
 }
 
-// Portfolio row — one per store, the list that replaces the tracker doc.
+// Portfolio row - one per store, the list that replaces the tracker doc.
 export interface PortfolioRow {
   store: Store;
   challenged: ChallengedInfo;

@@ -1,5 +1,5 @@
 // Domain types for Rebound (shop performance recovery).
-// Terms follow the spec's domain vocabulary exactly — do not substitute synonyms.
+// Terms follow the spec's domain vocabulary exactly - do not substitute synonyms.
 
 export type Role = 'cpm' | 'rvp' | 'gm' | 'exec';
 

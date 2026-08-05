@@ -1,4 +1,4 @@
-// Provenance tag — every number derived from mock data can name its source
+// Provenance tag - every number derived from mock data can name its source
 // dataset and say how current that data is. Because provenance is one of the
 // arguments the prototype makes.
 

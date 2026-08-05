@@ -214,7 +214,7 @@ export function generate(): GeneratedData {
     clients.push({ id: `C-${String(i + 1).padStart(2, '0')}`, name: CLIENT_NAMES[i], isDrp: i < DRP_COUNT });
   }
   const drpClients = clients.filter((c) => c.isDrp);
-  const underforecastClientId = drpClients[2].id; // Northwind Insurance under forecast broadly
+  const underforecastClientId = drpClients[2].id; // Progressive under forecast broadly
 
   // --- Stores + profiles ----------------------------------------------------
   const stores: Store[] = [];
@@ -228,7 +228,7 @@ export function generate(): GeneratedData {
   const challengedSet = new Set(shuffledIdx.slice(0, challengedTarget));
   const recoveredSet = new Set(shuffledIdx.slice(challengedTarget, challengedTarget + recoveredTarget));
 
-  // Landmark store indices — chosen from the challenged set so the demo
+  // Landmark store indices - chosen from the challenged set so the demo
   // findings are guaranteed present. Take from the front of the challenged slice.
   const chArr = shuffledIdx.slice(0, challengedTarget);
   const L = {
@@ -281,7 +281,7 @@ export function generate(): GeneratedData {
         : null;
 
     // Ownership history: when the current CPM took the book, and who held it
-    // before. Turnover is common, so most stores carry a prior owner — the
+    // before. Turnover is common, so most stores carry a prior owner - the
     // continuity view exists so a handoff never loses the plan or reasoning.
     const assignedOn = monthStartIso(addMonths(cur, -rint(rng, 2, 34)));
     let previousCpmId = rint(rng, 1, 100) <= 60 ? cpms[1 + ((i * 13 + 5) % (CPM_COUNT - 1))].id : '';
@@ -357,7 +357,7 @@ export function generate(): GeneratedData {
       flagVia = mech === 0 ? 'capture' : mech === 1 ? 'tier' : 'revenue';
     }
 
-    // Plan health — assigned later once we know challenged set precisely; seed
+    // Plan health - assigned later once we know challenged set precisely; seed
     // an intention here so ~60% of challenged get a plan with varied health.
     if (isCh) {
       const roll = i % 5;
@@ -416,7 +416,7 @@ export function generate(): GeneratedData {
       acquiredOn,
     };
     // Unassigned CPM for a few non-landmark stores. The book just vacated, so
-    // the outgoing owner becomes the previous owner — an inherited store with
+    // the outgoing owner becomes the previous owner - an inherited store with
     // no current owner is exactly when continuity matters most.
     if (!isLandmark && (i === 33 || i === 91 || i === 158 || i === 244)) {
       store.previousCpmId = store.previousCpmId || cpmId;
@@ -448,7 +448,7 @@ export function generate(): GeneratedData {
   }
 
   // Region-wide underperformance: nudge many stores in the target region below
-  // forecast — enough to show at the region-rollup level, but mostly ABOVE the
+  // forecast - enough to show at the region-rollup level, but mostly ABOVE the
   // challenged threshold so it doesn't flag the whole region. The pattern is
   // meant to be *found on the analysis screen*, not to mass-flag stores.
   const regionStores = stores.filter((s) => s.regionId === underperformingRegionId);
@@ -515,7 +515,7 @@ export function generate(): GeneratedData {
     }
     // stores that hit revenue but miss DRP volume: keep revenue at/above plan
     if (p.drpOkRevenueShort) {
-      // this store misses revenue but hits DRP — handled by leaving revenue low
+      // this store misses revenue but hits DRP - handled by leaving revenue low
     }
     if (p.revenueOkDrpShort) base = Math.max(base, 0.99);
     return base;
@@ -544,7 +544,7 @@ export function generate(): GeneratedData {
         if (p.cause === 'market' || p.cause === 'volume-drp') volFactor = factor * 0.98;
         const roCount = Math.max(4, Math.round((revenuePlan * volFactor) / averageRo));
 
-        // Diagnostic metrics — healthy baseline, then push the cause's outlier.
+        // Diagnostic metrics - healthy baseline, then push the cause's outlier.
         const healthy = {
           estimateAccuracyPct: rfloatN(cNoise, 92, 97),
           internalRulesAdherencePct: rfloatN(cNoise, 93, 98),
@@ -720,9 +720,9 @@ export function generate(): GeneratedData {
         if (p.drpShort && ci === 0 && t >= p.divergeIdx) vol *= rfloat(vRng, 0.72, 0.85);
         // store hits revenue but misses DRP volume
         if (p.revenueOkDrpShort && ci === 0 && t >= curIdx - 6) vol *= 0.8;
-        // store hits DRP but misses revenue — keep volume near/over forecast
+        // store hits DRP but misses revenue - keep volume near/over forecast
         if (p.drpOkRevenueShort && ci === 0) vol = Math.max(vol, 1.02);
-        // carrier under forecast across many stores — soft, so the carrier
+        // carrier under forecast across many stores - soft, so the carrier
         // rollup reads under forecast without flagging every store on volume.
         if (clientId === underforecastClientId && t >= curIdx - 9) vol *= rfloat(vRng, 0.93, 0.98);
         // region-wide underperformance drags volume across carriers so the
@@ -891,7 +891,7 @@ export function generate(): GeneratedData {
       rng, cur, curIdx, months, cpms: namePool, namTags, clients, firstFlagged, monthsChallenged,
     }));
   }
-  // A few plans on recovered / no-longer-challenged stores too, in Monitoring —
+  // A few plans on recovered / no-longer-challenged stores too, in Monitoring -
   // this is the "metric turned up after the action date" case.
   for (const store of stores.filter((s) => recoveredSet.has(stores.indexOf(s)) && !challengedNow.has(s.id))) {
     const p = profiles.get(store.id)!;
@@ -1126,7 +1126,7 @@ function buildPlan(store: Store, p: StoreProfile, ctx: PlanCtx): ActionPlan {
       completedOn: status === 'Done' && startedOn ? dayInMonthIso(months[clamp((p.turnIdx >= 0 ? p.turnIdx : createdIdx) + 1, 0, curIdx)], 20) : null,
       note:
         p.planHealth === 'monitoring-down' && k === 0
-          ? 'Completed, but the target metric has not responded — revisit approach.'
+          ? 'Completed, but the target metric has not responded - revisit approach.'
           : p.planHealth === 'overdue' && k === 1
             ? 'Blocked on carrier response.'
             : '',
@@ -1189,7 +1189,7 @@ function planSummary(cause: Cause, storeName: string): string {
     case 'rules-external':
       return `${storeName} is compliant internally but weak on one carrier's DRP rules. Plan targets carrier compliance.`;
     case 'market':
-      return `${storeName} shows healthy operating metrics but revenue and volume are down — likely a market/volume problem. Plan targets carrier volume and capture.`;
+      return `${storeName} shows healthy operating metrics but revenue and volume are down - likely a market/volume problem. Plan targets carrier volume and capture.`;
     case 'volume-drp':
       return `${storeName} is short of DRP assignment forecast on its dominant carrier. Plan targets scorecard drivers and carrier outreach.`;
     case 'mixed':

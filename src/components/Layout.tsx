@@ -85,7 +85,7 @@ export function Layout({ children }: { children: ReactNode }) {
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-line bg-surface px-4 py-2">
           <div className="min-w-0 text-2xs text-muted">
-            Viewing as <span className="font-medium text-ink">{config.userName}</span> — {config.label}
+            Viewing as <span className="font-medium text-ink">{config.userName}</span> - {config.label}
           </div>
           <div className="flex items-center gap-2">
             <FreshnessIndicator />

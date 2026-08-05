@@ -1,4 +1,4 @@
-// Status chips. Status is NEVER encoded in color alone — each variant pairs a
+// Status chips. Status is NEVER encoded in color alone - each variant pairs a
 // color with a shape (dot glyph) and always a text label, so it reads for color
 // vision deficiency and in grayscale.
 
