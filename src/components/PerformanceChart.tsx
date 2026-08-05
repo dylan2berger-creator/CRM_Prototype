@@ -34,10 +34,10 @@ export interface PerfPoint {
 }
 
 const TONE_COLOR: Record<string, string> = {
-  good: '#1d4ed8',
-  bad: '#b91c1c',
-  warn: '#b45309',
-  neutral: '#0f766e',
+  good: '#24B47E',
+  bad: '#F0616D',
+  warn: '#F5A623',
+  neutral: '#7B68EE',
 };
 
 export function PerformanceChart({
@@ -122,7 +122,7 @@ export function PerformanceChart({
           <XAxis
             dataKey="month"
             tickFormatter={monthShort}
-            tick={{ fontSize: 10, fill: '#64748b' }}
+            tick={{ fontSize: 10, fill: '#7C828D' }}
             tickLine={false}
             axisLine={{ stroke: '#cbd5e1' }}
             minTickGap={16}
@@ -130,7 +130,7 @@ export function PerformanceChart({
           />
           <YAxis
             tickFormatter={(v) => formatMetric(metric, v)}
-            tick={{ fontSize: 10, fill: '#64748b' }}
+            tick={{ fontSize: 10, fill: '#7C828D' }}
             tickLine={false}
             axisLine={false}
             width={54}
@@ -145,7 +145,7 @@ export function PerformanceChart({
             type="monotone"
             dataKey="value"
             name={meta.label}
-            stroke="#0f766e"
+            stroke="#7B68EE"
             strokeWidth={2}
             dot={false}
             isAnimationActive={false}

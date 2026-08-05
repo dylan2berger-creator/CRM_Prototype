@@ -308,14 +308,14 @@ export function RollUp() {
               <XAxis
                 dataKey="month"
                 tickFormatter={monthShort}
-                tick={{ fontSize: 10, fill: '#64748b' }}
+                tick={{ fontSize: 10, fill: '#7C828D' }}
                 tickLine={false}
                 axisLine={{ stroke: '#cbd5e1' }}
                 minTickGap={16}
               />
               <YAxis
                 yAxisId="count"
-                tick={{ fontSize: 10, fill: '#64748b' }}
+                tick={{ fontSize: 10, fill: '#7C828D' }}
                 tickLine={false}
                 axisLine={false}
                 width={36}
@@ -325,7 +325,7 @@ export function RollUp() {
                 yAxisId="gap"
                 orientation="right"
                 tickFormatter={(v) => moneyCompact(v as number)}
-                tick={{ fontSize: 10, fill: '#64748b' }}
+                tick={{ fontSize: 10, fill: '#7C828D' }}
                 tickLine={false}
                 axisLine={false}
                 width={58}
@@ -341,7 +341,7 @@ export function RollUp() {
                 type="monotone"
                 dataKey="challenged"
                 name="Challenged shops"
-                stroke="#b91c1c"
+                stroke="#F0616D"
                 strokeWidth={2}
                 dot={false}
                 isAnimationActive={false}
@@ -351,7 +351,7 @@ export function RollUp() {
                 type="monotone"
                 dataKey="gap"
                 name="Gap to plan"
-                stroke="#0f766e"
+                stroke="#7B68EE"
                 strokeWidth={2}
                 strokeDasharray="5 4"
                 dot={false}

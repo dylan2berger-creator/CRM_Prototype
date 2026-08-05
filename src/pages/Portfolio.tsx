@@ -209,8 +209,8 @@ function Row({ r, data }: { r: PortfolioRow; data: ReturnType<typeof useData>['d
       </td>
       <td>
         {unassigned ? (
-          <span className="chip bg-bad-soft text-bad-text ring-1 ring-inset ring-bad/30" title="No SPM assigned">
-            ▲ Unassigned
+          <span className="chip bg-bad-soft text-bad-text" title="No SPM assigned">
+            <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-bad" /> Unassigned
           </span>
         ) : (
           <span className="text-xs">{spmName(data, r.store.spmId)}</span>
@@ -250,13 +250,13 @@ function Row({ r, data }: { r: PortfolioRow; data: ReturnType<typeof useData>['d
             <PlanStatusBadge status={r.plan.status} />
             {r.hasOverdueStep && (
               <span className="chip bg-bad-soft text-bad-text" title="Has an overdue step">
-                ▲ overdue
+                <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-bad" /> overdue
               </span>
             )}
           </div>
         ) : r.challenged.isChallenged ? (
           <Link to={`/store/${r.store.id}/plan`} className="chip bg-warn-soft text-warn-text hover:underline" title="Challenged with no plan yet">
-            ◆ No plan yet
+            <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-warn" /> No plan yet
           </Link>
         ) : (
           <span className="text-2xs text-muted">-</span>

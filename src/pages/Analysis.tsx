@@ -649,14 +649,14 @@ export function Analysis() {
                 <XAxis
                   dataKey="month"
                   tickFormatter={monthShort}
-                  tick={{ fontSize: 10, fill: '#64748b' }}
+                  tick={{ fontSize: 10, fill: '#7C828D' }}
                   tickLine={false}
                   axisLine={{ stroke: '#cbd5e1' }}
                   minTickGap={20}
                   interval="preserveStartEnd"
                 />
                 <YAxis
-                  tick={{ fontSize: 10, fill: '#64748b' }}
+                  tick={{ fontSize: 10, fill: '#7C828D' }}
                   tickLine={false}
                   axisLine={false}
                   width={34}
@@ -667,7 +667,7 @@ export function Analysis() {
                   labelFormatter={(m) => monthLabel(m as string)}
                   formatter={(v: number) => [v == null ? '-' : v.toFixed(1), 'Avg DRP score']}
                 />
-                <Line type="monotone" dataKey="score" name="Avg DRP score" stroke="#0f766e" strokeWidth={2} dot={false} isAnimationActive={false} connectNulls />
+                <Line type="monotone" dataKey="score" name="Avg DRP score" stroke="#7B68EE" strokeWidth={2} dot={false} isAnimationActive={false} connectNulls />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -767,25 +767,25 @@ export function Analysis() {
                 dataKey="x"
                 name="Boyd share"
                 unit="%"
-                tick={{ fontSize: 10, fill: '#64748b' }}
+                tick={{ fontSize: 10, fill: '#7C828D' }}
                 tickLine={false}
                 axisLine={{ stroke: '#cbd5e1' }}
                 domain={['dataMin - 1', 'dataMax + 1']}
-                label={{ value: 'Boyd share of CBSA (%) - latest', position: 'insideBottom', offset: -14, fontSize: 11, fill: '#64748b' }}
+                label={{ value: 'Boyd share of CBSA (%) - latest', position: 'insideBottom', offset: -14, fontSize: 11, fill: '#7C828D' }}
               />
               <YAxis
                 type="number"
                 dataKey="y"
                 name="Revenue % of plan"
                 unit="%"
-                tick={{ fontSize: 10, fill: '#64748b' }}
+                tick={{ fontSize: 10, fill: '#7C828D' }}
                 tickLine={false}
                 axisLine={false}
                 width={44}
                 domain={['dataMin - 3', 'dataMax + 3']}
-                label={{ value: 'T3 revenue % of plan', angle: -90, position: 'insideLeft', offset: 12, fontSize: 11, fill: '#64748b' }}
+                label={{ value: 'T3 revenue % of plan', angle: -90, position: 'insideLeft', offset: 12, fontSize: 11, fill: '#7C828D' }}
               />
-              <ReferenceLine y={100} stroke="#94a3b8" strokeDasharray="5 4" label={{ value: 'plan', position: 'right', fontSize: 10, fill: '#64748b' }} />
+              <ReferenceLine y={100} stroke="#94a3b8" strokeDasharray="5 4" label={{ value: 'plan', position: 'right', fontSize: 10, fill: '#7C828D' }} />
               <ReferenceLine x={scatter.medianShare} stroke="#cbd5e1" strokeDasharray="3 3" label={{ value: 'median share', position: 'top', fontSize: 10, fill: '#94a3b8' }} />
               <Tooltip
                 cursor={{ strokeDasharray: '3 3' }}
@@ -804,7 +804,7 @@ export function Analysis() {
               <Scatter name="Shops" data={scatter.pts} isAnimationActive={false}>
                 {scatter.pts.map((p) => {
                   const color =
-                    p.y >= 100 ? '#0f766e' : p.x >= scatter.medianShare ? '#b45309' : '#b91c1c';
+                    p.y >= 100 ? '#24B47E' : p.x >= scatter.medianShare ? '#F5A623' : '#F0616D';
                   return <Cell key={p.id} fill={color} fillOpacity={0.75} />;
                 })}
               </Scatter>
@@ -812,9 +812,9 @@ export function Analysis() {
                 verticalAlign="top"
                 height={24}
                 payload={[
-                  { value: 'At or above plan', type: 'circle', color: '#0f766e', id: 'ok' },
-                  { value: 'Below plan, growing market - execution', type: 'circle', color: '#b45309', id: 'exec' },
-                  { value: 'Below plan, shrinking market - market', type: 'circle', color: '#b91c1c', id: 'mkt' },
+                  { value: 'At or above plan', type: 'circle', color: '#24B47E', id: 'ok' },
+                  { value: 'Below plan, growing market - execution', type: 'circle', color: '#F5A623', id: 'exec' },
+                  { value: 'Below plan, shrinking market - market', type: 'circle', color: '#F0616D', id: 'mkt' },
                 ]}
                 wrapperStyle={{ fontSize: 11 }}
               />

@@ -27,10 +27,10 @@ import { rollupsForMonth } from '@/data/rollups';
 import { DrpTier, SalesAsk } from '@/types';
 import { dateLabel, int, money, monthLabel, monthShort, pct } from '@/utils/format';
 
-const ACTUAL = '#0f766e';
+const ACTUAL = '#7B68EE';
 const FORECAST = '#94a3b8';
-const WORSE = '#b91c1c';
-const BETTER = '#1d4ed8';
+const WORSE = '#F0616D';
+const BETTER = '#24B47E';
 
 // A tier is "worse" the further down TIER_ORDER it sits (Preferred -> At risk).
 const tierRank = (t: DrpTier) => TIER_ORDER.indexOf(t);
@@ -343,7 +343,7 @@ export function Carriers() {
                   <XAxis
                     dataKey="month"
                     tickFormatter={monthShort}
-                    tick={{ fontSize: 10, fill: '#64748b' }}
+                    tick={{ fontSize: 10, fill: '#7C828D' }}
                     tickLine={false}
                     axisLine={{ stroke: '#cbd5e1' }}
                     minTickGap={16}
@@ -351,7 +351,7 @@ export function Carriers() {
                   />
                   <YAxis
                     domain={scoreDomain}
-                    tick={{ fontSize: 10, fill: '#64748b' }}
+                    tick={{ fontSize: 10, fill: '#7C828D' }}
                     tickLine={false}
                     axisLine={false}
                     width={40}
@@ -432,7 +432,7 @@ export function Carriers() {
               <XAxis
                 dataKey="month"
                 tickFormatter={monthShort}
-                tick={{ fontSize: 10, fill: '#64748b' }}
+                tick={{ fontSize: 10, fill: '#7C828D' }}
                 tickLine={false}
                 axisLine={{ stroke: '#cbd5e1' }}
                 minTickGap={16}
@@ -440,7 +440,7 @@ export function Carriers() {
               />
               <YAxis
                 tickFormatter={(v) => int(v)}
-                tick={{ fontSize: 10, fill: '#64748b' }}
+                tick={{ fontSize: 10, fill: '#7C828D' }}
                 tickLine={false}
                 axisLine={false}
                 width={44}

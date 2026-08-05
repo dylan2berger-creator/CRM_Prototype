@@ -4,6 +4,7 @@
 import { useState } from 'react';
 import { useData } from '@/data/DataContext';
 import { dateTimeLabel } from '@/utils/format';
+import { IconChevronDown } from '@/components/icons';
 
 function relative(iso: string): string {
   const hrs = (Date.now() - Date.parse(iso)) / 3600_000;
@@ -23,17 +24,17 @@ export function FreshnessIndicator() {
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="flex items-center gap-1.5 rounded border border-line-strong bg-surface px-2 py-1 text-2xs text-muted hover:bg-panel"
+        className="flex items-center gap-1.5 rounded-lg border border-line-strong bg-surface px-2.5 py-1.5 text-2xs font-medium text-muted hover:bg-panel"
         title="Data freshness by dataset"
       >
         <span aria-hidden className={`inline-block h-1.5 w-1.5 rounded-full ${anyStale ? 'bg-warn' : 'bg-good'}`} />
         Data refreshed {relative(newest.lastRefreshed)}
-        <span aria-hidden>▾</span>
+        <IconChevronDown className="h-3.5 w-3.5" />
       </button>
       {open && (
         <>
           <div className="fixed inset-0 z-20" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 z-30 mt-1 w-80 rounded-lg border border-line bg-surface p-2 shadow-lg">
+          <div className="absolute right-0 z-30 mt-1.5 w-80 rounded-xl border border-line bg-surface p-2 shadow-pop">
             <div className="px-1 pb-1 text-2xs font-semibold uppercase tracking-wide text-muted">
               Source datasets (all mocked)
             </div>

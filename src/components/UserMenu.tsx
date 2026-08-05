@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { Role } from '@/types';
 import { useRole } from '@/app/RoleContext';
 import { useData } from '@/data/DataContext';
+import { IconChevronDown, IconCheck } from '@/components/icons';
 
 function initials(name: string): string {
   const parts = name.split(/\s+/).filter(Boolean);
@@ -29,31 +30,31 @@ export function UserMenu() {
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="flex items-center gap-2 rounded border border-line-strong bg-surface px-1.5 py-1 hover:bg-panel"
+        className="flex items-center gap-2 rounded-lg border border-line-strong bg-surface px-1.5 py-1 hover:bg-panel"
       >
-        <span className="grid h-6 w-6 place-items-center rounded-full bg-accent text-2xs font-bold text-white">{initials(config.userName)}</span>
+        <span className="grid h-7 w-7 place-items-center rounded-full bg-gradient-to-br from-brand-purple to-brand-pink text-2xs font-bold text-white">{initials(config.userName)}</span>
         <span className="hidden text-left leading-tight sm:block">
-          <span className="block text-xs font-medium text-ink">{config.userName}</span>
+          <span className="block text-xs font-semibold text-ink">{config.userName}</span>
           <span className="block text-2xs text-muted">{config.label}</span>
         </span>
-        <span aria-hidden className="text-2xs text-muted">▾</span>
+        <IconChevronDown className="h-3.5 w-3.5 text-muted" />
       </button>
       {open && (
         <>
           <div className="fixed inset-0 z-20" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 z-30 mt-1 w-64 rounded-lg border border-line bg-surface p-1.5 shadow-lg">
+          <div className="absolute right-0 z-30 mt-1.5 w-64 rounded-xl border border-line bg-surface p-1.5 shadow-pop">
             <div className="px-2 pb-1 pt-1 text-2xs font-semibold uppercase tracking-wide text-muted">View the app as</div>
             <ul>
               {roles.map((r) => (
                 <li key={r.role}>
                   <button
                     onClick={() => choose(r.role)}
-                    className={`flex w-full items-center justify-between gap-2 rounded px-2 py-1.5 text-left text-sm hover:bg-panel ${
-                      role === r.role ? 'text-accent-hover' : 'text-ink'
+                    className={`flex w-full items-center justify-between gap-2 rounded-lg px-2 py-1.5 text-left text-sm hover:bg-panel ${
+                      role === r.role ? 'font-medium text-accent' : 'text-ink'
                     }`}
                   >
                     <span>{r.label}</span>
-                    {role === r.role && <span aria-hidden className="text-accent">✓</span>}
+                    {role === r.role && <IconCheck className="h-4 w-4 text-accent" />}
                   </button>
                 </li>
               ))}

@@ -7,26 +7,27 @@ import { ActionPlanStatus, DrpTier, SalesAskStatus, StepStatus } from '@/types';
 type Variant = 'good' | 'warn' | 'bad' | 'neutral' | 'accent';
 
 const STYLES: Record<Variant, string> = {
-  good: 'bg-good-soft text-good-text ring-1 ring-inset ring-good/30',
-  warn: 'bg-warn-soft text-warn-text ring-1 ring-inset ring-warn/30',
-  bad: 'bg-bad-soft text-bad-text ring-1 ring-inset ring-bad/30',
-  neutral: 'bg-neutral-soft text-neutral-text ring-1 ring-inset ring-line-strong',
-  accent: 'bg-accent-soft text-accent-hover ring-1 ring-inset ring-accent-ring',
+  good: 'bg-good-soft text-good-text',
+  warn: 'bg-warn-soft text-warn-text',
+  bad: 'bg-bad-soft text-bad-text',
+  neutral: 'bg-neutral-soft text-neutral-text',
+  accent: 'bg-accent-soft text-accent',
 };
 
-// Distinct shapes reinforce the status without relying on hue.
-const GLYPH: Record<Variant, string> = {
-  good: '●',
-  warn: '◆',
-  bad: '▲',
-  neutral: '○',
-  accent: '■',
+// ClickUp-style status tag: a colored dot plus the label. The label always
+// carries the meaning, so status never depends on color alone.
+const DOT: Record<Variant, string> = {
+  good: 'bg-good',
+  warn: 'bg-warn',
+  bad: 'bg-bad',
+  neutral: 'bg-neutral',
+  accent: 'bg-accent',
 };
 
 export function Badge({ variant, children, title }: { variant: Variant; children: React.ReactNode; title?: string }) {
   return (
     <span className={`chip ${STYLES[variant]}`} title={title}>
-      <span aria-hidden className="text-[0.6em] leading-none">{GLYPH[variant]}</span>
+      <span aria-hidden className={`h-1.5 w-1.5 shrink-0 rounded-full ${DOT[variant]}`} />
       {children}
     </span>
   );

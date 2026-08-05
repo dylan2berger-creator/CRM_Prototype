@@ -10,6 +10,7 @@ import { ActionPlan, ActionStep, StepStatus } from '@/types';
 import { useData } from '@/data/DataContext';
 import { METRICS } from '@/data/metrics';
 import { PlanStatusBadge, StepStatusBadge } from '@/components/status';
+import { IconCalendar, IconEdit, IconPlus, IconTrash, IconUser } from '@/components/icons';
 import { dateLabel } from '@/utils/format';
 
 const COLUMNS: { status: StepStatus; dot: string; bar: string; border: string }[] = [
@@ -20,28 +21,6 @@ const COLUMNS: { status: StepStatus; dot: string; bar: string; border: string }[
 ];
 
 const today = () => new Date().toISOString().slice(0, 10);
-
-// tiny inline icons (no external assets)
-const UserIcon = () => (
-  <svg viewBox="0 0 16 16" className="h-3 w-3 shrink-0" fill="currentColor" aria-hidden>
-    <circle cx="8" cy="5" r="3" /><path d="M2 14c0-3 2.7-5 6-5s6 2 6 5v1H2z" />
-  </svg>
-);
-const CalIcon = () => (
-  <svg viewBox="0 0 16 16" className="h-3 w-3 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden>
-    <rect x="2" y="3" width="12" height="11" rx="1.5" /><path d="M2 6h12M5 2v2M11 2v2" />
-  </svg>
-);
-const PencilIcon = () => (
-  <svg viewBox="0 0 16 16" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden>
-    <path d="M11 2.5 13.5 5 6 12.5 3 13l.5-3z" />
-  </svg>
-);
-const TrashIcon = () => (
-  <svg viewBox="0 0 16 16" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden>
-    <path d="M3 4h10M6 4V2.5h4V4M4.5 4l.5 9h6l.5-9M7 6.5v5M9 6.5v5" />
-  </svg>
-);
 
 function planHealth(plan: ActionPlan): { label: string; tone: 'good' | 'warn' | 'bad' } {
   const overdue = plan.steps.some((s) => s.status !== 'Done' && s.dueOn < today());
@@ -77,7 +56,11 @@ export function ActionPlanBoard({ plan, storeId }: { plan: ActionPlan; storeId: 
               health.tone === 'good' ? 'bg-good-soft text-good-text' : health.tone === 'warn' ? 'bg-warn-soft text-warn-text' : 'bg-bad-soft text-bad-text'
             }`}
           >
-            {health.tone === 'good' ? '●' : health.tone === 'warn' ? '◆' : '▲'} {health.label}
+            <span
+              aria-hidden
+              className={`h-1.5 w-1.5 shrink-0 rounded-full ${health.tone === 'good' ? 'bg-good' : health.tone === 'warn' ? 'bg-warn' : 'bg-bad'}`}
+            />
+            {health.label}
           </span>
           <span className="text-2xs text-muted">Drag a card between columns to update its status.</span>
         </div>
@@ -95,7 +78,8 @@ export function ActionPlanBoard({ plan, storeId }: { plan: ActionPlan; storeId: 
             ))}
           </div>
           <Link to={`/store/${storeId}/plan`} className="btn-accent text-2xs">
-            + Add step
+            <IconPlus className="h-3.5 w-3.5" />
+            Add step
           </Link>
         </div>
       </div>
@@ -173,25 +157,25 @@ function Card({
         e.dataTransfer.effectAllowed = 'move';
         onDragStart(step.id);
       }}
-      className={`group cursor-grab rounded border border-line border-l-4 ${border} bg-surface p-2 shadow-sm active:cursor-grabbing`}
+      className={`group cursor-grab rounded-lg border border-line border-l-4 ${border} bg-surface p-2.5 shadow-card active:cursor-grabbing`}
     >
       <div className="flex items-start justify-between gap-1">
         <div className="text-xs font-medium leading-snug text-ink">{step.title}</div>
-        <div className="flex shrink-0 items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-          <Link to={`/store/${storeId}/plan`} className="text-muted hover:text-accent-hover" title="Edit in plan editor">
-            <PencilIcon />
+        <div className="flex shrink-0 items-center gap-1.5 opacity-0 transition-opacity group-hover:opacity-100">
+          <Link to={`/store/${storeId}/plan`} className="text-muted hover:text-accent" title="Edit in plan editor">
+            <IconEdit className="h-3.5 w-3.5" />
           </Link>
           <button onClick={onDelete} className="text-muted hover:text-bad-text" title="Delete step">
-            <TrashIcon />
+            <IconTrash className="h-3.5 w-3.5" />
           </button>
         </div>
       </div>
-      <div className="mt-1 flex items-center gap-1 text-2xs text-muted">
-        <UserIcon />
+      <div className="mt-1.5 flex items-center gap-1 text-2xs text-muted">
+        <IconUser className="h-3 w-3 shrink-0" />
         <span className="truncate">{step.owner || 'Unassigned'}</span>
       </div>
       <div className={`mt-0.5 flex items-center gap-1 text-2xs ${overdue ? 'text-bad-text' : 'text-muted'}`}>
-        <CalIcon />
+        <IconCalendar className="h-3 w-3 shrink-0" />
         <span>{dateLabel(step.dueOn)}</span>
         {overdue && <span className="font-medium">· overdue</span>}
       </div>

@@ -105,7 +105,7 @@ export function StoreRecord() {
             </div>
           </div>
           <div className="flex flex-col items-end gap-1">
-            {ci.isChallenged ? <ChallengedBadge months={ci.monthsChallenged} /> : ci.recoveredRecently ? <RecoveredBadge /> : <span className="chip bg-good-soft text-good-text">● On track</span>}
+            {ci.isChallenged ? <ChallengedBadge months={ci.monthsChallenged} /> : ci.recoveredRecently ? <RecoveredBadge /> : <span className="chip bg-good-soft text-good-text"><span aria-hidden className="h-1.5 w-1.5 rounded-full bg-good" /> On track</span>}
             <TierBadge tier={worstDrpTier(data, store.id)} />
           </div>
         </div>
