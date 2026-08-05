@@ -28,7 +28,8 @@ import { carrierBreakdown, diagnose } from '@/data/diagnosis';
 import { taskMarkersForStore } from '@/data/benchmark';
 import { PerformanceChart, ChartMarker } from '@/components/PerformanceChart';
 import { Panel, EmptyState, OpenQuestion, Stat } from '@/components/ui';
-import { ChallengedBadge, PlanStatusBadge, RecoveredBadge, SalesAskBadge, SeverityBadge, StepStatusBadge, TierBadge } from '@/components/status';
+import { ChallengedBadge, RecoveredBadge, SalesAskBadge, SeverityBadge, TierBadge } from '@/components/status';
+import { ActionPlanBoard } from '@/components/ActionPlanBoard';
 import { Variance } from '@/components/Variance';
 import { SourceTag } from '@/components/Provenance';
 import { dateLabel, money, moneyCompact, int, num2, monthLabel } from '@/utils/format';
@@ -284,39 +285,7 @@ export function StoreRecord() {
       >
         {plan ? (
           <div className="space-y-3">
-            <div className="flex flex-wrap items-center gap-2">
-              <PlanStatusBadge status={plan.status} />
-              <p className="text-sm text-ink">{plan.summary}</p>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="data-table">
-                <thead>
-                  <tr>
-                    <th>Step</th>
-                    <th>Type</th>
-                    <th>Targets</th>
-                    <th>Owner</th>
-                    <th>Due</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {plan.steps.map((s) => (
-                    <tr key={s.id}>
-                      <td className="text-xs font-medium">
-                        {s.title}
-                        {s.clientId && <span className="ml-1 text-2xs text-muted">· {clientById(data, s.clientId)?.name}</span>}
-                      </td>
-                      <td className="text-2xs">{s.type}</td>
-                      <td className="text-2xs text-muted">{s.targetMetrics.map((tm) => METRICS[tm].short).join(', ')}</td>
-                      <td className="text-xs">{s.owner}</td>
-                      <td className="text-xs">{dateLabel(s.dueOn)}</td>
-                      <td><StepStatusBadge status={s.status} /></td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <ActionPlanBoard plan={plan} storeId={store.id} />
 
             {plan.risks.length > 0 && (
               <div>
