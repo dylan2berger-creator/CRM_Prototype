@@ -121,7 +121,6 @@ function buildData(opts: Opts): DataSet {
     scorecards,
     carrierVolumes,
     cbsaMarkets: [],
-    salesActivities: [],
     actionPlans: [],
     alerts: [],
     freshness: [],

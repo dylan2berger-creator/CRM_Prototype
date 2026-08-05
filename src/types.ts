@@ -245,17 +245,6 @@ export interface SalesAsk {
   outcome: string | null;
 }
 
-export interface SalesActivity {
-  // historical, read-only
-  id: string;
-  storeId: string;
-  clientId: string;
-  occurredOn: string;
-  type: 'Call' | 'Visit' | 'Carrier meeting' | 'Email';
-  summary: string;
-  by: string;
-}
-
 export type AlertKind =
   | 'New flag'
   | 'Slippage'
@@ -299,7 +288,6 @@ export interface DataSet {
   scorecards: DrpScorecard[];
   carrierVolumes: CarrierVolume[];
   cbsaMarkets: CbsaMarket[];
-  salesActivities: SalesActivity[];
   actionPlans: ActionPlan[];
   alerts: Alert[];
   freshness: DataFreshness[];

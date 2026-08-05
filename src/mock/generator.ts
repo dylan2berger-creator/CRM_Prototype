@@ -27,7 +27,6 @@ import {
   MetricPeriod,
   Region,
   Risk,
-  SalesActivity,
   SalesAsk,
   ScorecardDriver,
   Store,
@@ -824,7 +823,7 @@ export function generate(): GeneratedData {
   const partial: DataSet = {
     months, currentMonth: cur, regions, cbsas, clients, stores, spms, cpms, metrics,
     businessCases, scorecards, carrierVolumes, cbsaMarkets,
-    salesActivities: [], actionPlans: [], alerts: [], freshness: [],
+    actionPlans: [], alerts: [], freshness: [],
   };
 
   const firstFlagged = new Map<string, string | null>();
@@ -849,35 +848,6 @@ export function generate(): GeneratedData {
       monthsChallenged.set(store.id, consecutive);
     }
     firstFlagged.set(store.id, first);
-  }
-
-  // --- Sales activities (historical, read-only) -----------------------------
-  const salesActivities: SalesActivity[] = [];
-  const actTypes: SalesActivity['type'][] = ['Call', 'Visit', 'Carrier meeting', 'Email'];
-  const actSummaries = [
-    'Reviewed quarterly assignment trend and flagged the cycle-time gap.',
-    'Site visit; walked the estimating desk on supplement discipline.',
-    'Carrier meeting on scorecard drivers and rules adherence.',
-    'Follow-up on parts procurement delays affecting cycle time.',
-    'Discussed capture-rate slippage and front-office scheduling.',
-    'Quarterly business review with the carrier account team.',
-  ];
-  for (const store of stores) {
-    const p = profiles.get(store.id)!;
-    const n = challengedNow.has(store.id) ? rint(rng, 4, 8) : rint(rng, 0, 3);
-    for (let k = 0; k < n; k++) {
-      const clientId = pick(rng, p.clientIds);
-      salesActivities.push({
-        id: `SA-${store.id}-${k}`,
-        storeId: store.id,
-        clientId,
-        occurredOn: dayInMonthIso(months[curIdx - rint(rng, 0, 14)], rint(rng, 1, 28)),
-        type: pick(rng, actTypes),
-        summary: pick(rng, actSummaries),
-        by: pick(rng, cpms).name,
-      });
-    }
-    salesActivities.sort((a, b) => (a.occurredOn < b.occurredOn ? 1 : -1));
   }
 
   // --- Action plans ---------------------------------------------------------
@@ -1037,7 +1007,6 @@ export function generate(): GeneratedData {
 
   return {
     ...partial,
-    salesActivities,
     actionPlans,
     alerts,
     freshness,

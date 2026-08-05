@@ -63,11 +63,11 @@ every DRP carrier it trades. Both are switchable in the role menu.
 
 ## Screens
 
-- **Portfolio** (`/`) - the CPM's book, challenged stores first. The list *is*
+- **Portfolio** (`/`) - the SPM's book, challenged shops first. The list *is*
   the identification step; no hunting.
-- **Store record** (`/store/:id`) - everything about one store: baseline,
+- **Store record** (`/store/:id`) - everything about one shop: baseline,
   performance chart with per-task markers, why-flagged, diagnosis, client/DRP
-  breakdown, the action plan, and sales activity.
+  breakdown, ownership continuity, and the action plan.
 - **Plan editor** (`/store/:id/plan`) - structured, typed tasks with the metrics
   they are meant to move, owners, tags, risks, and sales asks.
 - **Analysis** (`/analysis`) - forecast vs actual with a carrier / region / shop

@@ -10,7 +10,6 @@ import {
   DataSet,
   Risk,
   SalesAsk,
-  SalesActivity,
 } from '@/types';
 import { generate, Landmarks } from '@/mock/generator';
 
@@ -32,8 +31,6 @@ interface DataContextValue {
   // sales asks
   addSalesAsk: (planId: string, ask: SalesAsk) => void;
   updateSalesAsk: (planId: string, askId: string, patch: Partial<SalesAsk>) => void;
-  // sales activity (tagging appends to the read-only history)
-  addSalesActivity: (activity: SalesActivity) => void;
   // alerts
   acknowledgeAlert: (alertId: string) => void;
   acknowledgeAll: (ids: string[]) => void;
@@ -121,10 +118,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
     mapPlan(planId, (p) => ({ ...p, salesAsks: p.salesAsks.map((a) => (a.id === askId ? { ...a, ...patch } : a)) }));
   }, [mapPlan]);
 
-  const addSalesActivity: DataContextValue['addSalesActivity'] = useCallback((activity) => {
-    setData((prev) => ({ ...prev, salesActivities: [activity, ...prev.salesActivities] }));
-  }, []);
-
   const acknowledgeAlert: DataContextValue['acknowledgeAlert'] = useCallback((alertId) => {
     setData((prev) => ({ ...prev, alerts: prev.alerts.map((a) => (a.id === alertId ? { ...a, acknowledged: true } : a)) }));
   }, []);
@@ -147,7 +140,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
     deleteRisk,
     addSalesAsk,
     updateSalesAsk,
-    addSalesActivity,
     acknowledgeAlert,
     acknowledgeAll,
     newId,

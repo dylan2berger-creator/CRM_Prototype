@@ -353,17 +353,6 @@ export function StoreRecord() {
           </EmptyState>
         )}
       </Panel>
-
-      {/* Sales activity */}
-      <Panel title="Sales activity" subtitle="Read-only history, most recent first">
-        <SalesActivityList data={data} storeId={store.id} />
-      </Panel>
-
-      {/* Consolidated record timeline - flag, plan, tasks, asks, activity in one
-          thread so an inheriting CPM reads the whole story chronologically. */}
-      <Panel title="Record timeline" subtitle="Plan, history, and reasoning in one thread - kept through turnover">
-        <RecordTimeline data={data} store={store} plan={plan} firstFlaggedMonth={ci.firstFlaggedMonth} ruleVersion={ev.ruleVersion} />
-      </Panel>
     </div>
   );
 }
@@ -401,62 +390,6 @@ function OwnershipPanel({ data, store, plan }: { data: ReturnType<typeof useData
   );
 }
 
-type TimelineKind = 'assign' | 'flag' | 'plan' | 'task' | 'ask' | 'activity';
-function RecordTimeline({
-  data,
-  store,
-  plan,
-  firstFlaggedMonth,
-  ruleVersion,
-}: {
-  data: ReturnType<typeof useData>['data'];
-  store: Store;
-  plan?: ActionPlan;
-  firstFlaggedMonth: string | null;
-  ruleVersion: string;
-}) {
-  const ev: { iso: string; kind: TimelineKind; text: string }[] = [];
-  ev.push({
-    iso: store.assignedOn,
-    kind: 'assign',
-    text: store.spmId
-      ? `Assigned to ${spmName(data, store.spmId)}${store.previousSpmId ? ` (handed off from ${spmName(data, store.previousSpmId)})` : ' (new book)'}`
-      : `Book vacated${store.previousSpmId ? ` by ${spmName(data, store.previousSpmId)}` : ''} - now unassigned`,
-  });
-  if (firstFlaggedMonth) ev.push({ iso: `${firstFlaggedMonth}-01`, kind: 'flag', text: `Flagged challenged by rule ${ruleVersion}` });
-  if (plan) {
-    ev.push({ iso: plan.createdOn, kind: 'plan', text: `Action plan created (${plan.steps.length} step${plan.steps.length === 1 ? '' : 's'}) by ${plan.createdBy}` });
-    for (const s of plan.steps) if (s.startedOn) ev.push({ iso: s.startedOn, kind: 'task', text: `Work started: ${s.title}` });
-    for (const a of plan.salesAsks) ev.push({ iso: a.raisedOn, kind: 'ask', text: `Sales ask raised: ${a.request}` });
-  }
-  for (const a of data.salesActivities.filter((x) => x.storeId === store.id)) ev.push({ iso: a.occurredOn, kind: 'activity', text: `${a.type}: ${a.summary}` });
-  ev.sort((a, b) => (a.iso < b.iso ? 1 : -1));
-
-  if (!ev.length) return <p className="text-sm text-muted">No recorded history for this store yet.</p>;
-
-  const dot: Record<TimelineKind, string> = { assign: 'bg-neutral', flag: 'bg-bad', plan: 'bg-accent', task: 'bg-accent', ask: 'bg-warn', activity: 'bg-good' };
-  const kindLabel: Record<TimelineKind, string> = { assign: 'Ownership', flag: 'Flag', plan: 'Plan', task: 'Task', ask: 'Sales ask', activity: 'Activity' };
-  return (
-    <ol className="space-y-0">
-      {ev.map((e, i) => (
-        <li key={i} className="flex gap-3">
-          <div className="flex flex-col items-center">
-            <span className={`mt-1 h-2.5 w-2.5 shrink-0 rounded-full ${dot[e.kind]}`} />
-            {i < ev.length - 1 && <span className="w-px flex-1 bg-line" />}
-          </div>
-          <div className="flex w-full items-start justify-between gap-3 pb-3">
-            <div className="min-w-0">
-              <span className="chip mr-2 bg-panel text-2xs text-muted">{kindLabel[e.kind]}</span>
-              <span className="text-xs text-ink">{e.text}</span>
-            </div>
-            <span className="shrink-0 text-2xs text-muted">{dateLabel(e.iso)}</span>
-          </div>
-        </li>
-      ))}
-    </ol>
-  );
-}
-
 function CarrierSpecificDiag({ data, storeId }: { data: ReturnType<typeof useData>['data']; storeId: string }) {
   // Show external rules adherence per carrier - internal is a Boyd process
   // problem, external is a carrier compliance problem; a store can pass one DRP
@@ -475,23 +408,6 @@ function CarrierSpecificDiag({ data, storeId }: { data: ReturnType<typeof useDat
         ))}
       </div>
     </div>
-  );
-}
-
-function SalesActivityList({ data, storeId }: { data: ReturnType<typeof useData>['data']; storeId: string }) {
-  const acts = data.salesActivities.filter((a) => a.storeId === storeId);
-  if (!acts.length) return <p className="text-sm text-muted">No recorded sales activity for this store.</p>;
-  return (
-    <ul className="space-y-1">
-      {acts.map((a) => (
-        <li key={a.id} className="flex items-start gap-3 border-b border-line py-1.5 text-xs last:border-0">
-          <span className="w-24 shrink-0 text-2xs text-muted">{dateLabel(a.occurredOn)}</span>
-          <span className="chip bg-panel text-muted">{a.type}</span>
-          <span className="flex-1 text-ink">{a.summary}</span>
-          <span className="text-2xs text-muted">{a.by}</span>
-        </li>
-      ))}
-    </ul>
   );
 }
 

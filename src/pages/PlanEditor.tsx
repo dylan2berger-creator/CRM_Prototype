@@ -130,7 +130,6 @@ function StepsSection({ storeId, planId, steps }: { storeId: string; planId: str
             index={i}
             total={steps.length}
             planId={planId}
-            storeId={storeId}
             contacts={contacts}
             clientOptions={clientOptions}
           />
@@ -147,7 +146,6 @@ function StepRow({
   index,
   total,
   planId,
-  storeId,
   contacts,
   clientOptions,
 }: {
@@ -155,7 +153,6 @@ function StepRow({
   index: number;
   total: number;
   planId: string;
-  storeId: string;
   contacts: Contact[];
   clientOptions: { value: string; label: string }[];
 }) {
@@ -266,14 +263,13 @@ function StepRow({
       </div>
 
       {/* Tagged people */}
-      <TaggedPeople planId={planId} storeId={storeId} step={step} contacts={contacts} />
+      <TaggedPeople planId={planId} step={step} contacts={contacts} />
     </div>
   );
 }
 
-function TaggedPeople({ planId, storeId, step, contacts }: { planId: string; storeId: string; step: ActionStep; contacts: Contact[] }) {
+function TaggedPeople({ planId, step, contacts }: { planId: string; step: ActionStep; contacts: Contact[] }) {
   const d = useData();
-  const { data } = d;
   const [name, setName] = useState(contacts[0]?.name ?? '');
   const [reason, setReason] = useState('');
 
@@ -282,16 +278,6 @@ function TaggedPeople({ planId, storeId, step, contacts }: { planId: string; sto
     if (!c || !reason.trim()) return;
     const tagged = [...step.taggedPeople, { name: c.name, role: c.role, reason: reason.trim() }];
     d.updateStep(planId, step.id, { taggedPeople: tagged });
-    // tagged people also appear in the store's activity history
-    d.addSalesActivity({
-      id: d.newId('SA'),
-      storeId,
-      clientId: step.clientId ?? storeClientMix(data, storeId)[0]?.client.id ?? '',
-      occurredOn: today(),
-      type: c.role === 'National Account Manager' ? 'Carrier meeting' : 'Call',
-      summary: `Tagged ${c.name} on "${step.title}": ${reason.trim()}`,
-      by: 'You (SPM)',
-    });
     setReason('');
   };
 
