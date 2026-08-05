@@ -8,7 +8,9 @@ import { useData } from '@/data/DataContext';
 import {
   cbsaById,
   clientById,
+  cpmForCarrierDivision,
   cpmName,
+  divisionOfStore,
   planForStore,
   regionName,
   storeById,
@@ -50,6 +52,7 @@ export function StoreRecord() {
   const cbsa = cbsaById(data, store.cbsaId);
   const plan = planForStore(data, store.id);
   const mix = storeClientMix(data, store.id);
+  const storeDivision = divisionOfStore(data, store.id);
   const diag = diagnose(data, store.id);
   const worstAdverse = diag.find((d) => d.adverse);
 
@@ -93,9 +96,11 @@ export function StoreRecord() {
             <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted">
               <span>{store.id}</span>
               <span>GM {store.gmName}</span>
-              <span>{regionName(data, store.regionId)}</span>
+              <span>{regionName(data, store.regionId)}{storeDivision ? ` · ${storeDivision}` : ''}</span>
               <span>{cbsa ? `${cbsa.name}, ${cbsa.state}` : store.cbsaId}</span>
-              <span>CPM {store.cpmId ? cpmName(data, store.cpmId) : <span className="text-bad-text">unassigned</span>}</span>
+              <span title="CPM for the store's dominant DRP carrier in this division. CPMs are assigned per carrier - see the breakdown below.">
+                Lead CPM {store.cpmId ? cpmName(data, store.cpmId) : <span className="text-bad-text">unassigned</span>}
+              </span>
               <span className={`chip ${store.brand === 'JHCC' ? 'bg-neutral-soft text-neutral-text' : 'bg-panel text-muted'}`}>{store.brand}</span>
             </div>
           </div>
@@ -240,6 +245,7 @@ export function StoreRecord() {
               <tr>
                 <th>Client</th>
                 <th>DRP</th>
+                <th>CPM</th>
                 <th className="text-right">T12 revenue</th>
                 <th className="text-right">Share of store</th>
                 <th>DRP tier</th>
@@ -256,6 +262,21 @@ export function StoreRecord() {
                   <tr key={m.client.id}>
                     <td className="text-xs font-medium">{m.client.name}</td>
                     <td className="text-2xs">{m.client.isDrp ? 'DRP' : '-'}</td>
+                    <td className="text-xs">
+                      {m.client.isDrp ? (
+                        storeDivision ? (
+                          cpmForCarrierDivision(data, m.client.id, storeDivision) ? (
+                            cpmForCarrierDivision(data, m.client.id, storeDivision)!.name
+                          ) : (
+                            <span className="text-bad-text">Unassigned</span>
+                          )
+                        ) : (
+                          <span className="text-muted">-</span>
+                        )
+                      ) : (
+                        <span className="text-muted">-</span>
+                      )}
+                    </td>
                     <td className="num text-xs">{moneyCompact(m.revenueT12)}</td>
                     <td className="num text-xs">{m.sharePct.toFixed(1)}%</td>
                     <td>{sc ? <TierBadge tier={sc.tier} /> : <span className="text-2xs text-muted">-</span>}</td>

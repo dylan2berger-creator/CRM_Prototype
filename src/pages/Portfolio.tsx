@@ -160,7 +160,7 @@ export function Portfolio() {
                 <th>Store</th>
                 <th>Brand</th>
                 <th>Region</th>
-                <th>Assigned CPM</th>
+                <th title="CPM for the store's dominant DRP carrier in its division">Lead CPM</th>
                 <th>Client mix</th>
                 <th className="text-right">T3 revenue vs plan</th>
                 <th className="text-right">T3 volume vs forecast</th>

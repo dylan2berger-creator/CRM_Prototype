@@ -47,6 +47,7 @@ import {
 import {
   CITIES,
   CLIENT_NAMES,
+  DIVISIONS,
   FIRST_NAMES,
   LAST_NAMES,
   REGIONS,
@@ -61,7 +62,6 @@ const REGION_COUNT = 12;
 const CBSA_COUNT = 60;
 const CLIENT_COUNT = 14;
 const DRP_COUNT = 9;
-const CPM_COUNT = 18;
 
 type Archetype = 'healthy' | 'newly' | 'chronic' | 'recovered';
 type Cause =
@@ -181,12 +181,6 @@ export function generate(): GeneratedData {
     return `${pick(rng, FIRST_NAMES)} ${pick(rng, LAST_NAMES)}`;
   };
 
-  const cpms: DataSet['cpms'] = [];
-  for (let i = 0; i < CPM_COUNT; i++) {
-    cpms.push({ id: `U-${String(i + 1).padStart(3, '0')}`, name: personName(), role: 'cpm' });
-  }
-  const primaryCpmId = cpms[0].id;
-
   // --- Regions --------------------------------------------------------------
   const regions: Region[] = [];
   for (let i = 0; i < REGION_COUNT; i++) {
@@ -216,6 +210,29 @@ export function generate(): GeneratedData {
   }
   const drpClients = clients.filter((c) => c.isDrp);
   const underforecastClientId = drpClients[2].id; // Progressive under forecast broadly
+
+  // --- CPMs -----------------------------------------------------------------
+  // A Client Performance Manager owns one DRP carrier within one division
+  // (9 DRP carriers x 3 divisions = 27 slots). A few slots are left vacant so
+  // the "percent of shops with an assigned CPM" metric has something to show.
+  const cpms: DataSet['cpms'] = [];
+  const cpmByCarrierDiv = new Map<string, string>(); // `${carrierId}|${division}` -> cpmId
+  let cpmSeq = 0;
+  for (const carrier of drpClients) {
+    for (const division of DIVISIONS) {
+      cpmSeq++;
+      const key = `${carrier.id}|${division}`;
+      const isPrimarySlot = carrier.id === drpClients[2].id && division === 'South Division';
+      const vacant = !isPrimarySlot && hashStr('cpm' + key) % 9 === 0; // ~3 of 27 vacant
+      if (vacant) continue;
+      const id = `U-${String(cpmSeq).padStart(3, '0')}`;
+      cpms.push({ id, name: personName(), role: 'cpm', carrierId: carrier.id, division });
+      cpmByCarrierDiv.set(key, id);
+    }
+  }
+  // The primary demo CPM owns Progressive in the South Division - a carrier that
+  // runs under forecast broadly, in the division that carries the Gulf Region.
+  const primaryCpmId = cpmByCarrierDiv.get(`${drpClients[2].id}|South Division`)!;
 
   // --- Stores + profiles ----------------------------------------------------
   const stores: Store[] = [];
@@ -262,16 +279,6 @@ export function generate(): GeneratedData {
     const cbsa = cbsas[i % CBSA_COUNT];
     const id = `S-${String(i + 1).padStart(4, '0')}`;
 
-    // CPM assignment: primary CPM owns the landmark stores + a healthy book.
-    // A few stores left unassigned (3-5) to exercise the unassigned metric.
-    let cpmId: string;
-    const isLandmark = Object.values(L).includes(i);
-    if (isLandmark || i % 17 === 0) {
-      cpmId = primaryCpmId;
-    } else {
-      cpmId = cpms[1 + ((i * 7) % (CPM_COUNT - 1))].id;
-    }
-
     const openedYearsAgo = rint(rng, 2, 22);
     const openedOn = isoDate(
       new Date(Date.UTC(new Date().getUTCFullYear() - openedYearsAgo, rint(rng, 0, 11), rint(rng, 1, 28))),
@@ -280,13 +287,6 @@ export function generate(): GeneratedData {
       brand === 'JHCC'
         ? monthStartIso(addMonths(cur, -rint(rng, 1, 30)))
         : null;
-
-    // Ownership history: when the current CPM took the book, and who held it
-    // before. Turnover is common, so most stores carry a prior owner - the
-    // continuity view exists so a handoff never loses the plan or reasoning.
-    const assignedOn = monthStartIso(addMonths(cur, -rint(rng, 2, 34)));
-    let previousCpmId = rint(rng, 1, 100) <= 60 ? cpms[1 + ((i * 13 + 5) % (CPM_COUNT - 1))].id : '';
-    if (previousCpmId === cpmId) previousCpmId = '';
 
     // Client mix: 3-6 clients, DRP-weighted so most stores have a major DRP.
     const nClients = rint(rng, 3, 6);
@@ -324,6 +324,27 @@ export function generate(): GeneratedData {
     rawShares[0] *= 2.2;
     const shareSum = rawShares.reduce((a, b) => a + b, 0);
     const clientShares = rawShares.map((s) => s / shareSum);
+
+    // CPM: a store's owner is the CPM for its dominant DRP carrier within the
+    // store's division. Empty when that carrier x division slot is vacant.
+    const division = region.division;
+    let dominantDrp = '';
+    let dominantShare = -1;
+    for (let k = 0; k < clientIds.length; k++) {
+      const cl = clients.find((c) => c.id === clientIds[k])!;
+      if (cl.isDrp && clientShares[k] > dominantShare) {
+        dominantShare = clientShares[k];
+        dominantDrp = cl.id;
+      }
+    }
+    const cpmId = dominantDrp ? cpmByCarrierDiv.get(`${dominantDrp}|${division}`) ?? '' : '';
+
+    // Ownership history: when the current owner took the book and who held it
+    // before. Turnover is common, so most stores carry a prior owner - the
+    // continuity view exists so a handoff never loses the plan or reasoning.
+    const assignedOn = monthStartIso(addMonths(cur, -rint(rng, 2, 34)));
+    let previousCpmId = cpms.length && rint(rng, 1, 100) <= 60 ? cpms[hashStr('prev' + id) % cpms.length].id : '';
+    if (previousCpmId === cpmId) previousCpmId = '';
 
     const isCh = challengedSet.has(i);
     const isRec = recoveredSet.has(i);
@@ -416,13 +437,6 @@ export function generate(): GeneratedData {
       openedOn,
       acquiredOn,
     };
-    // Unassigned CPM for a few non-landmark stores. The book just vacated, so
-    // the outgoing owner becomes the previous owner - an inherited store with
-    // no current owner is exactly when continuity matters most.
-    if (!isLandmark && (i === 33 || i === 91 || i === 158 || i === 244)) {
-      store.previousCpmId = store.previousCpmId || cpmId;
-      store.cpmId = '';
-    }
 
     stores.push(store);
     profiles.set(id, {

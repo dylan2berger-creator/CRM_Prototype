@@ -44,14 +44,17 @@ export function RoleProvider({ children }: { children: ReactNode }) {
     const gmStore = data.stores.find((s) => s.id === landmarks.gmStoreId);
     const region = data.regions.find((r) => r.id === landmarks.underperformingRegionId);
     switch (role) {
-      case 'cpm':
+      case 'cpm': {
+        const carrierName = data.clients.find((c) => c.id === cpm?.carrierId)?.name;
+        const beat = cpm?.carrierId && cpm?.division ? `${carrierName} · ${cpm.division}` : '';
         return {
           role,
-          label: ROLE_LABELS.cpm,
+          label: beat ? `Client Performance Manager · ${beat}` : ROLE_LABELS.cpm,
           userName: cpm?.name ?? 'CPM',
           scope: { type: 'cpm', cpmId: landmarks.primaryCpmId },
           landing: '/',
         };
+      }
       case 'rvp':
         return {
           role,

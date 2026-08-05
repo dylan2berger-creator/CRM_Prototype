@@ -288,7 +288,8 @@ export interface DataSet {
   cbsas: Cbsa[];
   clients: Client[];
   stores: Store[];
-  cpms: { id: string; name: string; role: Role }[];
+  // A CPM (Client Performance Manager) owns one DRP carrier within one division.
+  cpms: { id: string; name: string; role: Role; carrierId?: string; division?: Division }[];
   metrics: MetricPeriod[];
   businessCases: BusinessCase[];
   scorecards: DrpScorecard[];

@@ -4,6 +4,7 @@ import {
   ActionPlan,
   Client,
   DataSet,
+  Division,
   DrpScorecard,
   DrpTier,
   Store,
@@ -29,6 +30,52 @@ export function cbsaById(data: DataSet, id: string) {
 }
 export function cpmName(data: DataSet, id: string): string {
   return data.cpms.find((c) => c.id === id)?.name ?? '';
+}
+export function cpmById(data: DataSet, id: string) {
+  return data.cpms.find((c) => c.id === id);
+}
+
+// The division a store sits in, via its region.
+export function divisionOfStore(data: DataSet, storeId: string): Division | undefined {
+  const s = storeById(data, storeId);
+  return s ? data.regions.find((r) => r.id === s.regionId)?.division : undefined;
+}
+
+// The CPM who owns a carrier within a division, or null when the slot is vacant.
+export function cpmForCarrierDivision(data: DataSet, carrierId: string, division: Division): { id: string; name: string } | null {
+  const c = data.cpms.find((x) => x.carrierId === carrierId && x.division === division);
+  return c ? { id: c.id, name: c.name } : null;
+}
+
+function storeTradesClient(data: DataSet, storeId: string, clientId: string): boolean {
+  return (dataIndex(data).metricByStore.get(storeId) ?? []).some((m) => m.clientId === clientId);
+}
+
+// Per-carrier CPM assignment for a store: each DRP carrier it trades maps to the
+// CPM for (carrier, store division), or null when that slot is vacant.
+export interface StoreCpmAssignment {
+  client: Client;
+  sharePct: number;
+  cpm: { id: string; name: string } | null;
+}
+export function storeCpmAssignments(data: DataSet, storeId: string): StoreCpmAssignment[] {
+  const division = divisionOfStore(data, storeId);
+  return storeClientMix(data, storeId)
+    .filter((m) => m.client.isDrp)
+    .map((m) => ({
+      client: m.client,
+      sharePct: m.sharePct,
+      cpm: division ? cpmForCarrierDivision(data, m.client.id, division) : null,
+    }));
+}
+
+// A CPM's book: stores that trade the CPM's carrier within the CPM's division.
+export function storesForCpm(data: DataSet, cpmId: string): Store[] {
+  const cpm = data.cpms.find((c) => c.id === cpmId);
+  if (!cpm || !cpm.carrierId || !cpm.division) return [];
+  return data.stores.filter(
+    (s) => data.regions.find((r) => r.id === s.regionId)?.division === cpm.division && storeTradesClient(data, s.id, cpm.carrierId!),
+  );
 }
 
 // Trailing revenue as a percentage of plan for a store (store-level sum).
@@ -127,7 +174,7 @@ export function storesForScope(
     case 'all':
       return data.stores;
     case 'cpm':
-      return data.stores.filter((s) => s.cpmId === scope.cpmId);
+      return storesForCpm(data, scope.cpmId);
     case 'region':
       return data.stores.filter((s) => s.regionId === scope.regionId);
     case 'store':

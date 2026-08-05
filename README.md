@@ -42,15 +42,21 @@ across reloads and machines. The real application would read from **DOMO**
 both are simulated here. Each screen showing a DOMO-derived number can name its
 source dataset and say how current it is (all timestamps are mocked too).
 
-The generated world: 345 stores (205 Boyd, 140 JHCC), 12 regions, 60 CBSAs, 14
-carriers (9 DRP), and 36 months of history ending at the current month. Roughly
-18-22% of stores are currently challenged (a struggling Southeast region
-concentrates some of them), about 60% of challenged stores have an action plan,
-and the data deliberately plants the patterns the demo needs to find (distinct
-root-cause signatures, carrier- and region-level underperformance, DRP-volume vs
-revenue splits, internal vs external rules divergence, carrier volume anomalies,
-a "Not loaded" baseline gap, and tasks whose target metric improved, didn't
-move, or got worse).
+The generated world: 345 stores (205 Boyd, 140 JHCC) grouped into 12 regions
+under 3 divisions (North, South, West), 60 CBSAs, 14 carriers (9 DRP), and 36
+months of history ending at the current month. Roughly 18-22% of stores are
+currently challenged (a struggling Gulf Region concentrates some of them), about
+60% of challenged stores have an action plan, and the data deliberately plants
+the patterns the demo needs to find (distinct root-cause signatures, carrier-
+and region-level underperformance, DRP-volume vs revenue splits, internal vs
+external rules divergence, carrier volume anomalies, a "Not loaded" baseline
+gap, and tasks whose target metric improved, didn't move, or got worse).
+
+Each Client Performance Manager owns one DRP carrier within one division (9 DRP
+carriers x 3 divisions = 27 seats, a few left vacant), so a CPM's book is the
+stores that trade their carrier in their division, and a store's "lead CPM" is
+the owner of its dominant DRP carrier. The store record lists the CPM for every
+DRP carrier it trades.
 
 ## Screens
 
