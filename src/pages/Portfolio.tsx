@@ -19,6 +19,7 @@ import { Sparkline } from '@/components/Sparkline';
 import { EmptyState, Field, Select } from '@/components/ui';
 import { SourceTag } from '@/components/Provenance';
 import { dateLabel } from '@/utils/format';
+import { DIVISIONS } from '@/mock/names';
 
 type PlanFilter = 'all' | 'has-plan' | 'no-plan' | 'overdue';
 
@@ -28,17 +29,32 @@ export function Portfolio() {
   const stores = storesForScope(data, config.scope);
 
   const [challengedOnly, setChallengedOnly] = useState(false);
+  const [division, setDivision] = useState('all');
   const [region, setRegion] = useState('all');
   const [client, setClient] = useState('all');
   const [tier, setTier] = useState('all');
   const [planFilter, setPlanFilter] = useState<PlanFilter>('all');
   const [brand, setBrand] = useState('all');
 
+  const regionDivision = useMemo(() => new Map(data.regions.map((r) => [r.id, r.division])), [data.regions]);
+
+  // Region options narrow to the chosen division; picking a division resets the
+  // region so the two stay consistent.
+  const regionOptions = [
+    { value: 'all', label: 'All regions' },
+    ...data.regions.filter((r) => division === 'all' || r.division === division).map((r) => ({ value: r.id, label: r.name })),
+  ];
+  const onDivisionChange = (v: string) => {
+    setDivision(v);
+    setRegion('all');
+  };
+
   const rows = useMemo(() => stores.map((s) => portfolioRow(data, s)), [stores, data]);
 
   const filtered = useMemo(() => {
     let out = rows;
     if (challengedOnly) out = out.filter((r) => r.challenged.isChallenged);
+    if (division !== 'all') out = out.filter((r) => regionDivision.get(r.store.regionId) === division);
     if (region !== 'all') out = out.filter((r) => r.store.regionId === region);
     if (brand !== 'all') out = out.filter((r) => r.store.brand === brand);
     if (tier !== 'all') out = out.filter((r) => r.worstTier === tier);
@@ -51,7 +67,7 @@ export function Portfolio() {
       if (a.challenged.isChallenged !== b.challenged.isChallenged) return a.challenged.isChallenged ? -1 : 1;
       return (a.t3RevenuePct ?? 999) - (b.t3RevenuePct ?? 999);
     });
-  }, [rows, challengedOnly, region, client, tier, planFilter, brand]);
+  }, [rows, challengedOnly, division, region, client, tier, planFilter, brand, regionDivision]);
 
   const challengedCount = rows.filter((r) => r.challenged.isChallenged).length;
   const noPlanCount = rows.filter((r) => r.challenged.isChallenged && !r.plan).length;
@@ -75,13 +91,16 @@ export function Portfolio() {
           <input type="checkbox" checked={challengedOnly} onChange={(e) => setChallengedOnly(e.target.checked)} />
           Challenged only
         </label>
-        <Field label="Region">
+        <Field label="Division">
           <Select
-            value={region}
-            onChange={setRegion}
-            aria-label="Region filter"
-            options={[{ value: 'all', label: 'All regions' }, ...data.regions.map((r) => ({ value: r.id, label: r.name }))]}
+            value={division}
+            onChange={onDivisionChange}
+            aria-label="Division filter"
+            options={[{ value: 'all', label: 'All divisions' }, ...DIVISIONS.map((dv) => ({ value: dv, label: dv }))]}
           />
+        </Field>
+        <Field label="Region">
+          <Select value={region} onChange={setRegion} aria-label="Region filter" options={regionOptions} />
         </Field>
         <Field label="Client">
           <Select
@@ -184,7 +203,10 @@ function Row({ r, data }: { r: PortfolioRow; data: ReturnType<typeof useData>['d
           {r.store.brand}
         </span>
       </td>
-      <td className="text-xs">{regionName(data, r.store.regionId)}</td>
+      <td className="text-xs">
+        {regionName(data, r.store.regionId)}
+        <div className="text-2xs text-muted">{data.regions.find((rg) => rg.id === r.store.regionId)?.division}</div>
+      </td>
       <td>
         {unassigned ? (
           <span className="chip bg-bad-soft text-bad-text ring-1 ring-inset ring-bad/30" title="No CPM assigned">
