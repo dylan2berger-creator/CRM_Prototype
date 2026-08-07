@@ -4,6 +4,7 @@ import { HashRouter } from 'react-router-dom';
 import App from './App';
 import { DataProvider } from '@/data/DataContext';
 import { RoleProvider } from '@/app/RoleContext';
+import { ModeProvider } from '@/app/ModeContext';
 import './fonts.css';
 import './index.css';
 
@@ -12,7 +13,9 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <HashRouter>
       <DataProvider>
         <RoleProvider>
-          <App />
+          <ModeProvider>
+            <App />
+          </ModeProvider>
         </RoleProvider>
       </DataProvider>
     </HashRouter>

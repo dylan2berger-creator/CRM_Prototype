@@ -9,6 +9,8 @@ import { useRole } from '@/app/RoleContext';
 import { useData } from '@/data/DataContext';
 import { FreshnessIndicator } from '@/components/FreshnessIndicator';
 import { UserMenu } from '@/components/UserMenu';
+import { useMode } from '@/app/ModeContext';
+import { Segmented } from '@/components/ui';
 import {
   IconAlerts,
   IconAnalysis,
@@ -36,13 +38,21 @@ const NAV: NavItem[] = [
 
 export function Layout({ children }: { children: ReactNode }) {
   const { role, config } = useRole();
+  const { mvp, setMode } = useMode();
   const { data, landmarks } = useData();
   const navigate = useNavigate();
   const location = useLocation();
   const unacked = data.alerts.filter((a) => !a.acknowledged).length;
 
-  const nav: NavItem[] =
-    role === 'gm'
+  // The MVP cut ships only the core screens: the challenged-shop watchlist and
+  // the alert feed (the store record is reached from there). Full mode keeps
+  // every screen.
+  const nav: NavItem[] = mvp
+    ? [
+        { to: '/mvp', label: 'Challenged shops', icon: IconPortfolio },
+        { to: '/alerts', label: 'Alerts', icon: IconAlerts },
+      ]
+    : role === 'gm'
       ? [
           { to: `/store/${landmarks.gmStoreId}`, label: 'My shop', icon: IconStore },
           { to: '/alerts', label: 'Alerts', icon: IconAlerts },
@@ -100,6 +110,18 @@ export function Layout({ children }: { children: ReactNode }) {
             Viewing as <span className="font-medium text-ink">{config.userName}</span> · {config.label}
           </div>
           <div className="flex items-center gap-2">
+            <Segmented
+              size="sm"
+              value={mvp ? 'mvp' : 'full'}
+              onChange={(v) => {
+                setMode(v as 'full' | 'mvp');
+                navigate(v === 'mvp' ? '/mvp' : '/');
+              }}
+              options={[
+                { value: 'full', label: 'Full app' },
+                { value: 'mvp', label: 'MVP' },
+              ]}
+            />
             <FreshnessIndicator />
             <UserMenu />
           </div>

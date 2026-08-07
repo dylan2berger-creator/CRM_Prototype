@@ -5,6 +5,7 @@
 import { useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useData } from '@/data/DataContext';
+import { useMode } from '@/app/ModeContext';
 import {
   cbsaById,
   clientById,
@@ -41,6 +42,7 @@ import { ActionPlan, Store, TargetMetric } from '@/types';
 export function StoreRecord() {
   const { id = '' } = useParams();
   const { data } = useData();
+  const { mvp } = useMode();
   const store = storeById(data, id);
   const [metric, setMetric] = useState<TargetMetric>('revenueActual');
 
@@ -88,8 +90,8 @@ export function StoreRecord() {
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <div className="flex items-center gap-2">
-              <Link to="/" className="text-2xs text-muted hover:underline">
-                ← Portfolio
+              <Link to={mvp ? '/mvp' : '/'} className="text-2xs text-muted hover:underline">
+                ← {mvp ? 'Challenged shops' : 'Portfolio'}
               </Link>
             </div>
             <h1 className="text-lg font-semibold text-ink">{store.name}</h1>
@@ -113,7 +115,8 @@ export function StoreRecord() {
       {/* Ownership & continuity - who owns the book, prior owner, rationale */}
       <OwnershipPanel data={data} store={store} plan={plan} />
 
-      {/* Baseline strip */}
+      {/* Baseline strip - full app only */}
+      {!mvp && (
       <Panel title="Business case baseline" subtitle="The investment committee plan everything is measured against" right={<SourceTag dataset="Business case baseline (IC memos & workbooks)" />}>
         {bc ? (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -143,6 +146,7 @@ export function StoreRecord() {
           </div>
         )}
       </Panel>
+      )}
 
       {/* Performance chart */}
       <Panel
@@ -296,7 +300,8 @@ export function StoreRecord() {
         </Panel>
       </div>
 
-      {/* Client & DRP breakdown */}
+      {/* Client & DRP breakdown - full app only */}
+      {!mvp && (
       <Panel title="Client and DRP breakdown" subtitle="A store can be compliant with one DRP and failing another." right={<SourceTag dataset="DOMO - DRP Scorecards" />}>
         <div className="overflow-x-auto">
           <table className="data-table">
@@ -355,6 +360,7 @@ export function StoreRecord() {
           <OpenQuestion>DRP program names are real; the tier, CBSA rank, and competitor counts are illustrative - the carrier scorecard feed at competitor granularity is carrier-proprietary and not yet in BDAP.</OpenQuestion>
         </div>
       </Panel>
+      )}
     </div>
   );
 }

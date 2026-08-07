@@ -8,12 +8,14 @@ import { Benchmarking } from '@/pages/Benchmarking';
 import { Carriers } from '@/pages/Carriers';
 import { RollUp } from '@/pages/RollUp';
 import { Alerts } from '@/pages/Alerts';
+import { MvpHome } from '@/pages/MvpHome';
 
 export default function App() {
   return (
     <Layout>
       <Routes>
         <Route path="/" element={<Portfolio />} />
+        <Route path="/mvp" element={<MvpHome />} />
         <Route path="/store/:id" element={<StoreRecord />} />
         <Route path="/store/:id/plan" element={<PlanEditor />} />
         <Route path="/analysis" element={<Analysis />} />
