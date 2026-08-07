@@ -474,8 +474,12 @@ export function generate(): GeneratedData {
       clientShares,
       seasonAmp: rfloat(rng, 0.03, 0.08),
       slope: rfloat(rng, -0.02, 0.05),
-      baseAnnualRevenue: rfloat(rng, 2_400_000, 6_200_000),
-      averageRo: rfloat(rng, 2_800, 4_200),
+      // Per-shop annual revenue, right-skewed like a real collision network:
+      // most shops mid-sized (~$2.7M/yr ~ $225K/mo) with a tail of larger
+      // shops, and a floor for small/newer locations. ~$1.0M to ~$6.6M/yr.
+      baseAnnualRevenue: Math.round(1_000_000 + Math.pow(rng(), 1.7) * 5_600_000),
+      // Average repair order ~ $4,000 (industry ARO), with shop-to-shop spread.
+      averageRo: rfloat(rng, 3_400, 4_600),
     });
   }
 
