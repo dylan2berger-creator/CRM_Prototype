@@ -34,10 +34,10 @@ export interface PerfPoint {
 }
 
 const TONE_COLOR: Record<string, string> = {
-  good: '#24B47E',
-  bad: '#F0616D',
-  warn: '#F5A623',
-  neutral: '#7B68EE',
+  good: '#36832f',
+  bad: '#ba1a1a',
+  warn: '#b8860b',
+  neutral: '#00529b',
 };
 
 export function PerformanceChart({
@@ -78,7 +78,7 @@ export function PerformanceChart({
         {markers.map((m, i) => {
           const x = xOf(m.month);
           if (x == null) return null;
-          const color = m.kind === 'plan' ? '#334155' : TONE_COLOR[m.tone ?? 'neutral'];
+          const color = m.kind === 'plan' ? '#313031' : TONE_COLOR[m.tone ?? 'neutral'];
           const isPlan = m.kind === 'plan';
           row = (row + 1) % 3;
           const labelY = railY + 6 + row * 11;
@@ -118,26 +118,26 @@ export function PerformanceChart({
     <div style={{ width: '100%', height }}>
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data} margin={{ top: 8, right: 16, left: 8, bottom: bottomMargin }}>
-          <CartesianGrid stroke="#eef2f7" vertical={false} />
+          <CartesianGrid stroke="#ececec" vertical={false} />
           <XAxis
             dataKey="month"
             tickFormatter={monthShort}
-            tick={{ fontSize: 10, fill: '#7C828D' }}
+            tick={{ fontSize: 10, fill: '#6b6a6b' }}
             tickLine={false}
-            axisLine={{ stroke: '#cbd5e1' }}
+            axisLine={{ stroke: '#c9c9c9' }}
             minTickGap={16}
             interval="preserveStartEnd"
           />
           <YAxis
             tickFormatter={(v) => formatMetric(metric, v)}
-            tick={{ fontSize: 10, fill: '#7C828D' }}
+            tick={{ fontSize: 10, fill: '#6b6a6b' }}
             tickLine={false}
             axisLine={false}
             width={54}
             domain={['auto', 'auto']}
           />
           <Tooltip
-            contentStyle={{ fontSize: 12, borderRadius: 6, border: '1px solid #e2e8f0' }}
+            contentStyle={{ fontSize: 12, borderRadius: 6, border: '1px solid #e0e0e0' }}
             labelFormatter={(m) => monthLabel(m as string)}
             formatter={(v: number, name) => [formatMetric(metric, v), name]}
           />
@@ -145,7 +145,7 @@ export function PerformanceChart({
             type="monotone"
             dataKey="value"
             name={meta.label}
-            stroke="#7B68EE"
+            stroke="#00529b"
             strokeWidth={2}
             dot={false}
             isAnimationActive={false}
@@ -155,7 +155,7 @@ export function PerformanceChart({
               type="monotone"
               dataKey="baseline"
               name={blLabel}
-              stroke="#94a3b8"
+              stroke="#949494"
               strokeWidth={1.5}
               strokeDasharray="5 4"
               dot={false}

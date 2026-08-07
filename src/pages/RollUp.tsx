@@ -290,18 +290,18 @@ export function RollUp() {
         <div className="h-64 w-full">
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart data={view.trend} margin={{ top: 8, right: 12, left: 8, bottom: 8 }}>
-              <CartesianGrid stroke="#eef2f7" vertical={false} />
+              <CartesianGrid stroke="#ececec" vertical={false} />
               <XAxis
                 dataKey="month"
                 tickFormatter={monthShort}
-                tick={{ fontSize: 10, fill: '#7C828D' }}
+                tick={{ fontSize: 10, fill: '#6b6a6b' }}
                 tickLine={false}
-                axisLine={{ stroke: '#cbd5e1' }}
+                axisLine={{ stroke: '#c9c9c9' }}
                 minTickGap={16}
               />
               <YAxis
                 yAxisId="count"
-                tick={{ fontSize: 10, fill: '#7C828D' }}
+                tick={{ fontSize: 10, fill: '#6b6a6b' }}
                 tickLine={false}
                 axisLine={false}
                 width={36}
@@ -311,13 +311,13 @@ export function RollUp() {
                 yAxisId="gap"
                 orientation="right"
                 tickFormatter={(v) => moneyCompact(v as number)}
-                tick={{ fontSize: 10, fill: '#7C828D' }}
+                tick={{ fontSize: 10, fill: '#6b6a6b' }}
                 tickLine={false}
                 axisLine={false}
                 width={58}
               />
               <Tooltip
-                contentStyle={{ fontSize: 12, borderRadius: 6, border: '1px solid #e2e8f0' }}
+                contentStyle={{ fontSize: 12, borderRadius: 6, border: '1px solid #e0e0e0' }}
                 labelFormatter={(m) => monthLabel(m as string)}
                 formatter={(v: number, name) => [name === 'Gap to plan' ? money(v) : int(v), name]}
               />
@@ -327,7 +327,7 @@ export function RollUp() {
                 type="monotone"
                 dataKey="challenged"
                 name="Challenged shops"
-                stroke="#F0616D"
+                stroke="#ba1a1a"
                 strokeWidth={2}
                 dot={false}
                 isAnimationActive={false}
@@ -337,7 +337,7 @@ export function RollUp() {
                 type="monotone"
                 dataKey="gap"
                 name="Gap to plan"
-                stroke="#7B68EE"
+                stroke="#00529b"
                 strokeWidth={2}
                 strokeDasharray="5 4"
                 dot={false}

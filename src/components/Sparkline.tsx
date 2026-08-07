@@ -18,7 +18,7 @@ export function Sparkline({
   const stepX = width / Math.max(1, values.length - 1);
   const pts = values.map((v, i) => `${(i * stepX).toFixed(1)},${(height - ((v - min) / span) * height).toFixed(1)}`);
   const stroke =
-    tone === 'good' ? '#24B47E' : tone === 'bad' ? '#F0616D' : tone === 'warn' ? '#F5A623' : '#7C828D';
+    tone === 'good' ? '#36832f' : tone === 'bad' ? '#ba1a1a' : tone === 'warn' ? '#b8860b' : '#6b6a6b';
   const last = values[values.length - 1];
   const lx = (values.length - 1) * stepX;
   const ly = height - ((last - min) / span) * height;

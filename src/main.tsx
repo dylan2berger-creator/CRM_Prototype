@@ -4,6 +4,7 @@ import { HashRouter } from 'react-router-dom';
 import App from './App';
 import { DataProvider } from '@/data/DataContext';
 import { RoleProvider } from '@/app/RoleContext';
+import './fonts.css';
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(

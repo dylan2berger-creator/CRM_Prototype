@@ -27,10 +27,10 @@ import { rollupsForMonth } from '@/data/rollups';
 import { DrpTier, SalesAsk } from '@/types';
 import { dateLabel, int, money, monthLabel, monthShort, pct } from '@/utils/format';
 
-const ACTUAL = '#7B68EE';
-const FORECAST = '#94a3b8';
-const WORSE = '#F0616D';
-const BETTER = '#24B47E';
+const ACTUAL = '#00529b';
+const FORECAST = '#949494';
+const WORSE = '#ba1a1a';
+const BETTER = '#36832f';
 
 // A tier is "worse" the further down TIER_ORDER it sits (Preferred -> At risk).
 const tierRank = (t: DrpTier) => TIER_ORDER.indexOf(t);
@@ -356,25 +356,25 @@ export function Carriers() {
             <div style={{ width: '100%', height: 260 }}>
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={scorecardSeries} margin={{ top: 12, right: 16, left: 8, bottom: 8 }}>
-                  <CartesianGrid stroke="#eef2f7" vertical={false} />
+                  <CartesianGrid stroke="#ececec" vertical={false} />
                   <XAxis
                     dataKey="month"
                     tickFormatter={monthShort}
-                    tick={{ fontSize: 10, fill: '#7C828D' }}
+                    tick={{ fontSize: 10, fill: '#6b6a6b' }}
                     tickLine={false}
-                    axisLine={{ stroke: '#cbd5e1' }}
+                    axisLine={{ stroke: '#c9c9c9' }}
                     minTickGap={16}
                     interval="preserveStartEnd"
                   />
                   <YAxis
                     domain={scoreDomain}
-                    tick={{ fontSize: 10, fill: '#7C828D' }}
+                    tick={{ fontSize: 10, fill: '#6b6a6b' }}
                     tickLine={false}
                     axisLine={false}
                     width={40}
                   />
                   <Tooltip
-                    contentStyle={{ fontSize: 12, borderRadius: 6, border: '1px solid #e2e8f0' }}
+                    contentStyle={{ fontSize: 12, borderRadius: 6, border: '1px solid #e0e0e0' }}
                     labelFormatter={(m) => monthLabel(m as string)}
                     formatter={(v: number) => [v.toFixed(1), 'Score']}
                   />
@@ -445,25 +445,25 @@ export function Carriers() {
         <div style={{ width: '100%', height: 260 }}>
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={volumeSeries} margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
-              <CartesianGrid stroke="#eef2f7" vertical={false} />
+              <CartesianGrid stroke="#ececec" vertical={false} />
               <XAxis
                 dataKey="month"
                 tickFormatter={monthShort}
-                tick={{ fontSize: 10, fill: '#7C828D' }}
+                tick={{ fontSize: 10, fill: '#6b6a6b' }}
                 tickLine={false}
-                axisLine={{ stroke: '#cbd5e1' }}
+                axisLine={{ stroke: '#c9c9c9' }}
                 minTickGap={16}
                 interval="preserveStartEnd"
               />
               <YAxis
                 tickFormatter={(v) => int(v)}
-                tick={{ fontSize: 10, fill: '#7C828D' }}
+                tick={{ fontSize: 10, fill: '#6b6a6b' }}
                 tickLine={false}
                 axisLine={false}
                 width={44}
               />
               <Tooltip
-                contentStyle={{ fontSize: 12, borderRadius: 6, border: '1px solid #e2e8f0' }}
+                contentStyle={{ fontSize: 12, borderRadius: 6, border: '1px solid #e0e0e0' }}
                 labelFormatter={(m) => monthLabel(m as string)}
                 formatter={(v: number, name) => [int(v), name]}
               />

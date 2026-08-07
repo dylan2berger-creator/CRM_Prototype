@@ -631,29 +631,29 @@ export function Analysis() {
           <div style={{ width: '100%', height: 240 }}>
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={scoreTrend} margin={{ top: 8, right: 12, left: 4, bottom: 4 }}>
-                <CartesianGrid stroke="#eef2f7" vertical={false} />
+                <CartesianGrid stroke="#ececec" vertical={false} />
                 <XAxis
                   dataKey="month"
                   tickFormatter={monthShort}
-                  tick={{ fontSize: 10, fill: '#7C828D' }}
+                  tick={{ fontSize: 10, fill: '#6b6a6b' }}
                   tickLine={false}
-                  axisLine={{ stroke: '#cbd5e1' }}
+                  axisLine={{ stroke: '#c9c9c9' }}
                   minTickGap={20}
                   interval="preserveStartEnd"
                 />
                 <YAxis
-                  tick={{ fontSize: 10, fill: '#7C828D' }}
+                  tick={{ fontSize: 10, fill: '#6b6a6b' }}
                   tickLine={false}
                   axisLine={false}
                   width={34}
                   domain={[0, 100]}
                 />
                 <Tooltip
-                  contentStyle={{ fontSize: 12, borderRadius: 6, border: '1px solid #e2e8f0' }}
+                  contentStyle={{ fontSize: 12, borderRadius: 6, border: '1px solid #e0e0e0' }}
                   labelFormatter={(m) => monthLabel(m as string)}
                   formatter={(v: number) => [v == null ? '-' : v.toFixed(1), 'Avg DRP score']}
                 />
-                <Line type="monotone" dataKey="score" name="Avg DRP score" stroke="#7B68EE" strokeWidth={2} dot={false} isAnimationActive={false} connectNulls />
+                <Line type="monotone" dataKey="score" name="Avg DRP score" stroke="#00529b" strokeWidth={2} dot={false} isAnimationActive={false} connectNulls />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -747,32 +747,32 @@ export function Analysis() {
         <div style={{ width: '100%', height: 340 }}>
           <ResponsiveContainer width="100%" height="100%">
             <ScatterChart margin={{ top: 12, right: 20, left: 8, bottom: 28 }}>
-              <CartesianGrid stroke="#eef2f7" />
+              <CartesianGrid stroke="#ececec" />
               <XAxis
                 type="number"
                 dataKey="x"
                 name="Boyd share"
                 unit="%"
-                tick={{ fontSize: 10, fill: '#7C828D' }}
+                tick={{ fontSize: 10, fill: '#6b6a6b' }}
                 tickLine={false}
-                axisLine={{ stroke: '#cbd5e1' }}
+                axisLine={{ stroke: '#c9c9c9' }}
                 domain={['dataMin - 1', 'dataMax + 1']}
-                label={{ value: 'Boyd share of CBSA (%) - latest', position: 'insideBottom', offset: -14, fontSize: 11, fill: '#7C828D' }}
+                label={{ value: 'Boyd share of CBSA (%) - latest', position: 'insideBottom', offset: -14, fontSize: 11, fill: '#6b6a6b' }}
               />
               <YAxis
                 type="number"
                 dataKey="y"
                 name="Revenue % of plan"
                 unit="%"
-                tick={{ fontSize: 10, fill: '#7C828D' }}
+                tick={{ fontSize: 10, fill: '#6b6a6b' }}
                 tickLine={false}
                 axisLine={false}
                 width={44}
                 domain={['dataMin - 3', 'dataMax + 3']}
-                label={{ value: 'T3 revenue % of plan', angle: -90, position: 'insideLeft', offset: 12, fontSize: 11, fill: '#7C828D' }}
+                label={{ value: 'T3 revenue % of plan', angle: -90, position: 'insideLeft', offset: 12, fontSize: 11, fill: '#6b6a6b' }}
               />
-              <ReferenceLine y={100} stroke="#94a3b8" strokeDasharray="5 4" label={{ value: 'plan', position: 'right', fontSize: 10, fill: '#7C828D' }} />
-              <ReferenceLine x={scatter.medianShare} stroke="#cbd5e1" strokeDasharray="3 3" label={{ value: 'median share', position: 'top', fontSize: 10, fill: '#94a3b8' }} />
+              <ReferenceLine y={100} stroke="#949494" strokeDasharray="5 4" label={{ value: 'plan', position: 'right', fontSize: 10, fill: '#6b6a6b' }} />
+              <ReferenceLine x={scatter.medianShare} stroke="#c9c9c9" strokeDasharray="3 3" label={{ value: 'median share', position: 'top', fontSize: 10, fill: '#949494' }} />
               <Tooltip
                 cursor={{ strokeDasharray: '3 3' }}
                 content={(props: any) => {
@@ -790,7 +790,7 @@ export function Analysis() {
               <Scatter name="Shops" data={scatter.pts} isAnimationActive={false}>
                 {scatter.pts.map((p) => {
                   const color =
-                    p.y >= 100 ? '#24B47E' : p.x >= scatter.medianShare ? '#F5A623' : '#F0616D';
+                    p.y >= 100 ? '#36832f' : p.x >= scatter.medianShare ? '#b8860b' : '#ba1a1a';
                   return <Cell key={p.id} fill={color} fillOpacity={0.75} />;
                 })}
               </Scatter>
@@ -798,9 +798,9 @@ export function Analysis() {
                 verticalAlign="top"
                 height={24}
                 payload={[
-                  { value: 'At or above plan', type: 'circle', color: '#24B47E', id: 'ok' },
-                  { value: 'Below plan, growing market - execution', type: 'circle', color: '#F5A623', id: 'exec' },
-                  { value: 'Below plan, shrinking market - market', type: 'circle', color: '#F0616D', id: 'mkt' },
+                  { value: 'At or above plan', type: 'circle', color: '#36832f', id: 'ok' },
+                  { value: 'Below plan, growing market - execution', type: 'circle', color: '#b8860b', id: 'exec' },
+                  { value: 'Below plan, shrinking market - market', type: 'circle', color: '#ba1a1a', id: 'mkt' },
                 ]}
                 wrapperStyle={{ fontSize: 11 }}
               />

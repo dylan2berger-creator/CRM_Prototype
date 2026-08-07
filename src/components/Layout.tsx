@@ -1,7 +1,7 @@
 // App shell: a left navigation pane (brand + primary nav) and a top bar in the
 // content area carrying the data-freshness indicator and the user/role menu.
-// Styled to mirror ClickUp: white sidebar, gradient brand mark, rounded active
-// nav items with the purple accent, line icons.
+// Styled to mirror the hub design system: a dark navy sidebar, light content
+// with white cards, a single blue accent, and line icons.
 
 import { ComponentType, ReactNode } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
@@ -52,14 +52,14 @@ export function Layout({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-h-screen bg-panel">
       {/* Left nav pane */}
-      <aside className="sticky top-0 flex h-screen w-56 shrink-0 flex-col border-r border-line bg-surface">
+      <aside className="sticky top-0 flex h-screen w-56 shrink-0 flex-col border-r border-navy-line bg-navy">
         <button onClick={() => navigate(config.landing)} className="flex items-center gap-2.5 px-4 py-4 text-left">
-          <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-brand-purple via-brand-pink to-brand-blue text-base font-bold text-white shadow-card">
+          <span className="grid h-9 w-9 place-items-center rounded-xl bg-accent-ring text-base font-bold text-navy shadow-card">
             R
           </span>
           <span className="leading-tight">
-            <span className="block text-[15px] font-semibold text-ink">Rebound</span>
-            <span className="block text-2xs text-muted">Shop performance recovery</span>
+            <span className="block font-head text-[15px] font-semibold tracking-wide text-white">Rebound</span>
+            <span className="block text-2xs text-nav">Shop performance recovery</span>
           </span>
         </button>
 
@@ -72,11 +72,11 @@ export function Layout({ children }: { children: ReactNode }) {
                 key={n.to}
                 to={n.to}
                 className={`group flex items-center justify-between rounded-lg px-2.5 py-2 text-sm font-medium transition-colors ${
-                  active ? 'bg-accent-soft text-accent' : 'text-muted hover:bg-panel hover:text-ink'
+                  active ? 'bg-white/12 text-white' : 'text-nav hover:bg-white/5 hover:text-white'
                 }`}
               >
                 <span className="flex items-center gap-2.5">
-                  <Icon className={`h-[18px] w-[18px] ${active ? 'text-accent' : 'text-muted group-hover:text-ink'}`} />
+                  <Icon className={`h-[18px] w-[18px] ${active ? 'text-white' : 'text-nav-dim group-hover:text-white'}`} />
                   {n.label}
                 </span>
                 {n.to === '/alerts' && unacked > 0 && (
@@ -87,7 +87,7 @@ export function Layout({ children }: { children: ReactNode }) {
           })}
         </nav>
 
-        <div className="border-t border-line px-4 py-3 text-2xs text-muted">
+        <div className="border-t border-navy-line px-4 py-3 text-2xs text-nav-dim">
           <div>Boyd Group · prototype</div>
           <div>All data mocked</div>
         </div>
