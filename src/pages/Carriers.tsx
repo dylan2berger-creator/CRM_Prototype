@@ -21,6 +21,7 @@ import { useData } from '@/data/DataContext';
 import { EmptyState, Field, OpenQuestion, Panel, Select, Stat } from '@/components/ui';
 import { SourceTag } from '@/components/Provenance';
 import { SalesAskBadge, TierBadge } from '@/components/status';
+import { CarrierMixChart } from '@/components/CarrierMixChart';
 import { Variance } from '@/components/Variance';
 import { clientById, regionName, storeById, TIER_ORDER } from '@/data/selectors';
 import { rollupsForMonth } from '@/data/rollups';
@@ -61,6 +62,56 @@ export function Carriers() {
   // back to the aggregate view rather than showing an empty scope.
   const effectiveStoreId =
     storeId !== 'all' && carrierStores.some((s) => s.id === storeId) ? storeId : 'all';
+
+  // --- Carrier mix + score movement (feeds CarrierMixChart) ------------------
+  // For the shops trading this carrier, split each shop's current-month repair
+  // orders across its DRP carriers and shade by the 3-month DRP score change.
+  const priorMonth = data.months[data.months.length - 4] ?? data.months[0];
+  const mixShops = useMemo(() => {
+    const roByStore = new Map<string, Map<string, number>>();
+    for (const m of data.metrics) {
+      if (m.month !== cur) continue;
+      let inner = roByStore.get(m.storeId);
+      if (!inner) roByStore.set(m.storeId, (inner = new Map()));
+      inner.set(m.clientId, (inner.get(m.clientId) ?? 0) + m.roCount);
+    }
+    const score = new Map<string, number>();
+    for (const s of data.scorecards) {
+      if (s.month === cur || s.month === priorMonth) score.set(`${s.storeId}|${s.clientId}|${s.month}`, s.score);
+    }
+    const drpIds = new Set(data.clients.filter((c) => c.isDrp).map((c) => c.id));
+    return carrierStores
+      .map((store) => {
+        const inner = roByStore.get(store.id) ?? new Map<string, number>();
+        let total = 0;
+        for (const v of inner.values()) total += v;
+        const cs = [...inner.entries()]
+          .filter(([cid]) => drpIds.has(cid))
+          .map(([cid, ro]) => {
+            const sc = score.get(`${store.id}|${cid}|${cur}`);
+            const sp = score.get(`${store.id}|${cid}|${priorMonth}`);
+            return {
+              name: clientById(data, cid)?.name ?? cid,
+              sharePct: total > 0 ? Math.round((ro / total) * 100) : 0,
+              scoreChange: sc != null && sp != null ? Math.round(sc - sp) : 0,
+            };
+          })
+          .filter((c) => c.sharePct > 0)
+          .sort((a, b) => b.sharePct - a.sharePct);
+        return { id: store.id, name: `${store.name} · ${store.id}`, carriers: cs, total };
+      })
+      .sort((a, b) => b.total - a.total)
+      .slice(0, 12);
+  }, [data, carrierStores, cur, priorMonth]);
+
+  const mixColumns = useMemo(() => {
+    const tot = new Map<string, number>();
+    for (const shop of mixShops) for (const c of shop.carriers) tot.set(c.name, (tot.get(c.name) ?? 0) + c.sharePct);
+    return [...tot.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 8)
+      .map(([n]) => n);
+  }, [mixShops]);
 
   // --- Assignment volume vs forecast, monthly, for the current scope ---------
   const volumeSeries = useMemo(() => {
@@ -339,6 +390,15 @@ export function Carriers() {
         ) : (
           <EmptyState title="No roll-up for this carrier this month" />
         )}
+      </Panel>
+
+      {/* Carrier mix + score movement ---------------------------------------- */}
+      <Panel
+        title="Carrier mix and score movement by shop"
+        subtitle={`Each shop's repair-order volume split by carrier, shaded by 3-month DRP score change. Shops trading ${carrier.name}, largest first.`}
+        right={<SourceTag dataset="BDAP - DRP Assignments" />}
+      >
+        <CarrierMixChart shops={mixShops} columns={mixColumns} />
       </Panel>
 
       {/* Scorecard trend ----------------------------------------------------- */}
