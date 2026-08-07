@@ -1,7 +1,7 @@
-// App shell: a left navigation pane (brand + primary nav) and a top bar in the
-// content area carrying the data-freshness indicator and the user/role menu.
-// Styled to mirror the hub design system: a dark navy sidebar, light content
-// with white cards, a single blue accent, and line icons.
+// App shell: a full-width prototype notice bar across the top (carrying the
+// demo-only controls - view mode, role switch, data freshness), then a dark
+// navy left navigation pane and the light content area with white cards.
+// Styled to mirror the hub design system: single blue accent, line icons.
 
 import { ComponentType, ReactNode } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
@@ -60,10 +60,42 @@ export function Layout({ children }: { children: ReactNode }) {
       : NAV;
 
   return (
-    <div className="flex min-h-screen bg-panel">
-      {/* Left nav pane */}
-      <aside className="sticky top-0 flex h-screen w-56 shrink-0 flex-col border-r border-navy-line bg-navy">
-        <button onClick={() => navigate(config.landing)} className="flex items-center gap-2.5 px-4 py-4 text-left">
+    <div className="flex min-h-screen flex-col bg-panel">
+      {/* Prototype notice bar - spans the full page. Carries the demo-only
+          controls (view mode, role, data freshness) and signals to viewers
+          that this bar is scaffolding, not part of the final product. */}
+      <div className="sticky top-0 z-40 flex h-14 shrink-0 items-center gap-x-4 border-b border-warn/40 bg-warn-soft px-4">
+        <div className="flex min-w-0 items-center gap-2">
+          <span className="chip shrink-0 bg-warn text-white">PROTOTYPE</span>
+          <span className="hidden truncate text-2xs text-warn-text lg:inline">
+            Demo build - the view-mode and role controls in this bar are for exploring the prototype and won't be part of the final product.
+          </span>
+        </div>
+        <div className="ml-auto flex shrink-0 items-center gap-2 sm:gap-3">
+          <span className="hidden text-2xs text-ink md:inline">
+            Viewing as <span className="font-semibold">{config.userName}</span> · {config.label}
+          </span>
+          <Segmented
+            size="sm"
+            value={mvp ? 'mvp' : 'full'}
+            onChange={(v) => {
+              setMode(v as 'full' | 'mvp');
+              navigate(v === 'mvp' ? '/mvp' : '/');
+            }}
+            options={[
+              { value: 'full', label: 'Full app' },
+              { value: 'mvp', label: 'MVP' },
+            ]}
+          />
+          <FreshnessIndicator />
+          <UserMenu />
+        </div>
+      </div>
+
+      <div className="flex flex-1">
+        {/* Left nav pane */}
+        <aside className="sticky top-14 flex h-[calc(100vh-3.5rem)] w-56 shrink-0 flex-col border-r border-navy-line bg-navy">
+          <button onClick={() => navigate(mvp ? '/mvp' : config.landing)} className="flex items-center gap-2.5 px-4 py-4 text-left">
           <span className="grid h-9 w-9 place-items-center rounded-xl bg-accent-ring text-base font-bold text-navy shadow-card">
             R
           </span>
@@ -101,32 +133,10 @@ export function Layout({ children }: { children: ReactNode }) {
           <div>Boyd Group · prototype</div>
           <div>All data mocked</div>
         </div>
-      </aside>
+        </aside>
 
-      {/* Content column */}
-      <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-line bg-surface px-5 py-2.5">
-          <div className="min-w-0 text-2xs text-muted">
-            Viewing as <span className="font-medium text-ink">{config.userName}</span> · {config.label}
-          </div>
-          <div className="flex items-center gap-2">
-            <Segmented
-              size="sm"
-              value={mvp ? 'mvp' : 'full'}
-              onChange={(v) => {
-                setMode(v as 'full' | 'mvp');
-                navigate(v === 'mvp' ? '/mvp' : '/');
-              }}
-              options={[
-                { value: 'full', label: 'Full app' },
-                { value: 'mvp', label: 'MVP' },
-              ]}
-            />
-            <FreshnessIndicator />
-            <UserMenu />
-          </div>
-        </header>
-        <main className="mx-auto w-full max-w-[1600px] flex-1 px-5 py-5">{children}</main>
+        {/* Content */}
+        <main className="mx-auto w-full min-w-0 max-w-[1600px] flex-1 px-5 py-5">{children}</main>
       </div>
     </div>
   );
