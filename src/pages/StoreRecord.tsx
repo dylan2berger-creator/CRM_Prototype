@@ -302,12 +302,12 @@ export function StoreRecord() {
 
       {/* Client & DRP breakdown - full app only */}
       {!mvp && (
-      <Panel title="Client and DRP breakdown" subtitle="A store can be compliant with one DRP and failing another." right={<SourceTag dataset="DOMO - DRP Scorecards" />}>
+      <Panel title="Insurance Partner and DRP breakdown" subtitle="A store can be compliant with one DRP and failing another." right={<SourceTag dataset="DOMO - DRP Scorecards" />}>
         <div className="overflow-x-auto">
           <table className="data-table">
             <thead>
               <tr>
-                <th>Client</th>
+                <th>Insurance Partner</th>
                 <th>CPM</th>
                 <th className="text-right">T12 revenue</th>
                 <th className="text-right">Share of store</th>

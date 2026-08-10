@@ -84,54 +84,62 @@ export function Portfolio() {
         <SourceTag dataset="DOMO Exec Dashboard - Revenue" />
       </header>
 
-      <div className="card flex flex-wrap items-end gap-3 p-3">
-        <label className="flex items-center gap-2 text-sm">
-          <input type="checkbox" checked={challengedOnly} onChange={(e) => setChallengedOnly(e.target.checked)} />
-          Challenged only
-        </label>
-        <Field label="Division">
-          <Select
-            value={division}
-            onChange={onDivisionChange}
-            aria-label="Division filter"
-            options={[{ value: 'all', label: 'All divisions' }, ...DIVISIONS.map((dv) => ({ value: dv, label: dv }))]}
-          />
-        </Field>
-        <Field label="Region">
-          <Select value={region} onChange={setRegion} aria-label="Region filter" options={regionOptions} />
-        </Field>
-        <Field label="Client">
-          <Select
-            value={client}
-            onChange={setClient}
-            aria-label="Client filter"
-            options={[{ value: 'all', label: 'All clients' }, ...data.clients.map((c) => ({ value: c.id, label: c.name + (c.isDrp ? ' (DRP)' : '') }))]}
-          />
-        </Field>
-        <Field label="DRP tier">
-          <Select
-            value={tier}
-            onChange={setTier}
-            aria-label="DRP tier filter"
-            options={[{ value: 'all', label: 'All tiers' }, ...TIER_ORDER.map((t) => ({ value: t, label: t }))]}
-          />
-        </Field>
-        <Field label="Plan status">
-          <Select
-            value={planFilter}
-            onChange={(v) => setPlanFilter(v as PlanFilter)}
-            aria-label="Plan status filter"
-            options={[
-              { value: 'all', label: 'Any' },
-              { value: 'no-plan', label: 'Challenged, no plan' },
-              { value: 'overdue', label: 'Plan with overdue steps' },
-              { value: 'has-plan', label: 'Has a plan' },
-            ]}
-          />
-        </Field>
-        <span className="ml-auto self-center text-2xs text-muted">
-          {filtered.length} of {rows.length} shown
-        </span>
+      <div className="card p-3">
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+          <label className="flex items-center gap-2 text-sm">
+            <input type="checkbox" checked={challengedOnly} onChange={(e) => setChallengedOnly(e.target.checked)} />
+            Challenged only
+          </label>
+          <span className="text-2xs text-muted">
+            {filtered.length} of {rows.length} shown
+          </span>
+        </div>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+          <Field label="Division">
+            <Select
+              value={division}
+              onChange={onDivisionChange}
+              aria-label="Division filter"
+              className="w-full"
+              options={[{ value: 'all', label: 'All divisions' }, ...DIVISIONS.map((dv) => ({ value: dv, label: dv }))]}
+            />
+          </Field>
+          <Field label="Region">
+            <Select value={region} onChange={setRegion} aria-label="Region filter" className="w-full" options={regionOptions} />
+          </Field>
+          <Field label="Insurance Partner">
+            <Select
+              value={client}
+              onChange={setClient}
+              aria-label="Insurance Partner filter"
+              className="w-full"
+              options={[{ value: 'all', label: 'All insurance partners' }, ...data.clients.map((c) => ({ value: c.id, label: c.name + (c.isDrp ? ' (DRP)' : '') }))]}
+            />
+          </Field>
+          <Field label="DRP tier">
+            <Select
+              value={tier}
+              onChange={setTier}
+              aria-label="DRP tier filter"
+              className="w-full"
+              options={[{ value: 'all', label: 'All tiers' }, ...TIER_ORDER.map((t) => ({ value: t, label: t }))]}
+            />
+          </Field>
+          <Field label="Plan status">
+            <Select
+              value={planFilter}
+              onChange={(v) => setPlanFilter(v as PlanFilter)}
+              aria-label="Plan status filter"
+              className="w-full"
+              options={[
+                { value: 'all', label: 'Any' },
+                { value: 'no-plan', label: 'Challenged, no plan' },
+                { value: 'overdue', label: 'Plan with overdue steps' },
+                { value: 'has-plan', label: 'Has a plan' },
+              ]}
+            />
+          </Field>
+        </div>
       </div>
 
       {filtered.length === 0 ? (
@@ -146,7 +154,7 @@ export function Portfolio() {
                 <th>Store</th>
                 <th>Region</th>
                 <th title="Shop Performance Manager who owns this shop">SPM</th>
-                <th>Client mix</th>
+                <th>Insurance Partner mix</th>
                 <th className="text-right">T3 revenue vs plan</th>
                 <th className="text-right">T3 volume vs forecast</th>
                 <th className="text-right">Challenged</th>
