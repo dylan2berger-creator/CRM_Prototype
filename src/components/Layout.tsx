@@ -66,9 +66,6 @@ export function Layout({ children }: { children: ReactNode }) {
       <div className="sticky top-0 z-40 flex h-14 shrink-0 items-center gap-x-4 border-b border-warn/40 bg-warn-soft px-4">
         <div className="flex min-w-0 items-center gap-2">
           <span className="chip shrink-0 bg-warn text-white">PROTOTYPE</span>
-          <span className="hidden truncate text-2xs text-warn-text lg:inline">
-            Demo build - the view-mode and role controls in this bar are for exploring the prototype and won't be part of the final product.
-          </span>
         </div>
         <div className="ml-auto flex shrink-0 items-center gap-2 sm:gap-3">
           <span className="hidden text-2xs text-ink md:inline">
