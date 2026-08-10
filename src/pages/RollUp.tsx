@@ -24,7 +24,7 @@ import { challengedStoreIds } from '@/data/rollups';
 import { storeMetricValue, storeMetricBaseline } from '@/data/metrics';
 import { challengedInfo, planForStore, regionName, trailingRevenuePctOfPlan } from '@/data/selectors';
 import { evaluateStore } from '@/logic/challengedRule';
-import { Panel, Stat, TbdTag, OpenQuestion, EmptyState } from '@/components/ui';
+import { Panel, Stat, TbdTag, EmptyState } from '@/components/ui';
 import { ChallengedBadge, PlanStatusBadge, Badge } from '@/components/status';
 import { PctOfPlan } from '@/components/Variance';
 import { SourceTag } from '@/components/Provenance';
@@ -192,8 +192,6 @@ export function RollUp() {
           </span>
         </div>
       </header>
-
-      <OpenQuestion>Application-metric targets are not set - shown as TBD.</OpenQuestion>
 
       {/* Application metrics strip */}
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">

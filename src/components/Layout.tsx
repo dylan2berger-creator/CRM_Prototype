@@ -7,7 +7,6 @@ import { ComponentType, ReactNode } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useRole } from '@/app/RoleContext';
 import { useData } from '@/data/DataContext';
-import { FreshnessIndicator } from '@/components/FreshnessIndicator';
 import { UserMenu } from '@/components/UserMenu';
 import { useMode } from '@/app/ModeContext';
 import { Segmented } from '@/components/ui';
@@ -87,7 +86,6 @@ export function Layout({ children }: { children: ReactNode }) {
               { value: 'mvp', label: 'MVP' },
             ]}
           />
-          <FreshnessIndicator />
           <UserMenu />
         </div>
       </div>
