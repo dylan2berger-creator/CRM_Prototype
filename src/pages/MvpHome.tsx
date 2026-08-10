@@ -118,7 +118,7 @@ export function MvpHome() {
             options={[
               { value: 'shop', label: 'Shop' },
               { value: 'region', label: 'Region' },
-              { value: 'carrier', label: 'Carrier' },
+              { value: 'carrier', label: 'Insurance Partner' },
             ]}
           />
         }
@@ -189,7 +189,7 @@ export function MvpHome() {
             <table className="data-table">
               <thead>
                 <tr>
-                  <th>Carrier</th>
+                  <th>Insurance Partner</th>
                   <th className="text-right">Challenged shops</th>
                   <th className="text-right">Revenue vs forecast</th>
                   <th className="text-right">Assignment vs forecast</th>
