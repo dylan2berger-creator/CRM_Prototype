@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Role } from '@/types';
 import { useRole } from '@/app/RoleContext';
+import { useMode } from '@/app/ModeContext';
 import { useData } from '@/data/DataContext';
 import { IconChevronDown, IconCheck } from '@/components/icons';
 
@@ -15,6 +16,7 @@ function initials(name: string): string {
 
 export function UserMenu() {
   const { role, config, setRole, roles } = useRole();
+  const { mvp } = useMode();
   const { landmarks } = useData();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
@@ -22,6 +24,12 @@ export function UserMenu() {
   const choose = (r: Role) => {
     setRole(r);
     setOpen(false);
+    // In the MVP cut every persona lands on the challenged-shops home (the VP
+    // then defaults to the by-division view); full mode keeps per-role landings.
+    if (mvp) {
+      navigate('/mvp');
+      return;
+    }
     navigate(r === 'spm' || r === 'cpm' ? '/' : r === 'gm' ? `/store/${landmarks.gmStoreId}` : '/roll-up');
   };
 

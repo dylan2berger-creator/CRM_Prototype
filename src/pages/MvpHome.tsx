@@ -6,7 +6,7 @@
 //  - show the owner of each shop and plan for accountability (story 7),
 //    linking into the store record for root cause, plan and history.
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useData } from '@/data/DataContext';
 import { useRole } from '@/app/RoleContext';
@@ -26,15 +26,22 @@ import { Variance, PctOfPlan } from '@/components/Variance';
 import { SourceTag } from '@/components/Provenance';
 import { dateLabel, int, monthLabel } from '@/utils/format';
 
-type Level = 'shop' | 'region' | 'carrier';
+type Level = 'shop' | 'division' | 'region' | 'carrier';
 
 export function MvpHome() {
   const { data } = useData();
   const { config, role } = useRole();
   const cur = data.currentMonth;
 
-  const [level, setLevel] = useState<Level>('shop');
+  // The VP persona (exec) lands on the by-division rollup; everyone else starts
+  // on the shop watchlist.
+  const [level, setLevel] = useState<Level>(role === 'exec' ? 'division' : 'shop');
   const [showAll, setShowAll] = useState(false);
+
+  // Re-land on the persona's default level when the role changes.
+  useEffect(() => {
+    setLevel(role === 'exec' ? 'division' : 'shop');
+  }, [role]);
 
   const stores = storesForScope(data, config.scope);
   const rows = useMemo(() => stores.map((s) => portfolioRow(data, s)), [stores, data]);
@@ -62,6 +69,19 @@ export function MvpHome() {
       .map((r) => ({
         id: r.keys.regionId ?? '',
         name: regionName(data, r.keys.regionId ?? ''),
+        revVar: r.revenueForecast > 0 ? (r.revenueActual / r.revenueForecast - 1) * 100 : null,
+        asnVar: r.assignmentForecast > 0 ? (r.assignmentActual / r.assignmentForecast - 1) * 100 : null,
+        score: r.drpScoreAvg,
+        challenged: r.challengedStoreCount,
+      }))
+      .sort((a, b) => b.challenged - a.challenged || (a.revVar ?? 0) - (b.revVar ?? 0));
+  }, [data, cur]);
+
+  const divisionRows = useMemo(() => {
+    return rollupsForMonth(data, 'division', cur)
+      .map((r) => ({
+        id: r.keys.division ?? '',
+        name: r.keys.division ?? '',
         revVar: r.revenueForecast > 0 ? (r.revenueActual / r.revenueForecast - 1) * 100 : null,
         asnVar: r.assignmentForecast > 0 ? (r.assignmentActual / r.assignmentForecast - 1) * 100 : null,
         score: r.drpScoreAvg,
@@ -110,13 +130,14 @@ export function MvpHome() {
       {/* Prioritized watchlist across levels */}
       <Panel
         title="Prioritized watchlist"
-        subtitle="Track the same picture at shop, region, and carrier level."
+        subtitle="Track the same picture at shop, division, region, and insurance-partner level."
         right={
           <Segmented
             value={level}
             onChange={setLevel}
             options={[
               { value: 'shop', label: 'Shop' },
+              { value: 'division', label: 'Division' },
               { value: 'region', label: 'Region' },
               { value: 'carrier', label: 'Insurance Partner' },
             ]}
@@ -155,6 +176,33 @@ export function MvpHome() {
               </div>
             )}
           </>
+        )}
+
+        {level === 'division' && (
+          <div className="overflow-x-auto">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Division</th>
+                  <th className="text-right">Challenged shops</th>
+                  <th className="text-right">Revenue vs forecast</th>
+                  <th className="text-right">DRP volume vs forecast</th>
+                  <th className="text-right">Avg DRP score</th>
+                </tr>
+              </thead>
+              <tbody>
+                {divisionRows.map((r) => (
+                  <tr key={r.id}>
+                    <td className="font-medium text-ink">{r.name}</td>
+                    <td className="num">{r.challenged}</td>
+                    <td className="num"><Variance pct={r.revVar} /></td>
+                    <td className="num"><Variance pct={r.asnVar} /></td>
+                    <td className="num text-muted">{r.score != null ? r.score.toFixed(1) : '-'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
 
         {level === 'region' && (
